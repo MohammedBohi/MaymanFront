@@ -23,7 +23,7 @@
         }
   
         try {
-          const response = await fetch(`http://localhost:3000/api/paiement/statut/${sessionId}`, {
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`, {
             method: "GET",
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`,

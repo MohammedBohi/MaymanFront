@@ -127,7 +127,8 @@ const calendarAttributes = ref([
       const formattedDate = localDate.toISOString().split('T')[0];
 
       try {
-        const response = await axios.get(`http://localhost:3000/api/reservations/creneaux/${formattedDate}`);
+        const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || "http://localhost:3000/api";
+const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${formattedDate}`);
         let slots = response.data;
         const now = new Date();
 

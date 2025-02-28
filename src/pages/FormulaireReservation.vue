@@ -57,7 +57,6 @@ export default {
     const prestation = ref(null);
     const selectedDay = ref(null);
     const selectedSlot = ref(null);
-    const stripePromise = loadStripe("pk_live_510g7lS094o9St6UJS76sWggDkjNVbE7KwXzlZmEKZzByHJVls14nTEBglvvotqd2drC2NMqoLSLgNM51mopocXLg00bX3rtCCu"); // Remplace par ta clé publique Stripe
 
 
     onMounted(async () => {
@@ -179,7 +178,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
         };
 
         try {
-          const response = await fetch("http://localhost:3000/api/reservations", {
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/reservations`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -226,7 +225,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
 
   try {
 
-    const response = await fetch("http://localhost:3000/api/paiement/initier", {
+    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/initier`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -283,7 +282,7 @@ onMounted(async () => {
 
 
   try {
-    const response = await fetch(`http://localhost:3000/api/paiement/statut/${sessionId}`, {
+    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("token")}`,

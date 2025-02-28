@@ -55,7 +55,7 @@ export default {
     return {
       reservations: [], // Liste des réservations
       selectedDate: null, // Date sélectionnée
-      apiBaseUrl: "http://localhost:3000/api/admin", // URL de l'API
+      apiBaseUrl: process.env.VUE_APP_API_BASE_URL + "/admin",
       token: localStorage.getItem("token"), // Token JWT pour l'authentification
     };
   },
