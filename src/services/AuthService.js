@@ -3,7 +3,7 @@ import api from "./api";
 // ✅ Connexion utilisateur
 export const login = async (email, password) => {
   try {
-    const response = await api.post("/api/utilisateurs/login", { email, motDePasse: password });
+    const response = await api.post("/utilisateurs/login", { email, motDePasse: password });
 
 
     if (response.data.token) {
@@ -23,7 +23,7 @@ export const login = async (email, password) => {
 // ✅ Inscription utilisateur
 export const register = async (userData) => {
   try {
-    const response = await api.post("/api/utilisateurs/inscription", userData);
+    const response = await api.post("/utilisateurs/inscription", userData);
     return response.data;
   } catch (error) {
     console.error("❌ Erreur d'inscription :", error.response?.data || error.message);
@@ -41,7 +41,7 @@ export const checkAuth = async () => {
 
   try {
 
-    const response = await api.get("/api/utilisateurs/profil", {
+    const response = await api.get("/utilisateurs/profil", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -56,7 +56,7 @@ export const checkAuth = async () => {
 // ✅ Demande de réinitialisation du mot de passe (envoie un email)
 export const requestPasswordReset = async (email) => {
   try {
-    const response = await api.post("/api/utilisateurs/reinitialiser-mot-de-passe", { email });
+    const response = await api.post("/utilisateurs/reinitialiser-mot-de-passe", { email });
     return response.data;
   } catch (error) {
     console.error("❌ Erreur lors de l'envoi de l'email de réinitialisation :", error.response?.data || error.message);
@@ -67,7 +67,7 @@ export const requestPasswordReset = async (email) => {
 // ✅ Réinitialisation du mot de passe (via le lien reçu par email)
 export const resetPassword = async (token, nouveauMotDePasse) => {
   try {
-    const response = await api.put("/api/utilisateurs/reinitialiser-mot-de-passe", { token, nouveauMotDePasse });
+    const response = await api.put("/utilisateurs/reinitialiser-mot-de-passe", { token, nouveauMotDePasse });
     return response.data;
   } catch (error) {
     console.error("❌ Erreur lors de la réinitialisation du mot de passe :", error.response?.data || error.message);
