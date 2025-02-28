@@ -180,12 +180,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   }
 
   // ✅ Si la date est valide, on récupère les créneaux et départements
-  selectedDate.value = event.date;
+  selectedDate.value = selectedDay;
+  console.log("🛠 Date sélectionnée (locale):", selectedDate.value);
+
   departments.value = getDepartmentsForDay(event.date);
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
 
 
-  await getAvailableSlots(event.date);
+  await getAvailableSlots(selectedDate.value);
 };
 
     const selectSlot = (slot) => {
@@ -197,7 +199,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
       if (!user) {
         localStorage.setItem("pendingReservation", JSON.stringify({
           prestationId: prestation.value?.id || "unknown",
-          day: selectedDate.value?.toISOString().split('T')[0] || "unknown",
+          day: selectedDate.value?.toLocaleDateString('fr-FR') || "unknown", // 🎯 Utilisation du format local
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         }));
@@ -212,7 +214,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
           prestationName: prestation.value?.nom || "Prestation inconnue",  // 🔥 Ajoute ceci
           prestationPrice: prestation.value?.prix || 0,  // 🔥 Ajoute ceci
 
-          day: selectedDate.value ? selectedDate.value.toLocaleDateString('fr-FR') : "unknown", // 🎯 Utilisation du format local
+          day: selectedDate.value?.toLocaleDateString('fr-FR') || "unknown", // 🎯 Utilisation du format local
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         },

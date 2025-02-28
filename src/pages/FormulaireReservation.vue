@@ -81,7 +81,9 @@ export default {
             name: parsedData.prestationName || "Prestation inconnue",
             price: parsedData.prestationPrice || 0,
           };
-          selectedDay.value = parsedData.day;
+          selectedDay.value = new Date(query.day);
+          console.log("🛠 Date reçue et convertie:", selectedDay.value);
+
           selectedSlot.value = parsedData.slot;
           departments.value = Array.isArray(parsedData.departments) ? parsedData.departments : [];
           console.log("🛠 Prestation dans reservation form:", prestation.value); // 🔥 Log pour vérifier la prestation
