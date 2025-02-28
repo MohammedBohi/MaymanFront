@@ -83,6 +83,13 @@ export default {
           };
           selectedDay.value = new Date(query.day);
           console.log("🛠 Date reçue et convertie:", selectedDay.value);
+          if (isNaN(selectedDay.value)) {
+        // Si la date est invalide, transforme la date reçue au format `DD/MM/YYYY` en `YYYY-MM-DD`
+        const dateParts = query.day.split('/');
+        selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);  // Format ISO
+      }
+      console.log("🛠 Date reçue et convertie:", selectedDay.value);
+
 
           selectedSlot.value = parsedData.slot;
           departments.value = Array.isArray(parsedData.departments) ? parsedData.departments : [];
@@ -102,7 +109,14 @@ export default {
           price: query.prestationPrice || 0,
         };
     selectedDay.value = new Date(query.day); // Utiliser la date reçue en format local
-    console.log("🛠 Date reçue et convertie:", selectedDay.value); // 🔥 Log pour vérifier la date   
+
+    console.log("🛠 Date reçue et convertie:", selectedDay.value); // 🔥 Log pour vérifier la date 
+    if (isNaN(selectedDay.value)) {
+      // Si la date est invalide, transforme la date reçue au format `DD/MM/YYYY` en `YYYY-MM-DD`
+      const dateParts = query.day.split('/');
+      selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);  // Format ISO
+    }
+    console.log("🛠 Date reçue et convertie:", selectedDay.value);  
     selectedSlot.value = query.slot;
 
         if (query.departments) {
