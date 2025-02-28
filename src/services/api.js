@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || "http://localhost:3000/api", // Vérifier que le backend tourne sur ce port
+  baseURL: process.env.VUE_APP_API_BASE_URL ,
   withCredentials: true, // Permet d'envoyer les cookies d'authentification si nécessaire
 });
 
