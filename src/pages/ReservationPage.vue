@@ -83,6 +83,8 @@ const calendarAttributes = ref([
       const prestationId = parseInt(router.currentRoute.value.params.id, 10);
       prestation.value = prestations.find((p) => p.id === prestationId);
       if (!prestation.value) console.error("Prestation introuvable avec l'ID :", prestationId);
+      console.log("📦 Prestation récupérée:", prestation.value); // 🔥 Log pour vérifier la prestation
+
     });
 
     // Fonction pour récupérer les départements en fonction du jour sélectionné

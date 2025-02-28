@@ -68,6 +68,8 @@ export default {
       }
 
       const query = router.currentRoute.value.query;
+      console.log("🎯 Query params reçus:", query); // 🔥 Log pour vérifier les données passées via URL
+
 
       if (Object.keys(query).length === 0) {
         const pendingReservation = localStorage.getItem("pendingReservation");
@@ -82,6 +84,8 @@ export default {
           selectedDay.value = parsedData.day;
           selectedSlot.value = parsedData.slot;
           departments.value = Array.isArray(parsedData.departments) ? parsedData.departments : [];
+          console.log("🛠 Prestation dans reservation form:", prestation.value); // 🔥 Log pour vérifier la prestation
+
 
           localStorage.removeItem("pendingReservation");
         } else {
@@ -176,6 +180,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
           departement: selectedDepartment.value?.nom || "Inconnu",
           typePaiement: "Sur place",
         };
+        console.log("📦 Données envoyées au backend:", reservationData); // 🔥 Log pour vérifier les données envoyées
 
         try {
           const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/reservations`, {
@@ -188,6 +193,8 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
           });
 
           const result = await response.json();
+          console.log("✅ Réponse du backend:", result); // 🔥 Log pour vérifier la réponse du backend
+
 
           if (!response.ok) {
             throw new Error(result.error || "Une erreur est survenue.");
