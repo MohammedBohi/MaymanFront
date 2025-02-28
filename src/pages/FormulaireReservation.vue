@@ -198,6 +198,11 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
           typePaiement: "Sur place",
         };
         console.log("📦 Données envoyées au backend:", reservationData); // 🔥 Log pour vérifier les données envoyées
+        console.log("Tarif avant envoi :", prestation.value.price);
+        if (isNaN(prestation.value.price) || prestation.value.price <= 0) {
+  alert("Le tarif est invalide.");
+  return;
+}
 
         try {
           const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/reservations`, {
