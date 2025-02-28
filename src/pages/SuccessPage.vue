@@ -15,7 +15,8 @@
 
       console.log("📡 Vérification du paiement avec session_id :", sessionId);
 console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`);
-
+console.log("Query params reçus:", route.query);
+      
       const verifyPayment = async () => {
         let sessionId = route.query.session_id;
   
