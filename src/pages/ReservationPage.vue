@@ -212,7 +212,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
           prestationName: prestation.value?.nom || "Prestation inconnue",  // 🔥 Ajoute ceci
           prestationPrice: prestation.value?.prix || 0,  // 🔥 Ajoute ceci
 
-          day: selectedDate.value ? new Date(selectedDate.value.getTime() - selectedDate.value.getTimezoneOffset() * 60000).toISOString().split('T')[0] : "unknown",
+          day: selectedDate.value ? selectedDate.value.toLocaleDateString('fr-FR') : "unknown", // 🎯 Utilisation du format local
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         },

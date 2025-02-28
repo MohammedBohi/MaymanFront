@@ -99,8 +99,9 @@ export default {
           name: query.prestationName || "Prestation inconnue",
           price: query.prestationPrice || 0,
         };
-        selectedDay.value = query.day;
-        selectedSlot.value = query.slot;
+    selectedDay.value = new Date(query.day); // Utiliser la date reçue en format local
+    console.log("🛠 Date reçue et convertie:", selectedDay.value); // 🔥 Log pour vérifier la date   
+    selectedSlot.value = query.slot;
 
         if (query.departments) {
 
