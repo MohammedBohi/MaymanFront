@@ -80,15 +80,21 @@ const calendarAttributes = ref([
 
 onMounted(() => {
     const route = router.currentRoute.value;
-    const prestationId = parseInt(route.query.id, 10); // ✅ Utiliser `query` au lieu de `params`
-    console.log("📌 Query Params reçus :", router.currentRoute.value.query);
+    console.log("📥 Params reçus :", route.params); // Debugging
 
+    if (!route.params.id) {
+        console.error("❌ Erreur: ID de prestation manquant !");
+        return;
+    }
+    console.log("📌 Query Params reçus :", router.currentRoute.value.query);
     prestation.value = {
-        id: prestationId,
-        nom: route.query.prestationName || "Nom non disponible",
-        prix: route.query.prestationPrice || 0,
-        image: route.query.prestationImage || null
+        id: parseInt(route.params.id, 10), // ✅ Convertir en nombre
+        nom: route.params.prestationName || "Nom non disponible",
+        prix: parseFloat(route.params.prestationPrice) || 0,
+        image: route.params.prestationImage || null
     };
+
+    console.log("📦 Prestation récupérée :", prestation.value);
     console.log("📌 Query Params reçus :", router.currentRoute.value.query);
 
     console.log("📦 Prestation récupérée :", prestation.value);

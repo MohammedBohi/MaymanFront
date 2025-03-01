@@ -56,17 +56,18 @@ export default {
 });
 
 
-  this.$router.push({
-    name: "Reservation",
-    query: {
-      id: String(prestation.id),  // 🔥 Convertir en string pour éviter les erreurs
-      prestationName: prestation.nom,
-      prestationPrice: prestation.prix,
-      prestationImage: prestation.image
-    }
-  });
+this.$router.push({
+  name: "Reservation",
+  params: {
+    id: prestation.id,  // En tant que nombre (pas de conversion en string)
+    prestationName: prestation.nom,
+    prestationPrice: prestation.prix,
+    prestationImage: prestation.image
+  }
+});
+
   console.log("🔄 Redirection vers Reservation avec :", {
-    id: String(prestation.id),
+    id: prestation.id,  // En tant que nombre (pas de conversion en string)
     prestationName: prestation.nom,
     prestationPrice: prestation.prix,
     prestationImage: prestation.image
