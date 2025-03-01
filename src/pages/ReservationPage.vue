@@ -199,7 +199,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
       if (!user) {
         localStorage.setItem("pendingReservation", JSON.stringify({
           prestationId: prestation.value?.id || "unknown",
-          day: selectedDate.value?.toLocaleDateString('fr-FR') || "unknown", // 🎯 Utilisation du format local
+          day: selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : "unknown", 
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         }));
