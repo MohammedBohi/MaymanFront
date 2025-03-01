@@ -70,6 +70,11 @@ export default {
       const query = router.currentRoute.value.query;
       console.log("🎯 Query params reçus:", query); // 🔥 Log pour vérifier les données passées via URL
 
+      if (query.day) {
+        selectedDay.value = parseDateForBackend(query.day);
+        console.log("✅ Date corrigée et normalisée :", selectedDay.value);
+    }
+
 
       if (Object.keys(query).length === 0) {
         const pendingReservation = localStorage.getItem("pendingReservation");
