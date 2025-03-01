@@ -78,14 +78,22 @@ const calendarAttributes = ref([
 
 
 
+onMounted(() => {
+    const route = router.currentRoute.value;
+    const prestationId = parseInt(route.query.id, 10); // ✅ Utiliser `query` au lieu de `params`
 
-    onMounted(() => {
-      const prestationId = parseInt(router.currentRoute.value.params.id, 10);
-      prestation.value = prestations.find((p) => p.id === prestationId);
-      if (!prestation.value) console.error("Prestation introuvable avec l'ID :", prestationId);
-      console.log("📦 Prestation récupérée:", prestation.value); // 🔥 Log pour vérifier la prestation
+    prestation.value = {
+        id: prestationId,
+        nom: route.query.prestationName || "Nom non disponible",
+        prix: route.query.prestationPrice || 0,
+        image: route.query.prestationImage || null
+    };
+    console.log("📦 Prestation récupérée :", prestation.value);
 
-    });
+    if (!prestation.value.id) console.error("❌ Erreur: Prestation ID non trouvé !");
+    console.log("📦 Prestation récupérée :", prestation.value);
+});
+
 
     // Fonction pour récupérer les départements en fonction du jour sélectionné
     const getDepartmentsForDay = (date) => {
@@ -123,8 +131,7 @@ const calendarAttributes = ref([
     };
 
     // Fonction pour récupérer les créneaux disponibles
-    const getAvailableSlots = async (date) => {
-      if (!date) return;
+    const getAvailableSlots = async () => {
       if (!selectedDate.value) {
   console.error("❌ Erreur: selectedDate est NULL !");
   return;
@@ -186,11 +193,11 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   selectedDate.value = selectedDay;
   console.log("🛠 Date sélectionnée (locale):", selectedDate.value);
 
-  departments.value = getDepartmentsForDay(event.date);
+  departments.value = getDepartmentsForDay(selectedDay);
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
 
 
-  await getAvailableSlots(selectedDate.value);
+  await getAvailableSlots(); // ✅ Supprimé `selectedDate.value` inutile
 };
 
     const selectSlot = (slot) => {
@@ -210,6 +217,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
         router.push({ path: "/login-register" });
         return;
       }
+      console.log("✅ Redirection vers le formulaire avec :", {
+        prestationId: prestation.value?.id,
+        prestationName: prestation.value?.nom,
+        prestationPrice: prestation.value?.prix,
+        day: selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : "unknown",
+        slot: selectedSlot.value || "unknown",
+        departments: departments.value
+    });
 
       router.push({
         name: "FormulaireReservation",

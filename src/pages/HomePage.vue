@@ -48,7 +48,7 @@ export default {
 
   this.$router.push({
     name: "Reservation",
-    params: {
+    query: {
       id: prestation.id,
       prestationName: prestation.nom,
       prestationPrice: prestation.prix,
