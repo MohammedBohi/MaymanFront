@@ -125,8 +125,7 @@ const calendarAttributes = ref([
     // Fonction pour récupérer les créneaux disponibles
     const getAvailableSlots = async (date) => {
       if (!date) return;
-      const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-      const formattedDate = localDate.toISOString().split('T')[0];
+      const formattedDate = selectedDate.value.toISOString().split('T')[0]; 
 
       try {
         const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || "http://localhost:3000/api";
@@ -193,13 +192,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     const selectSlot = (slot) => {
       selectedSlot.value = slot;
     };
+    const localDate = new Date(selectedDate.value.getTime() - selectedDate.value.getTimezoneOffset() * 60000);
 
     const redirectToAuth = async () => {
       const user = await checkAuth();
       if (!user) {
         localStorage.setItem("pendingReservation", JSON.stringify({
           prestationId: prestation.value?.id || "unknown",
-          day: selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : "unknown", 
+          day: selectedDate.value.toISOString().split('T')[0],
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         }));
@@ -214,7 +214,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
           prestationName: prestation.value?.nom || "Prestation inconnue",  // 🔥 Ajoute ceci
           prestationPrice: prestation.value?.prix || 0,  // 🔥 Ajoute ceci
 
-          day: selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : "unknown", 
+          day: localDate.toISOString().split('T')[0],
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         },

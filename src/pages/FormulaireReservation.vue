@@ -74,9 +74,13 @@ export default {
       console.log("🎯 Query params reçus:", query); // 🔥 Log pour vérifier les données passées via URL
 
       if (query.day) {
-        selectedDay.value = query.day;  // ✅ La date est déjà correcte
-        console.log("✅ Date corrigée et normalisée :", selectedDay.value);
-    }
+  selectedDay.value = new Date(query.day); 
+  if (isNaN(selectedDay.value)) {
+    const dateParts = query.day.split('/');
+    selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+  }
+  console.log("✅ Date après correction :", selectedDay.value);
+}
 
 
       if (Object.keys(query).length === 0) {
@@ -222,7 +226,7 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
           adresseReservation: address.value,
           prestation: prestation.value.name,
           tarif: prestation.value.price,
-          jour: selectedDay.value,  // ✅ Garde la date telle quelle
+          jour: selectedDay.value.toISOString().split('T')[0],
           creneau: selectedSlot.value,
           departement: selectedDepartment.value?.nom || "Inconnu",
           typePaiement: "Sur place",
@@ -280,7 +284,7 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
     adresseReservation: address.value,
     prestation: prestation.value.name,
     tarif: prestation.value.price,
-    jour: selectedDay.value,  // ✅ Garde la date telle quelle
+    jour: selectedDay.value.toISOString().split('T')[0],
     creneau: selectedSlot.value,
     departement: selectedDepartment.value?.nom || "Inconnu",
   };
