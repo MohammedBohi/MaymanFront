@@ -7,6 +7,8 @@
   
   <script>
   import { useRouter, useRoute } from "vue-router";
+  import { ref, onMounted } from "vue"; // ✅ Ajout de `ref` et `onMounted`
+
   
   export default {
     setup() {
