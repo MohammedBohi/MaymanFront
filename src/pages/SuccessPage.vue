@@ -12,20 +12,22 @@
     setup() {
       const router = useRouter();
       const route = useRoute();
+      const sessionId = ref(route.query.session_id); // 🔥 Définit bien `sessionId`
 
-      console.log("📡 Vérification du paiement avec session_id :", sessionId);
-console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`);
-console.log("Query params reçus:", route.query);
-      
+
+console.log("📡 Vérification du paiement avec session_id :", sessionId);
+    console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`);
+    console.log("Query params reçus:", route.query);
       const verifyPayment = async () => {
         let sessionId = route.query.session_id;
   
-        if (!sessionId) {
+        if (!sessionId.value) {
           console.error("❌ sessionId manquant !");
           router.push("/"); // 🔥 Redirige si pas de session_id
           return;
         }
   
+
         try {
           const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`, {
             method: "GET",
@@ -58,9 +60,14 @@ console.log("Query params reçus:", route.query);
           router.push("/");
         }
       };
-  
+      onMounted(() => {
       verifyPayment();
-    },
-  };
+    });
+
+    return {
+      sessionId
+    };
+  },
+};
   </script>
   
