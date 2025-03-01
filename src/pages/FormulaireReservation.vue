@@ -48,6 +48,9 @@ import { nextTick } from "vue";
 export default {
   setup() {
     const router = useRouter();
+    const route = useRoute(); // ✅ Récupérer les paramètres de l'URL
+    const query = route.query; // ✅ Accéder aux paramètres
+
     const name = ref("");
     const surname = ref("");
     const phone = ref("");
