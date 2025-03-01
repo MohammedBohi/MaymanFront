@@ -18,7 +18,7 @@
 
 
 console.log("📡 Vérification du paiement avec session_id :", sessionId);
-    console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`);
+    console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId.value}`);
     console.log("Query params reçus:", route.query);
       const verifyPayment = async () => {
         let sessionId = route.query.session_id;
@@ -31,7 +31,7 @@ console.log("📡 Vérification du paiement avec session_id :", sessionId);
   
 
         try {
-          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`, {
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId.value}`, {
             method: "GET",
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`,
