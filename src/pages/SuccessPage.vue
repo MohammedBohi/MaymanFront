@@ -17,24 +17,28 @@
       const sessionId = ref(route.query.session_id); // 🔥 Définit bien `sessionId`
 
 
-console.log("📡 Vérification du paiement avec session_id :", sessionId);
+console.log("📡 Vérification du paiement avec session_id :", sessionId.value);
     console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId.value}`);
     console.log("Query params reçus:", route.query);
-      const verifyPayment = async () => {
-        let sessionId = route.query.session_id;
-  
+      const verifyPayment = async () => {  
         if (!sessionId.value) {
           console.error("❌ sessionId manquant !");
           router.push("/"); // 🔥 Redirige si pas de session_id
           return;
         }
   
+        const token = localStorage.getItem("token");
+        if (!token) {
+        console.error("❌ Aucun token trouvé, redirection vers connexion !");
+        router.push("/login-register"); 
+        return;
+      }
 
         try {
           const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId.value}`, {
             method: "GET",
             headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Authorization": `Bearer ${token}`, // ✅ Corrigé
             },
           });
   
