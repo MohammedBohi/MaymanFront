@@ -214,7 +214,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
           prestationName: prestation.value?.nom || "Prestation inconnue",  // 🔥 Ajoute ceci
           prestationPrice: prestation.value?.prix || 0,  // 🔥 Ajoute ceci
 
-          day: selectedDate.value?.toLocaleDateString('fr-FR') || "unknown", // 🎯 Utilisation du format local
+          day: selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : "unknown", 
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         },

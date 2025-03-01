@@ -74,7 +74,7 @@ export default {
       console.log("🎯 Query params reçus:", query); // 🔥 Log pour vérifier les données passées via URL
 
       if (query.day) {
-        selectedDay.value = parseDateForBackend(query.day);
+        selectedDay.value = query.day;  // ✅ La date est déjà correcte
         console.log("✅ Date corrigée et normalisée :", selectedDay.value);
     }
 
@@ -222,7 +222,7 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
           adresseReservation: address.value,
           prestation: prestation.value.name,
           tarif: prestation.value.price,
-          jour: parseDateForBackend(selectedDay.value),
+          jour: selectedDay.value,  // ✅ Garde la date telle quelle
           creneau: selectedSlot.value,
           departement: selectedDepartment.value?.nom || "Inconnu",
           typePaiement: "Sur place",
@@ -280,7 +280,7 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
     adresseReservation: address.value,
     prestation: prestation.value.name,
     tarif: prestation.value.price,
-    jour: parseDateForBackend(selectedDay.value),
+    jour: selectedDay.value,  // ✅ Garde la date telle quelle
     creneau: selectedSlot.value,
     departement: selectedDepartment.value?.nom || "Inconnu",
   };
