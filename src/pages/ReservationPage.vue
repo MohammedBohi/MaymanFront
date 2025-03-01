@@ -125,7 +125,11 @@ const calendarAttributes = ref([
     // Fonction pour récupérer les créneaux disponibles
     const getAvailableSlots = async (date) => {
       if (!date) return;
-      const formattedDate = selectedDate.value.toISOString().split('T')[0]; 
+      if (!selectedDate.value) {
+  console.error("❌ Erreur: selectedDate est NULL !");
+  return;
+}
+const formattedDate = selectedDate.value.toISOString().split('T')[0]; 
 
       try {
         const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || "http://localhost:3000/api";
