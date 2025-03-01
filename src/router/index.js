@@ -13,7 +13,7 @@ import { checkAuth, getRole } from "@/services/AuthService";
 const routes = [
   { path: "/", name: "Home", component: HomePage },
   { path: "/confirmation", name: "ConfirmationReservation", component: () => import("@/pages/ConfirmationReservation.vue") },
-  { path: "/reservation/:id", name: "Reservation", component: ReservationPage },
+  { path: "/reservation", name: "Reservation", component: ReservationPage },
   { path: "/login-register", name: "LoginRegister", component: LoginRegister },
   { path: "/forgot-password", component: ForgotPassword },
   { path: "/reset-password/:token", component: ResetPassword },

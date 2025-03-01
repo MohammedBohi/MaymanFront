@@ -48,6 +48,12 @@ export default {
     return;
   }
   console.log("✅ Prestation trouvée :", prestation); // Debugging
+  console.log("🔄 Redirection vers Reservation avec :", {
+    id: String(prestation.id),
+    prestationName: prestation.nom,
+    prestationPrice: prestation.prix,
+    prestationImage: prestation.image
+});
 
 
   this.$router.push({

@@ -81,6 +81,7 @@ const calendarAttributes = ref([
 onMounted(() => {
     const route = router.currentRoute.value;
     const prestationId = parseInt(route.query.id, 10); // ✅ Utiliser `query` au lieu de `params`
+    console.log("📌 Query Params reçus :", router.currentRoute.value.query);
 
     prestation.value = {
         id: prestationId,
@@ -88,6 +89,8 @@ onMounted(() => {
         prix: route.query.prestationPrice || 0,
         image: route.query.prestationImage || null
     };
+    console.log("📌 Query Params reçus :", router.currentRoute.value.query);
+
     console.log("📦 Prestation récupérée :", prestation.value);
 
     if (!prestation.value.id) console.error("❌ Erreur: Prestation ID non trouvé !");
