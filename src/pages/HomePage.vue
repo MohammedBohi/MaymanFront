@@ -39,21 +39,31 @@ export default {
   methods: {
     goToReservation(id) {
   const prestation = this.prestations.find(p => p.id === id);
-
+  if (!id) {
+    console.error("❌ Erreur : ID de prestation manquant !");
+    return;
+  }
   if (!prestation) {
     console.error("❌ Erreur : Prestation introuvable avec ID :", id);
     return;
   }
+  console.log("✅ Prestation trouvée :", prestation); // Debugging
 
 
   this.$router.push({
     name: "Reservation",
     query: {
-      id: prestation.id,
+      id: String(prestation.id),  // 🔥 Convertir en string pour éviter les erreurs
       prestationName: prestation.nom,
       prestationPrice: prestation.prix,
       prestationImage: prestation.image
     }
+  });
+  console.log("🔄 Redirection vers Reservation avec :", {
+    id: String(prestation.id),
+    prestationName: prestation.nom,
+    prestationPrice: prestation.prix,
+    prestationImage: prestation.image
   });
 }
 
