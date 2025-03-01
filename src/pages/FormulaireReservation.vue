@@ -81,6 +81,7 @@ export default {
             name: parsedData.prestationName || "Prestation inconnue",
             price: parsedData.prestationPrice || 0,
           };
+          
           selectedDay.value = new Date(query.day);
           console.log("🛠 Date reçue et convertie:", selectedDay.value);
           if (isNaN(selectedDay.value)) {
@@ -181,6 +182,12 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
       }
       return true;
     };
+    const formatForBackend = (date) => {
+    if (!date) return null;
+    const formatted = new Date(date).toISOString().split("T")[0]; // ✅ Convertir en YYYY-MM-DD
+    console.log("🛠 Date finale envoyée au backend :", formatted);
+    return formatted;
+};
 
     // 🔹 Gérer la réservation sur place
     const handleOnSitePayment = async () => {
@@ -192,7 +199,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
           adresseReservation: address.value,
           prestation: prestation.value.name,
           tarif: prestation.value.price,
-          jour: selectedDay.value,
+          jour: formatForBackend(selectedDay.value),
           creneau: selectedSlot.value,
           departement: selectedDepartment.value?.nom || "Inconnu",
           typePaiement: "Sur place",
@@ -247,7 +254,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
     adresseReservation: address.value,
     prestation: prestation.value.name,
     tarif: prestation.value.price,
-    jour: selectedDay.value,
+    jour: formatForBackend(selectedDay.value),
     creneau: selectedSlot.value,
     departement: selectedDepartment.value?.nom || "Inconnu",
   };
