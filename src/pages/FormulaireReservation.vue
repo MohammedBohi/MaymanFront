@@ -81,7 +81,7 @@ export default {
             name: parsedData.prestationName || "Prestation inconnue",
             price: parsedData.prestationPrice || 0,
           };
-          
+
           selectedDay.value = new Date(query.day);
           console.log("🛠 Date reçue et convertie:", selectedDay.value);
           if (isNaN(selectedDay.value)) {
@@ -182,12 +182,27 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
       }
       return true;
     };
-    const formatForBackend = (date) => {
-    if (!date) return null;
-    const formatted = new Date(date).toISOString().split("T")[0]; // ✅ Convertir en YYYY-MM-DD
-    console.log("🛠 Date finale envoyée au backend :", formatted);
-    return formatted;
+   const parseDateForBackend = (dateStr) => {
+    if (!dateStr) return null;
+
+    // 🔹 Vérifier si la date est en format DD/MM/YYYY et la transformer
+    if (dateStr.includes('/')) {
+        const dateParts = dateStr.split('/');
+        return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // YYYY-MM-DD
+    }
+
+    // 🔹 Vérifier si c'est déjà une date valide
+    const dateObj = new Date(dateStr);
+    if (isNaN(dateObj)) {
+        console.error("❌ Date invalide:", dateStr);
+        return null;
+    }
+
+    return dateObj.toISOString().split("T")[0]; // 🔥 YYYY-MM-DD garanti !
 };
+
+selectedDay.value = parseDateForBackend(query.day);
+console.log("✅ Date corrigée et normalisée :", selectedDay.value);
 
     // 🔹 Gérer la réservation sur place
     const handleOnSitePayment = async () => {
@@ -199,7 +214,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
           adresseReservation: address.value,
           prestation: prestation.value.name,
           tarif: prestation.value.price,
-          jour: formatForBackend(selectedDay.value),
+          jour: parseDateForBackend(selectedDay.value),
           creneau: selectedSlot.value,
           departement: selectedDepartment.value?.nom || "Inconnu",
           typePaiement: "Sur place",
@@ -247,6 +262,9 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
     const handleOnlinePayment = async () => {
   if (!validateForm()) return; // ✅ Vérifie que le formulaire est bien rempli
 
+  
+selectedDay.value = parseDateForBackend(query.day);
+console.log("✅ Date corrigée et normalisée :", selectedDay.value);
   const reservationData = {
     nom: name.value,
     prenom: surname.value,
@@ -254,7 +272,7 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
     adresseReservation: address.value,
     prestation: prestation.value.name,
     tarif: prestation.value.price,
-    jour: formatForBackend(selectedDay.value),
+    jour: parseDateForBackend(selectedDay.value),
     creneau: selectedSlot.value,
     departement: selectedDepartment.value?.nom || "Inconnu",
   };
