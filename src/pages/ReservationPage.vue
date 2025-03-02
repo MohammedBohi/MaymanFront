@@ -108,16 +108,18 @@ onMounted(() => {
 
       switch (dayOfWeek) {
     case 1: // Lundi
-        return [
+        departments =  [
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
             { nom: "Saint-Projet", codePostal: "82160" },
             { nom: "Puylagarde", codePostal: "82160" },
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" }
-        ];
+        ];        
+        break;
+
     case 2: // Mardi
-        return [
+    departments = [
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
@@ -126,18 +128,21 @@ onMounted(() => {
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Varaire", codePostal: "46260" }
         ];
+        break;
+
     case 3: // Mercredi
-        return [  
+    departments = [  
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Martiel", codePostal: "12200" },
-
             { nom: "Cajarc", codePostal: "46160" },
             { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" }
         ];
+        break;
+
     case 4: // Jeudi
-        return [
+    departments = [
         { nom: "Parisot", codePostal: "82160" },
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
@@ -145,8 +150,10 @@ onMounted(() => {
             { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" },
             { nom: "Varaire", codePostal: "46260" }
         ];
+        break;
+
     case 5: // Vendredi
-        return [
+    departments =[
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
@@ -156,8 +163,10 @@ onMounted(() => {
             { nom: "Martiel", codePostal: "12200" },
             { nom: "Varaire", codePostal: "46260" }
         ];
+        break;
+
     case 6: // Samedi
-        return [
+    departments = [
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
@@ -165,9 +174,12 @@ onMounted(() => {
             { nom: "Martiel", codePostal: "12200" },
             { nom: "Varaire", codePostal: "46260" }
         ];
+        break;
+
     default:
         return [];
 }
+return departments; // ✅ Retourne correctement la liste des départements
 
     };
 
