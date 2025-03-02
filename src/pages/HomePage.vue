@@ -7,7 +7,7 @@
       </p>
     </div>
     <div class="prestations-container">
-      <h2>Nos Prestations</h2>
+      <h2> Prestations</h2>
       <div class="prestations-grid">
         <div v-for="prestation in prestations" :key="prestation.id" class="prestation-card">
           <div class="image-wrapper">
