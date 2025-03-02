@@ -52,7 +52,7 @@ export default {
   setup() {
     const router = useRouter();
     const prestation = ref(null);
-    const selectedDate = ref(null);
+    const selectedDate = ref(new Date()); // On initialise avec la date actuelle
     const selectedSlot = ref(null);
     const availableSlots = ref([]);
     const departments = ref([]);
@@ -98,7 +98,6 @@ onMounted(() => {
         return;
     }
 
-    console.log("📦 Prestation récupérée :", prestation.value);
   
 
     });
