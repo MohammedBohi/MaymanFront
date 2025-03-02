@@ -273,6 +273,11 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
     // 🔹 Gestion du paiement en ligne
     const handleOnlinePayment = async () => {
   if (!validateForm()) return; // ✅ Vérifie que le formulaire est bien rempli
+  if (!(selectedDay.value instanceof Date)) {
+    console.warn("⚠ `selectedDay.value` n'est pas un objet Date ! Conversion en cours...");
+    selectedDay.value = new Date(selectedDay.value);
+  }
+  console.log("✅ Date après conversion :", selectedDay.value); // Debugging
 
   
 selectedDay.value = parseDateForBackend(query.day);
