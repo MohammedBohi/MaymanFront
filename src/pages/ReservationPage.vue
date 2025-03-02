@@ -96,12 +96,12 @@ onMounted(() => {
 
     console.log("📦 Prestation récupérée :", prestation.value);
     console.log("📌 Query Params reçus :", router.currentRoute.value.query);
-
+  
     console.log("📦 Prestation récupérée :", prestation.value);
 
-    if (!prestation.value.id) console.error("❌ Erreur: Prestation ID non trouvé !");
-    console.log("📦 Prestation récupérée :", prestation.value);
-});
+    if (!route.params.prestationName || !route.params.prestationPrice || !route.params.prestationImage) {
+      console.error("❌ Erreur: Informations de prestation incomplètes !");    console.log("📦 Prestation récupérée :", prestation.value);
+}});
 
 
     // Fonction pour récupérer les départements en fonction du jour sélectionné

@@ -59,12 +59,13 @@ export default {
 this.$router.push({
   name: "Reservation",
   params: {
-    id: prestation.id,  // En tant que nombre (pas de conversion en string)
+    id: prestation.id.toString(), // Converti en string pour éviter les erreurs de parsing
     prestationName: prestation.nom,
-    prestationPrice: prestation.prix,
+    prestationPrice: prestation.prix.toString(),
     prestationImage: prestation.image
   }
 });
+
 
   console.log("🔄 Redirection vers Reservation avec :", {
     id: prestation.id,  // En tant que nombre (pas de conversion en string)
