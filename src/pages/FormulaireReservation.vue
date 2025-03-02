@@ -215,7 +215,11 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
 
 selectedDay.value = parseDateForBackend(query.day);
 console.log("✅ Date corrigée et normalisée :", selectedDay.value);
-
+if (!(selectedDay.value instanceof Date) || isNaN(selectedDay.value.getTime())) {
+  console.error("❌ Erreur : `selectedDay.value` n'est pas une Date valide :", selectedDay.value);
+  alert("Erreur de date, veuillez réessayer.");
+  return;
+}
     // 🔹 Gérer la réservation sur place
     const handleOnSitePayment = async () => {
       if (validateForm()) {
@@ -272,6 +276,11 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
 
     // 🔹 Gestion du paiement en ligne
     const handleOnlinePayment = async () => {
+      if (!(selectedDay.value instanceof Date) || isNaN(selectedDay.value.getTime())) {
+  console.error("❌ Erreur : `selectedDay.value` n'est pas une Date valide :", selectedDay.value);
+  alert("Erreur de date, veuillez réessayer.");
+  return;
+}
   if (!validateForm()) return; // ✅ Vérifie que le formulaire est bien rempli
   if (!(selectedDay.value instanceof Date)) {
     console.warn("⚠ `selectedDay.value` n'est pas un objet Date ! Conversion en cours...");
