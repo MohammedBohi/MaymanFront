@@ -324,16 +324,20 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
 }
 .sunday-warning {
   width: 100%;
-  background-color: #ffcccc; /* 🔥 Rouge clair pour alerter */
+  background-color: #ffebeb; /* 🔥 Rouge très clair pour ne pas agresser visuellement */
   color: #b30000; /* Rouge foncé pour le texte */
   text-align: center;
-  padding: 15px;
-  font-size: 1.2rem;
+  padding: 10px;
+  font-size: 1rem; /* ✅ Un peu plus petit */
   font-weight: bold;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 2px solid #b30000;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #b30000;
+  max-width: 90%; /* ✅ Pour éviter qu'il prenne toute la largeur */
+  margin-left: auto;
+  margin-right: auto;
 }
+
 
 .slot-buttons button {
   padding: 10px 15px;
