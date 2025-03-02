@@ -75,12 +75,14 @@ export default {
 
       if (query.day) {
   selectedDay.value = new Date(query.day); 
-  if (isNaN(selectedDay.value)) {
-    const dateParts = query.day.split('/');
-    selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
-  }
-  console.log("✅ Date après correction :", selectedDay.value);
-}
+  if (!selectedDay.value || isNaN(selectedDay.value.getTime())) {
+            console.error("❌ Date reçue invalide :", query.day);
+            alert("Erreur avec la date sélectionnée. Veuillez réessayer.");
+            return;
+        }
+
+        console.log("✅ Date après conversion :", selectedDay.value);
+    }
 
 
       if (Object.keys(query).length === 0) {
@@ -194,32 +196,29 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
       }
       return true;
     };
-   const parseDateForBackend = (dateStr) => {
+    const parseDateForBackend = (dateStr) => {
     if (!dateStr) return null;
 
-    // 🔹 Vérifier si la date est en format DD/MM/YYYY et la transformer
-    if (dateStr.includes('/')) {
+    let parsedDate = new Date(dateStr);
+
+    if (isNaN(parsedDate.getTime()) && dateStr.includes('/')) {
+        // 🔹 Essai de conversion si format DD/MM/YYYY
         const dateParts = dateStr.split('/');
-        return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // YYYY-MM-DD
+        parsedDate = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
     }
 
-    // 🔹 Vérifier si c'est déjà une date valide
-    const dateObj = new Date(dateStr);
-    if (isNaN(dateObj)) {
-        console.error("❌ Date invalide:", dateStr);
+    if (isNaN(parsedDate.getTime())) {
+        console.error("❌ Date invalide après tentative de conversion :", dateStr);
         return null;
     }
 
-    return dateObj.toISOString().split("T")[0]; // 🔥 YYYY-MM-DD garanti !
+    return parsedDate; // 🔥 Retourner un objet Date au lieu d'une string
 };
+
 
 selectedDay.value = parseDateForBackend(query.day);
 console.log("✅ Date corrigée et normalisée :", selectedDay.value);
-if (!(selectedDay.value instanceof Date) || isNaN(selectedDay.value.getTime())) {
-  console.error("❌ Erreur : `selectedDay.value` n'est pas une Date valide :", selectedDay.value);
-  alert("Erreur de date, veuillez réessayer.");
-  return;
-}
+
     // 🔹 Gérer la réservation sur place
     const handleOnSitePayment = async () => {
       if (validateForm()) {
@@ -276,23 +275,13 @@ if (!(selectedDay.value instanceof Date) || isNaN(selectedDay.value.getTime())) 
 
     // 🔹 Gestion du paiement en ligne
     const handleOnlinePayment = async () => {
-      if (!(selectedDay.value instanceof Date) || isNaN(selectedDay.value.getTime())) {
-  console.error("❌ Erreur : `selectedDay.value` n'est pas une Date valide :", selectedDay.value);
-  alert("Erreur de date, veuillez réessayer.");
-  return;
-}
   if (!validateForm()) return; // ✅ Vérifie que le formulaire est bien rempli
   if (!(selectedDay.value instanceof Date)) {
     console.warn("⚠ `selectedDay.value` n'est pas un objet Date ! Conversion en cours...");
     selectedDay.value = new Date(selectedDay.value);
   }
-  console.log("✅ Date après conversion :", selectedDay.value); // Debugging
-
-  if (isNaN(selectedDay.value)) {
-    console.error("❌ Erreur : `selectedDay.value` est une date invalide !");
-    alert("Erreur de date, veuillez réessayer.");
-    return;
-  }
+  
+  
 selectedDay.value = parseDateForBackend(query.day);
 console.log("✅ Date corrigée et normalisée :", selectedDay.value);
   const reservationData = {
