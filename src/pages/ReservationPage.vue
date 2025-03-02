@@ -107,33 +107,68 @@ onMounted(() => {
       const dayOfWeek = date.getDay(); // 0 = Dimanche, 1 = Lundi, etc.
 
       switch (dayOfWeek) {
-        case 1: // Lundi
-        case 2: // Mardi
-          return [
+    case 1: // Lundi
+        return [
+            { nom: "Parisot", codePostal: "82160" },
+            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Limogne-en-Quercy", codePostal: "46260" },
+            { nom: "Saint-Projet", codePostal: "82160" },
+            { nom: "Puylagarde", codePostal: "82160" },
+            { nom: "Villefranche-de-Rouergue", codePostal: "12200" }
+        ];
+    case 2: // Mardi
+        return [
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
             { nom: "Saint-Projet", codePostal: "82160" },
             { nom: "Puylagarde", codePostal: "82160" },
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
-          ];
-        case 3: // Mercredi
-        case 4: // Jeudi
-          return [
+            { nom: "Varaire", codePostal: "46260" }
+        ];
+    case 3: // Mercredi
+        return [  
+            { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
+            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Parisot", codePostal: "82160" },
+            { nom: "Martiel", codePostal: "12200" },
+
+            { nom: "Cajarc", codePostal: "46160" },
+            { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" }
+        ];
+    case 4: // Jeudi
+        return [
+        { nom: "Parisot", codePostal: "82160" },
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
             { nom: "Cajarc", codePostal: "46160" },
-          ];
-        case 5: // Vendredi
-        case 6: // Samedi
-          return [
+            { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" },
+            { nom: "Varaire", codePostal: "46260" }
+        ];
+    case 5: // Vendredi
+        return [
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
-          ];
-        default:
-          return [];
-      }
+            { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" },
+            { nom: "Saint-Projet", codePostal: "82160" },
+            { nom: "Puylagarde", codePostal: "82160" },
+            { nom: "Martiel", codePostal: "12200" },
+            { nom: "Varaire", codePostal: "46260" }
+        ];
+    case 6: // Samedi
+        return [
+            { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
+            { nom: "Parisot", codePostal: "82160" },
+            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" },
+            { nom: "Martiel", codePostal: "12200" },
+            { nom: "Varaire", codePostal: "46260" }
+        ];
+    default:
+        return [];
+}
+
     };
 
     // Fonction pour récupérer les créneaux disponibles
