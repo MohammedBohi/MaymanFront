@@ -250,7 +250,8 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     departments.value = [];
     return;
   }
-
+  departments.value = []; // 🔥 Vide la liste AVANT d'ajouter les nouveaux départements
+  
   // ✅ Si la date est valide, on récupère les créneaux et départements
   selectedDate.value = selectedDay;
 
