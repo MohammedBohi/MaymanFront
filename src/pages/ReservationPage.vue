@@ -87,7 +87,6 @@ onMounted(() => {
         console.error("❌ Erreur: ID de prestation manquant !");
         return;
     }
-    console.log("📌 Query Params reçus :", router.currentRoute.value.query);
     const prestationId = parseInt(route.params.id, 10);
     console.log("🆔 ID converti :", prestationId, typeof prestationId);
     console.log("📂 Vérification du fichier prestations.js :", prestations);
@@ -147,6 +146,8 @@ onMounted(() => {
   return;
 }
 const formattedDate = selectedDate.value.toISOString().split('T')[0]; 
+console.log("📡 Récupération des créneaux pour :", formattedDate);
+
 
       try {
         const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || "http://localhost:3000/api";
@@ -163,10 +164,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
             return slotTime > new Date(now.getTime() + 60 * 60 * 1000);
           });
         }
+        console.log("🔵 Créneaux AVANT filtrage :", slots);
+
 
         availableSlots.value = [];
         await nextTick();
         availableSlots.value = [...slots];
+        console.log("🟢 Créneaux affichés dans Vue :", availableSlots.value);
+
 
       } catch (error) {
         console.error("❌ Erreur lors de la récupération des créneaux :", error);
@@ -175,7 +180,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     };
 
     const onDateSelected = async (event) => {
+      console.log("📆 Date sélectionnée avant mise à jour :", event.date);
+      if (!event.date) {
+    console.error("❌ ERREUR: L'événement `event.date` est NULL !");
+    return;
+  }
   const selectedDay = new Date(event.date);
+  console.log("✅ `selectedDate` après mise à jour :", selectedDate.value);
+
   selectedDay.setHours(0, 0, 0, 0); // Comparaison sur la date uniquement
 
   const today = new Date();
@@ -220,6 +232,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     const localDate = new Date(selectedDate.value.getTime() - selectedDate.value.getTimezoneOffset() * 60000);
 
     const redirectToAuth = async () => {
+
       const user = await checkAuth();
       if (!user) {
         localStorage.setItem("pendingReservation", JSON.stringify({
