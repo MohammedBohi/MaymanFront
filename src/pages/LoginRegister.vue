@@ -120,7 +120,7 @@ export default {
         window.dispatchEvent(new Event("user-updated"));
 
       } catch (error) {
-        this.registerError = "❌ Erreur lors de l'inscription !";
+        console.error("❌ Erreur API :", error); // 🔥 Afficher toute l'erreur pour mieux comprendre
       
       if (error.response && error.response.status === 400 && error.response.data.error) {
       this.registerError = `❌ ${error.response.data.error}`;
