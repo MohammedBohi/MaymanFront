@@ -3,7 +3,7 @@
     <div class="intro-section">
       <h2>Profitez des meilleures prestations coiffure directement chez vous !</h2>
       <p>
-        May'Man vous offre un service de coiffure haut de gamme directement chez vous, sans contrainte ni déplacement. Disponible dans plusieurs départements d'Occitanie, notamment le Tarn-et-Garonne, l'Aveyron et le Lot. Connectez-vous dès maintenant et réservez votre créneau en quelques clics !
+        May'Man vous offre un service de coiffure directement chez vous, sans contrainte ni déplacement. Disponible dans plusieurs départements d'Occitanie, notamment le Tarn-et-Garonne, l'Aveyron et le Lot. Connectez-vous dès maintenant et réservez votre créneau en quelques clics !
       </p>
     </div>
     <div class="prestations-container">

@@ -1,5 +1,8 @@
 <template>
   <div class="reservation-page">
+    <div class="sunday-warning">
+      🚫 <strong>ATTENTION :</strong> Les dimanches sont des jours de repos. Il est impossible de réserver ce jour-là !
+    </div>
     <div class="left-section">
       <img v-if="prestation?.image" :src="prestation.image" alt="Prestation" class="prestation-image" />
       <p v-else>Aucune image disponible</p>
@@ -319,6 +322,19 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   flex-wrap: wrap;
   gap: 10px;
 }
+.sunday-warning {
+  width: 100%;
+  background-color: #ffcccc; /* 🔥 Rouge clair pour alerter */
+  color: #b30000; /* Rouge foncé pour le texte */
+  text-align: center;
+  padding: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px solid #b30000;
+}
+
 .slot-buttons button {
   padding: 10px 15px;
   background-color: #d4a373;
