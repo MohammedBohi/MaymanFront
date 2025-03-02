@@ -92,7 +92,7 @@ onMounted(() => {
     console.log("🆔 ID converti :", prestationId, typeof prestationId);
     console.log("📂 Vérification du fichier prestations.js :", prestations);
 
-    prestation.value = prestations.find(p => p.id == prestationId);
+    prestation.value = prestations.find(p => p.id === Number(prestationId));
 
     if (!prestation.value) {
         console.error("❌ Erreur: Prestation introuvable avec ID :", prestationId);
@@ -213,6 +213,10 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     const selectSlot = (slot) => {
       selectedSlot.value = slot;
     };
+    if (!selectedDate.value) {
+   console.error("❌ Erreur: selectedDate est NULL !");
+   return;
+}
     const localDate = new Date(selectedDate.value.getTime() - selectedDate.value.getTimezoneOffset() * 60000);
 
     const redirectToAuth = async () => {
