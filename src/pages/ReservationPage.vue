@@ -251,11 +251,11 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     return;
   }
   departments.value = []; // 🔥 Vide la liste AVANT d'ajouter les nouveaux départements
-  
+
   // ✅ Si la date est valide, on récupère les créneaux et départements
   selectedDate.value = selectedDay;
 
-  departments.value = getDepartmentsForDay(selectedDay);
+    departments.value = [...getDepartmentsForDay(selectedDay)]; // ✅ Corrige la duplication
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
 
 
