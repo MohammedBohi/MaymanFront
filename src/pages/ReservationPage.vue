@@ -144,7 +144,7 @@ onMounted(() => {
   console.error("❌ Erreur: selectedDate est NULL !");
   return;
 }
-const formattedDate = selectedDate.value.toISOString().split('T')[0]; 
+const formattedDate = formatDateForBackend(selectedDate.value); // ✅ Utilise la même logique que l'affichage
 console.log("📡 Récupération des créneaux pour :", formattedDate);
 
 
@@ -229,6 +229,11 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
    return;
 }
     const localDate = new Date(selectedDate.value.getTime() - selectedDate.value.getTimezoneOffset() * 60000);
+    const formatDateForBackend = (date) => {
+    return date.getFullYear() + '-' +
+           String(date.getMonth() + 1).padStart(2, '0') + '-' +
+           String(date.getDate()).padStart(2, '0');
+};
 
     const redirectToAuth = async () => {
 
@@ -236,7 +241,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
       if (!user) {
         localStorage.setItem("pendingReservation", JSON.stringify({
           prestationId: prestation.value?.id || "unknown",
-          day: selectedDate.value.toISOString().split('T')[0],
+          day: formatDateForBackend(selectedDate.value),
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         }));
@@ -247,7 +252,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
         prestationId: prestation.value?.id,
         prestationName: prestation.value?.nom,
         prestationPrice: prestation.value?.prix,
-        day: selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : "unknown",
+        day: formatDateForBackend(selectedDate.value),
         slot: selectedSlot.value || "unknown",
         departments: departments.value
     });
@@ -259,7 +264,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
           prestationName: prestation.value?.nom || "Prestation inconnue",  // 🔥 Ajoute ceci
           prestationPrice: prestation.value?.prix || 0,  // 🔥 Ajoute ceci
 
-          day: localDate.toISOString().split('T')[0],
+          day: formatDateForBackend(selectedDate.value),
           slot: selectedSlot.value || "unknown",
           departments: encodeURIComponent(JSON.stringify(departments.value || [])),
         },
