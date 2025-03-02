@@ -1,6 +1,5 @@
 <template>
   <div class="reservation-page">
-  <h1 class="sunday-warning">🚫 Les dimanches sont des jours de repos</h1>
 
     <div class="left-section">
       <img v-if="prestation?.image" :src="prestation.image" alt="Prestation" class="prestation-image" />
@@ -10,7 +9,7 @@
     </div>
 
     <div class="right-section">
-      <h3>Réservez votre prestation</h3>
+      <h3>Le dimanche est un jour de repos</h3>
       <v-calendar 
         mode="single" 
         is-expanded 
