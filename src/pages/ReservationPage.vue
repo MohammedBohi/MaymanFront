@@ -105,6 +105,8 @@ onMounted(() => {
     const getDepartmentsForDay = (date) => {
       if (!date) return [];
       const dayOfWeek = date.getDay(); // 0 = Dimanche, 1 = Lundi, etc.
+      departments.value = [];
+
       let departmentsList = []; // ✅ Utilise une variable temporaire
 
       switch (dayOfWeek) {
@@ -180,7 +182,7 @@ onMounted(() => {
     default:
     departmentsList = [];
   }
-  return departmentsList;  // ✅ Ajout du return
+  departments.value = JSON.parse(JSON.stringify(departmentsList));
 
     };
 
