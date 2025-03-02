@@ -44,10 +44,15 @@
           this.$router.push("/login-register");
         }, 2500);
       } catch (error) {
-        this.error = "❌ Erreur lors de la mise à jour du mot de passe.";
-        this.loading = false;
-      }
-    },
+        console.error("❌ Erreur API :", error); // 🔥 Debugging en console
+
+        if (error.response && error.response.data && error.response.data.error) {
+            this.error = `❌ ${error.response.data.error}`; // 🔥 Afficher l'erreur exacte reçue du serveur
+        } else {
+            this.error = "❌ Erreur lors de la mise à jour du mot de passe.";
+        }
+    }
+},
   },
 };
   </script>
