@@ -105,10 +105,11 @@ onMounted(() => {
     const getDepartmentsForDay = (date) => {
       if (!date) return [];
       const dayOfWeek = date.getDay(); // 0 = Dimanche, 1 = Lundi, etc.
+      let departmentsList = []; // ✅ Utilise une variable temporaire
 
       switch (dayOfWeek) {
     case 1: // Lundi
-        departments =  [
+    departmentsList =  [
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
@@ -119,7 +120,7 @@ onMounted(() => {
         break;
 
     case 2: // Mardi
-    departments = [
+    departmentsList = [
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
@@ -131,7 +132,7 @@ onMounted(() => {
         break;
 
     case 3: // Mercredi
-    departments = [  
+    departmentsList = [  
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Caylus", codePostal: "82170" },
             { nom: "Parisot", codePostal: "82160" },
@@ -142,7 +143,7 @@ onMounted(() => {
         break;
 
     case 4: // Jeudi
-    departments = [
+    departmentsList = [
         { nom: "Parisot", codePostal: "82160" },
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
@@ -153,7 +154,7 @@ onMounted(() => {
         break;
 
     case 5: // Vendredi
-    departments =[
+    departmentsList =[
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
@@ -166,7 +167,7 @@ onMounted(() => {
         break;
 
     case 6: // Samedi
-    departments = [
+    departmentsList = [
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Caylus", codePostal: "82170" },
@@ -177,9 +178,9 @@ onMounted(() => {
         break;
 
     default:
-        return [];
-}
-return departments; // ✅ Retourne correctement la liste des départements
+    departmentsList = [];
+  }
+  departments.value = departmentsList;
 
     };
 
