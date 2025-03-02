@@ -323,20 +323,26 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   gap: 10px;
 }
 .sunday-warning {
-  width: 100%;
-  background-color: #ffebeb; /* 🔥 Rouge très clair pour ne pas agresser visuellement */
-  color: #b30000; /* Rouge foncé pour le texte */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffebeb; /* 🔥 Rouge clair */
+  color: #b30000; /* Rouge foncé */
   text-align: center;
-  padding: 10px;
-  font-size: 1rem; /* ✅ Un peu plus petit */
+  padding: 8px 15px;
+  font-size: 1rem;
   font-weight: bold;
   border-radius: 5px;
   margin-bottom: 15px;
   border: 1px solid #b30000;
-  max-width: 90%; /* ✅ Pour éviter qu'il prenne toute la largeur */
+  max-width: 80%; /* 🔥 Réduit la largeur */
   margin-left: auto;
   margin-right: auto;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+
+
 
 
 .slot-buttons button {
@@ -376,7 +382,11 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     align-items: center;
     padding: 10px;
   }
-
+  .sunday-warning {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    max-width: 95%;
+  }
   .left-section {
     width: 100%;
     text-align: center;
