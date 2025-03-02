@@ -258,14 +258,15 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   selectedDate.value = selectedDay;
   const newDepartments = getDepartmentsForDay(selectedDay);
   departments.value = []; // 🔥 Vider complètement la liste avant d'ajouter les nouveaux départements
+  await nextTick(); // Attendre que Vue détecte la mise à jour
 
 // 🔥 Ajout d'un log pour voir les nouvelles valeurs
 console.log("🛠️ Départements avant mise à jour:", departments.value);
 console.log("🆕 Nouveaux départements:", newDepartments);
 
 // 🔥 CORRECTION : On vide `departments.value` et on ajoute les nouveaux départements
-departments.value.splice(0, departments.value.length); 
-departments.value.push(...newDepartments); // Vue détectera mieux le changement
+  departments.value = [...newDepartments]; // Affecte le nouvel array
+
 console.log("✅ Départements après mise à jour:", departments.value); 
 
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
