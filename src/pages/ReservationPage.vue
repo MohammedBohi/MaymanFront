@@ -1,7 +1,7 @@
 <template>
   <div class="reservation-page">
     <div class="sunday-warning" >
-  <h2>🚫 Les dimanches sont des jours de repos</h2>
+  <h1>🚫 Les dimanches sont des jours de repos</h1>
 </div>
 
     <div class="left-section">
@@ -324,20 +324,18 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   gap: 10px;
 }
 .sunday-warning {
-  max-width: 800px;
-  margin: 0 auto 40px;
   text-align: center;
-  text-align: justify;  /* ✅ Ajoute la justification du texte */
-    line-height: 1.6;  /* ✅ Espacement entre les lignes */
-
-
+  color: #b30000; /* 🔴 Rouge foncé pour l'alerte */
+  font-weight: bold;
+  font-size: 1.8rem;
+  margin-bottom: 20px; /* ✅ Espacement correct */
 }
 
-.sunday-warning h2 {
-  font-size: 2rem;
-  color: #5a3d2b;
-  margin-bottom: 10px;
+.sunday-warning h1 {
+  margin: 0;
+  font-size: 2rem; /* ✅ Taille cohérente avec les titres de la page d'accueil */
 }
+
 
 
 
