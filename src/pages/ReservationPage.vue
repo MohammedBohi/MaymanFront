@@ -182,6 +182,8 @@ onMounted(() => {
     default:
     departmentsList = [];
   }
+  console.log("🔍 Départements retournés pour le jour", dayOfWeek, ":", departmentsList);
+
   return departmentsList;
 
     };
@@ -256,9 +258,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   selectedDate.value = selectedDay;
   const newDepartments = getDepartmentsForDay(selectedDay);
 
-  departments.value.splice(0, departments.value.length, ...newDepartments);
+// 🔥 Ajout d'un log pour voir les nouvelles valeurs
+console.log("🛠️ Départements avant mise à jour:", departments.value);
+console.log("🆕 Nouveaux départements:", newDepartments);
 
-  // ✅ Si la date est valide, on récupère les créneaux et départements
+// 🔥 CORRECTION : On vide `departments.value` et on ajoute les nouveaux départements
+departments.value.splice(0, departments.value.length, ...newDepartments);
+
+console.log("✅ Départements après mise à jour:", departments.value); 
 
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
 
