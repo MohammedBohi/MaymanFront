@@ -264,8 +264,8 @@ console.log("🛠️ Départements avant mise à jour:", departments.value);
 console.log("🆕 Nouveaux départements:", newDepartments);
 
 // 🔥 CORRECTION : On vide `departments.value` et on ajoute les nouveaux départements
-departments.value = [...newDepartments]; // 🔥 Maintenant, on remplace proprement
-
+departments.value.splice(0, departments.value.length); 
+departments.value.push(...newDepartments); // Vue détectera mieux le changement
 console.log("✅ Départements après mise à jour:", departments.value); 
 
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
