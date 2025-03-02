@@ -71,7 +71,6 @@ export default {
       }
 
       const query = router.currentRoute.value.query;
-      console.log("🎯 Query params reçus:", query); // 🔥 Log pour vérifier les données passées via URL
 
       if (query.day) {
   selectedDay.value = new Date(query.day); 
@@ -81,7 +80,6 @@ export default {
             return;
         }
 
-        console.log("✅ Date après conversion :", selectedDay.value);
     }
 
 
@@ -97,18 +95,15 @@ export default {
           };
 
           selectedDay.value = new Date(query.day);
-          console.log("🛠 Date reçue et convertie:", selectedDay.value);
           if (isNaN(selectedDay.value)) {
         // Si la date est invalide, transforme la date reçue au format `DD/MM/YYYY` en `YYYY-MM-DD`
         const dateParts = query.day.split('/');
         selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);  // Format ISO
       }
-      console.log("🛠 Date reçue et convertie:", selectedDay.value);
 
 
           selectedSlot.value = parsedData.slot;
           departments.value = Array.isArray(parsedData.departments) ? parsedData.departments : [];
-          console.log("🛠 Prestation dans reservation form:", prestation.value); // 🔥 Log pour vérifier la prestation
 
 
           localStorage.removeItem("pendingReservation");
@@ -125,13 +120,11 @@ export default {
         };
     selectedDay.value = new Date(query.day); // Utiliser la date reçue en format local
 
-    console.log("🛠 Date reçue et convertie:", selectedDay.value); // 🔥 Log pour vérifier la date 
     if (isNaN(selectedDay.value)) {
       // Si la date est invalide, transforme la date reçue au format `DD/MM/YYYY` en `YYYY-MM-DD`
       const dateParts = query.day.split('/');
       selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);  // Format ISO
     }
-    console.log("🛠 Date reçue et convertie:", selectedDay.value);  
     selectedSlot.value = query.slot;
 
         if (query.departments) {
@@ -217,7 +210,6 @@ await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
 
 
 selectedDay.value = parseDateForBackend(query.day);
-console.log("✅ Date corrigée et normalisée :", selectedDay.value);
 
     // 🔹 Gérer la réservation sur place
     const handleOnSitePayment = async () => {
@@ -234,8 +226,6 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
           departement: selectedDepartment.value?.nom || "Inconnu",
           typePaiement: "Sur place",
         };
-        console.log("📦 Données envoyées au backend:", reservationData); // 🔥 Log pour vérifier les données envoyées
-        console.log("Tarif avant envoi :", prestation.value.price);
         if (isNaN(prestation.value.price) || prestation.value.price <= 0) {
   alert("Le tarif est invalide.");
   return;
@@ -252,7 +242,6 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
           });
 
           const result = await response.json();
-          console.log("✅ Réponse du backend:", result); // 🔥 Log pour vérifier la réponse du backend
 
 
           if (!response.ok) {
@@ -283,7 +272,6 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
   
   
 selectedDay.value = parseDateForBackend(query.day);
-console.log("✅ Date corrigée et normalisée :", selectedDay.value);
   const reservationData = {
     nom: name.value,
     prenom: surname.value,

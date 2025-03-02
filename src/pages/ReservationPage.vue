@@ -82,15 +82,12 @@ const calendarAttributes = ref([
 
 onMounted(() => {
     const route = router.currentRoute.value;
-    console.log("📥 Params reçus :", route.params); // Debugging
 
     if (!route.params.id) {
         console.error("❌ Erreur: ID de prestation manquant !");
         return;
     }
     const prestationId = parseInt(route.params.id, 10);
-    console.log("🆔 ID converti :", prestationId, typeof prestationId);
-    console.log("📂 Vérification du fichier prestations.js :", prestations);
 
     prestation.value = prestations.find(p => p.id === Number(prestationId));
 
@@ -146,7 +143,6 @@ onMounted(() => {
   return;
 }
 const formattedDate = formatDateForBackend(selectedDate.value); // ✅ Utilise la même logique que l'affichage
-console.log("📡 Récupération des créneaux pour :", formattedDate);
 
 
       try {
@@ -164,13 +160,11 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
             return slotTime > new Date(now.getTime() + 60 * 60 * 1000);
           });
         }
-        console.log("🔵 Créneaux AVANT filtrage :", slots);
 
 
         availableSlots.value = [];
         await nextTick();
         availableSlots.value = [...slots];
-        console.log("🟢 Créneaux affichés dans Vue :", availableSlots.value);
 
 
       } catch (error) {
@@ -180,13 +174,11 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     };
 
     const onDateSelected = async (event) => {
-      console.log("📆 Date sélectionnée avant mise à jour :", event.date);
       if (!event.date) {
     console.error("❌ ERREUR: L'événement `event.date` est NULL !");
     return;
   }
   const selectedDay = new Date(event.date);
-  console.log("✅ `selectedDate` après mise à jour :", selectedDate.value);
 
   selectedDay.setHours(0, 0, 0, 0); // Comparaison sur la date uniquement
 
@@ -213,7 +205,6 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
 
   // ✅ Si la date est valide, on récupère les créneaux et départements
   selectedDate.value = selectedDay;
-  console.log("🛠 Date sélectionnée (locale):", selectedDate.value);
 
   departments.value = getDepartmentsForDay(selectedDay);
   await nextTick(); // 🔥 Forcer Vue à afficher immédiatement
@@ -249,14 +240,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
         router.push({ path: "/login-register" });
         return;
       }
-      console.log("✅ Redirection vers le formulaire avec :", {
-        prestationId: prestation.value?.id,
-        prestationName: prestation.value?.nom,
-        prestationPrice: prestation.value?.prix,
-        day: formatDateForBackend(selectedDate.value),
-        slot: selectedSlot.value || "unknown",
-        departments: departments.value
-    });
+
 
       router.push({
         name: "FormulaireReservation",

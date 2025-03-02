@@ -20,12 +20,10 @@
   export default {
     setup() {
       const route = useRoute();
-      console.log("🔎 Données reçues pour confirmation :", route.query);
 
       const formatDate = (dateStr) => {
       if (!dateStr) return "Date inconnue";
       const date = new Date(dateStr);
-      console.log("📅 Date convertie après réception :", date);
 
       return date.toLocaleDateString("fr-FR", {
         weekday: "long",

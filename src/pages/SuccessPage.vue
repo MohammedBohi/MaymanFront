@@ -17,9 +17,6 @@
       const sessionId = ref(route.query.session_id); // 🔥 Définit bien `sessionId`
 
 
-console.log("📡 Vérification du paiement avec session_id :", sessionId.value);
-    console.log(`📡 URL API appelée : ${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId.value}`);
-    console.log("Query params reçus:", route.query);
       const verifyPayment = async () => {  
         if (!sessionId.value) {
           console.error("❌ sessionId manquant !");
@@ -50,8 +47,6 @@ console.log("📡 Vérification du paiement avec session_id :", sessionId.value)
             return;
           }
   
-    console.log("✅ Paiement confirmé, réservation :", result.reservation);
-    console.log("🚀 Redirection vers ConfirmationReservation avec :", result.reservation);
           // 🔥 Nettoie session_id après confirmation
           localStorage.removeItem("stripe_session_id");
   
