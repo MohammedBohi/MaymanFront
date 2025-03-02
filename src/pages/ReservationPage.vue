@@ -113,7 +113,7 @@ onMounted(() => {
     case 1: // Lundi
     departmentsList =  [
             { nom: "Parisot", codePostal: "82160" },
-            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Caylus", codePostal: "82160" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
             { nom: "Saint-Projet", codePostal: "82160" },
             { nom: "Puylagarde", codePostal: "82160" },
@@ -124,7 +124,7 @@ onMounted(() => {
     case 2: // Mardi
     departmentsList = [
             { nom: "Parisot", codePostal: "82160" },
-            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Caylus", codePostal: "82160" },
             { nom: "Limogne-en-Quercy", codePostal: "46260" },
             { nom: "Saint-Projet", codePostal: "82160" },
             { nom: "Puylagarde", codePostal: "82160" },
@@ -136,7 +136,7 @@ onMounted(() => {
     case 3: // Mercredi
     departmentsList = [  
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
-            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Caylus", codePostal: "82160" },
             { nom: "Parisot", codePostal: "82160" },
             { nom: "Martiel", codePostal: "12200" },
             { nom: "Cajarc", codePostal: "46160" },
@@ -159,7 +159,7 @@ onMounted(() => {
     departmentsList =[
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
-            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Caylus", codePostal: "82160" },
             { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" },
             { nom: "Saint-Projet", codePostal: "82160" },
             { nom: "Puylagarde", codePostal: "82160" },
@@ -172,7 +172,7 @@ onMounted(() => {
     departmentsList = [
             { nom: "Villefranche-de-Rouergue", codePostal: "12200" },
             { nom: "Parisot", codePostal: "82160" },
-            { nom: "Caylus", codePostal: "82170" },
+            { nom: "Caylus", codePostal: "82160" },
             { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" },
             { nom: "Martiel", codePostal: "12200" },
             { nom: "Varaire", codePostal: "46260" }
