@@ -121,12 +121,12 @@ export default {
 
       } catch (error) {
         this.registerError = "❌ Erreur lors de l'inscription !";
-      }
+      
       if (error.response && error.response.status === 400 && error.response.data.error) {
       this.registerError = `❌ ${error.response.data.error}`;
     } else {
       this.registerError = "❌ Une erreur est survenue lors de l'inscription.";
-    }
+    }}
     },
   },
 };
