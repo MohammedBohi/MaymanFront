@@ -89,14 +89,14 @@ onMounted(() => {
     }
     console.log("📌 Query Params reçus :", router.currentRoute.value.query);
     const prestationId = parseInt(route.params.id, 10);
+    console.log("🆔 ID converti :", prestationId, typeof prestationId);
+
     prestation.value = prestations.find(p => p.id === prestationId);
 
   
 
     console.log("📦 Prestation récupérée :", prestation.value);
-    console.log("📌 Query Params reçus :", router.currentRoute.value.query);
   
-    console.log("📦 Prestation récupérée :", prestation.value);
 
     if (!route.params.prestationName || !route.params.prestationPrice || !route.params.prestationImage) {
       console.error("❌ Erreur: Informations de prestation incomplètes !");    console.log("📦 Prestation récupérée :", prestation.value);
