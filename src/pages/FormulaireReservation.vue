@@ -279,7 +279,11 @@ console.log("✅ Date corrigée et normalisée :", selectedDay.value);
   }
   console.log("✅ Date après conversion :", selectedDay.value); // Debugging
 
-  
+  if (isNaN(selectedDay.value)) {
+    console.error("❌ Erreur : `selectedDay.value` est une date invalide !");
+    alert("Erreur de date, veuillez réessayer.");
+    return;
+  }
 selectedDay.value = parseDateForBackend(query.day);
 console.log("✅ Date corrigée et normalisée :", selectedDay.value);
   const reservationData = {
