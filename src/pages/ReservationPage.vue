@@ -1,8 +1,6 @@
 <template>
   <div class="reservation-page">
-    <div class="sunday-warning" >
-  <h1>🚫 Les dimanches sont des jours de repos</h1>
-</div>
+  <h1 class="sunday-warning">🚫 Les dimanches sont des jours de repos</h1>
 
     <div class="left-section">
       <img v-if="prestation?.image" :src="prestation.image" alt="Prestation" class="prestation-image" />
