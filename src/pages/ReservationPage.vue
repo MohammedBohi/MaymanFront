@@ -257,13 +257,14 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
 
   selectedDate.value = selectedDay;
   const newDepartments = getDepartmentsForDay(selectedDay);
+  departments.value = []; // 🔥 Vider complètement la liste avant d'ajouter les nouveaux départements
 
 // 🔥 Ajout d'un log pour voir les nouvelles valeurs
 console.log("🛠️ Départements avant mise à jour:", departments.value);
 console.log("🆕 Nouveaux départements:", newDepartments);
 
 // 🔥 CORRECTION : On vide `departments.value` et on ajoute les nouveaux départements
-departments.value.splice(0, departments.value.length, ...newDepartments);
+departments.value = [...newDepartments]; // 🔥 Maintenant, on remplace proprement
 
 console.log("✅ Départements après mise à jour:", departments.value); 
 
