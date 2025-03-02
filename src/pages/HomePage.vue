@@ -43,10 +43,8 @@ export default {
     console.error("❌ Erreur : ID de prestation manquant !");
     return;
   }
-  if (!prestation) {
-    console.error("❌ Erreur : Prestation introuvable avec ID :", id);
-    return;
-  }
+ 
+  
   console.log("✅ Prestation trouvée :", prestation); // Debugging
   console.log("🔄 Redirection vers Reservation avec :", {
     id: String(prestation.id),
@@ -58,21 +56,13 @@ export default {
 
 this.$router.push({
   name: "Reservation",
-  params: {
-    id: prestation.id.toString(), // Converti en string pour éviter les erreurs de parsing
-    prestationName: prestation.nom,
-    prestationPrice: prestation.prix.toString(),
-    prestationImage: prestation.image
-  }
+    params: { id: id.toString() } // On envoie SEULEMENT l'ID
+  
 });
 
 
-  console.log("🔄 Redirection vers Reservation avec :", {
-    id: prestation.id,  // En tant que nombre (pas de conversion en string)
-    prestationName: prestation.nom,
-    prestationPrice: prestation.prix,
-    prestationImage: prestation.image
-  });
+console.log("✅ ID de prestation transmis :", id);
+
 }
 
   },

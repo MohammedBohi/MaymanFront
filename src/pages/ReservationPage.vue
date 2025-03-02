@@ -57,6 +57,7 @@ export default {
     const availableSlots = ref([]);
     const departments = ref([]);
 
+
     // Désactiver les jours passés et les dimanches
     const today = new Date();
 today.setHours(0, 0, 0, 0); // Supprime l'heure pour comparer uniquement la date
@@ -87,12 +88,10 @@ onMounted(() => {
         return;
     }
     console.log("📌 Query Params reçus :", router.currentRoute.value.query);
-    prestation.value = {
-        id: parseInt(route.params.id, 10), // ✅ Convertir en nombre
-        nom: route.params.prestationName || "Nom non disponible",
-        prix: parseFloat(route.params.prestationPrice) || 0,
-        image: route.params.prestationImage || null
-    };
+    const prestationId = parseInt(route.params.id, 10);
+    prestation.value = prestations.find(p => p.id === prestationId);
+
+  
 
     console.log("📦 Prestation récupérée :", prestation.value);
     console.log("📌 Query Params reçus :", router.currentRoute.value.query);
