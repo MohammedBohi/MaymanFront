@@ -1,8 +1,9 @@
 <template>
   <div class="reservation-page">
-    <div class="sunday-warning">
-      🚫 <strong>ATTENTION :</strong> Les dimanches sont des jours de repos. Il est impossible de réserver ce jour-là !
-    </div>
+    <div class="sunday-warning" v-if="isSunday">
+  <h2>🚫 Les dimanches sont des jours de repos</h2>
+</div>
+
     <div class="left-section">
       <img v-if="prestation?.image" :src="prestation.image" alt="Prestation" class="prestation-image" />
       <p v-else>Aucune image disponible</p>
@@ -323,24 +324,23 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
   gap: 10px;
 }
 .sunday-warning {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffebeb; /* 🔥 Rouge clair */
-  color: #b30000; /* Rouge foncé */
   text-align: center;
-  padding: 8px 15px;
-  font-size: 1rem;
+  background-color: #fae3e3; /* 🔥 Fond légèrement rosé */
+  color: #b30000; /* 🔴 Texte rouge foncé */
+  padding: 15px;
+  font-size: 1.2rem;
   font-weight: bold;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  border: 1px solid #b30000;
-  max-width: 80%; /* 🔥 Réduit la largeur */
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin: 10px auto;
+  width: 90%;
+  max-width: 800px; /* ✅ Ne dépasse pas cette largeur */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.sunday-warning h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
 
 
 
@@ -382,11 +382,7 @@ const response = await axios.get(`${API_BASE_URL}/reservations/creneaux/${format
     align-items: center;
     padding: 10px;
   }
-  .sunday-warning {
-    font-size: 0.9rem;
-    padding: 5px 10px;
-    max-width: 95%;
-  }
+  
   .left-section {
     width: 100%;
     text-align: center;
