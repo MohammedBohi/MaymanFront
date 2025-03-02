@@ -180,7 +180,7 @@ onMounted(() => {
     default:
     departmentsList = [];
   }
-  departments.value = departmentsList;
+  return departmentsList;  // ✅ Ajout du return
 
     };
 
