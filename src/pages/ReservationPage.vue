@@ -90,17 +90,19 @@ onMounted(() => {
     console.log("📌 Query Params reçus :", router.currentRoute.value.query);
     const prestationId = parseInt(route.params.id, 10);
     console.log("🆔 ID converti :", prestationId, typeof prestationId);
+    console.log("📂 Vérification du fichier prestations.js :", prestations);
 
-    prestation.value = prestations.find(p => p.id === prestationId);
+    prestation.value = prestations.find(p => p.id == prestationId);
 
-  
+    if (!prestation.value) {
+        console.error("❌ Erreur: Prestation introuvable avec ID :", prestationId);
+        return;
+    }
 
     console.log("📦 Prestation récupérée :", prestation.value);
   
 
-    if (!route.params.prestationName || !route.params.prestationPrice || !route.params.prestationImage) {
-      console.error("❌ Erreur: Informations de prestation incomplètes !");    console.log("📦 Prestation récupérée :", prestation.value);
-}});
+    });
 
 
     // Fonction pour récupérer les départements en fonction du jour sélectionné
