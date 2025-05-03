@@ -26,7 +26,7 @@
           <div class="info-column">
             <div class="info-item">
               <img src="@/assets/icons/Phone.png" alt="Phone" class="info-icon" />
-              <span>07 88 44 16 10</span>
+              <span>07 68 44 16 10</span>
             </div>
             <div class="info-item">
               <img src="@/assets/icons/Gmail.png" alt="Email" class="info-icon" />
