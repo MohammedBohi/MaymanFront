@@ -1,5 +1,11 @@
 <template>
   <div class="homepage">
+    <!-- ✅ Bannière d'information temporaire -->
+<div class="alerte-connexion">
+  ⚠️ <strong>Note importante :</strong> En raison d’un petit bug temporaire, veuillez <strong>vous connecter avec votre compte avant de choisir une prestation et de réserver</strong>.  
+  Ce souci sera corrigé dans les prochains jours. Merci pour votre compréhension 🙏
+</div>
+
     <div class="intro-section">
       <h2>Profitez des meilleures prestations coiffure directement chez vous !</h2>
       <p>
@@ -64,6 +70,22 @@ this.$router.push({
 .homepage {
   background-color: #f8f3e7;
   padding: 20px;
+  text-align: center;
+}
+.alerte-connexion {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffeeba;
+  padding: 20px 30px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.6;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
 
