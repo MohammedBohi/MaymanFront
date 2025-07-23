@@ -12,7 +12,6 @@
       <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
       <p><strong>Prestation :</strong> {{ prestationClient }}</p>
 <p><strong>Soin :</strong> {{ reservation.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
-<p><strong>Prix :</strong> {{ getPrixClient() }} €</p>
 
     </div>
 
