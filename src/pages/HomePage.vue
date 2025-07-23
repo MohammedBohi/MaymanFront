@@ -2,8 +2,9 @@
   <div class="homepage">
     <!-- ✅ Bannière d'information temporaire -->
 <div class="alerte-connexion">
-  ⚠️ <strong>Note importante :</strong> En raison d’un petit bug temporaire, veuillez <strong>vous connecter avec votre compte avant de choisir une prestation et de réserver</strong>.  
-  Ce souci sera corrigé dans les prochains jours. Merci pour votre compréhension 🙏
+  ⚠️ <strong>Maintenance temporaire :</strong> Le système de réservation est momentanément indisponible pour quelques heures.<br>
+Nous sommes en train d’effectuer une mise à jour importante. Merci pour votre compréhension 🙏
+
 </div>
 
     <div class="intro-section">
@@ -21,12 +22,12 @@
           </div>
           <h3>{{ prestation.nom }}</h3>
           <p>{{ prestation.prix }} €</p>
-          <button 
+       <!--   <button 
   class="reserve-btn"
   @click="goToReservation(prestation.id)"
 >
   Réserver
-</button>
+</button>-->
 
         </div>
       </div>
