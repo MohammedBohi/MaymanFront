@@ -102,6 +102,11 @@ onMounted(async () => {
         }
       })(),
     };
+const allPrestations = await api.get("/prestations");
+const prestation = allPrestations.data.find(p => p.id === data.personnes?.[0]?.prestation_id);
+if (prestation) {
+  prestationClient.value = `${prestation.nom} (${prestation.duree_minutes}min - ${prestation.prix}€)`;
+}
 
     formattedDate.value = new Date(data.jour).toLocaleDateString("fr-FR", {
       weekday: "long",
