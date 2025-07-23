@@ -1,136 +1,171 @@
-<template>
-    <div class="success-container">
-      <h2>🎉 Paiement Réussi !</h2>
-      <p>Nous vérifions votre paiement...</p>
-    </div>
-  </template>
-  
-  <script>
-  import { useRouter, useRoute } from "vue-router";
-  import { ref, onMounted } from "vue"; // ✅ Ajout de `ref` et `onMounted`
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import api from "@/services/api";
 
-  
-  export default {
-    setup() {
-      const router = useRouter();
-      const route = useRoute();
-      const sessionId = ref(route.query.session_id); // 🔥 Définit bien `sessionId`
+const route = useRoute();
+const router = useRouter();
 
+const reservation = ref(null);
+const formattedDate = ref("");
+const heureFin = ref("");
+const dureeFormatee = ref("");
+const clientPrestation = ref({ nom: "Inconnue", soin: false, prix: "?" });
+const autres = ref([]);
 
-      const verifyPayment = async () => {  
-        if (!sessionId.value) {
-          console.error("❌ sessionId manquant !");
-          router.push("/"); // 🔥 Redirige si pas de session_id
-          return;
-        }
-  
-        const token = localStorage.getItem("token");
-        if (!token) {
-        console.error("❌ Aucun token trouvé, redirection vers connexion !");
-        router.push("/login-register"); 
-        return;
-      }
+const getPrix = (p) => {
+  const base = parseFloat(p.prix);
+  const total = base + (p.avec_soin ? 7 : 0);
+  return total.toFixed(2);
+};
 
-        try {
-          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId.value}`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`, // ✅ Corrigé
-            },
-          });
-  
-          const result = await response.json();
-  
-          if (!response.ok || !result.reservation) {
-            console.error("❌ Paiement non validé ou réservation introuvable !");
-            router.push("/"); // 🔥 Redirige si erreur
-            return;
-          }
-  
-          // 🔥 Nettoie session_id après confirmation
-          localStorage.removeItem("stripe_session_id");
-  
-          // 🚀 Redirige vers la page de confirmation
-          router.push({
-            name: "ConfirmationReservation",
-            query: result.reservation
-          });
-  
-        } catch (error) {
-          console.error("❌ Erreur lors de la vérification du paiement :", error);
-          router.push("/");
-        }
-      };
-      onMounted(() => {
-      verifyPayment();
+const formatHeure = (heureStr) => {
+  const [h, m] = heureStr.split(":");
+  return `${h}:${m}`;
+};
+
+onMounted(async () => {
+  const id = route.query.id;
+  const token = localStorage.getItem("token");
+  if (!id || !token) return router.push("/");
+
+  try {
+    const { data } = await api.get(`/reservations/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
     });
 
-    return {
-      sessionId
+    reservation.value = {
+      ...data,
+    departement: (() => {
+  try {
+    const parsed = typeof data.departement === 'string' ? JSON.parse(data.departement) : data.departement;
+    if (parsed && parsed.nom && parsed.codePostal) return parsed;
+    return { nom: "Inconnu", codePostal: "" };
+  } catch {
+    return { nom: "Inconnu", codePostal: "" };
+  }
+})()
+
     };
-  },
-};
-  </script>
-  <style scoped>
-  .success-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f8f3e7; /* Même couleur que la page de confirmation */
-  }
-  
-  .success-box {
-    text-align: center;
-    padding: 40px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    animation: fadeIn 0.5s ease-in-out;
-  }
-  
-  h2 {
-    font-size: 24px;
-    color: #d4a373;
-  }
-  
-  p {
-    font-size: 18px;
-    color: #333;
-    margin-top: 10px;
-  }
-  
-  /* Animation d'attente */
-  .loading-spinner {
-    margin: 20px auto;
-    width: 40px;
-    height: 40px;
-    border: 5px solid #d4a373;
-    border-top: 5px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  /* Animation fadeIn */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
+
+    formattedDate.value = new Date(data.jour).toLocaleDateString("fr-FR", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    });
+
+    const d = data.duree_totale_minutes;
+    dureeFormatee.value = d >= 60 ? `${Math.floor(d / 60)}h${d % 60 || ""}` : `${d} min`;
+
+    const [h, m] = data.heure_debut.split(":").map(Number);
+    const fin = h * 60 + m + d;
+    heureFin.value = `${String(Math.floor(fin / 60)).padStart(2, "0")}:${String(fin % 60).padStart(2, "0")}`;
+
+    const personnes = data.personnes || [];
+    if (personnes.length) {
+      const [first, ...rest] = personnes;
+      clientPrestation.value = {
+        nom: first.nom_prestation,
+        soin: first.avec_soin,
+        prix: getPrix(first)
+      };
+      autres.value = rest;
     }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+
+  } catch (error) {
+    console.error("❌ Erreur récupération :", error);
+    router.push("/");
   }
-  
-  /* Animation spin */
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  </style>
+});
+</script>
+
+<template>
+  <div class="success-page" v-if="reservation">
+    <h2>🎉 Merci {{ reservation.nom }} pour votre réservation !</h2>
+
+    <!-- 👤 Client -->
+    <div class="section">
+      <h3>👤 Informations du client</h3>
+      <p><strong>Nom :</strong> {{ reservation.nom }}</p>
+      <p><strong>Prénom :</strong> {{ reservation.prenom }}</p>
+      <p><strong>Téléphone :</strong> {{ reservation.telephone }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
+      <p><strong>Prestation :</strong> {{ clientPrestation.nom }}</p>
+      <p><strong>Soin visage/barbe :</strong> {{ clientPrestation.soin ? 'Oui (+7 €)' : 'Non' }}</p>
+      <p><strong>Prix :</strong> {{ clientPrestation.prix }} €</p>
+    </div>
+
+    <!-- 👥 Participants -->
+    <div class="section" v-if="autres.length">
+      <h3>👥 Personnes incluses avec le client</h3>
+      <div v-for="(p, index) in autres" :key="index" class="participant">
+        <p><strong>Nom :</strong> {{ p.nom }}</p>
+        <p><strong>Prénom :</strong> {{ p.prenom }}</p>
+        <p><strong>Prestation :</strong> {{ p.nom_prestation }}</p>
+        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+        <p><strong>Prix :</strong> {{ getPrix(p) }} €</p>
+        <hr v-if="index < autres.length - 1" />
+      </div>
+    </div>
+
+    <!-- 📅 Détails -->
+    <div class="section">
+      <h3>📅 Détails de la réservation</h3>
+      <p><strong>Date :</strong> {{ formattedDate }}</p>
+      <p><strong>Créneau :</strong> {{ formatHeure(reservation.heure_debut) }} → {{ heureFin }}</p>
+      <p><strong>Durée estimée :</strong> {{ dureeFormatee }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
+      <p><strong>Département :</strong> {{ reservation.departement.nom }} {{ reservation.departement.codePostal }}</p>
+    </div>
+
+    <!-- 💸 Paiement -->
+    <div class="section">
+      <h3>💶 Paiement</h3>
+      <p><strong>Total à payer :</strong> {{ reservation.tarif }} €</p>
+    </div>
+
+    <router-link to="/" class="btn-retour">Retour à l'accueil</router-link>
+  </div>
+
+  <div v-else class="loading">
+    <p>Chargement de votre réservation...</p>
+  </div>
+</template>
+
+<style scoped>
+.success-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f8f3e7;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+}
+.section {
+  margin-bottom: 25px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.participant {
+  margin-bottom: 15px;
+}
+.btn-retour {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 24px;
+  background-color: #d4a373;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.btn-retour:hover {
+  background-color: #c58954;
+}
+.loading {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 1.1rem;
+}
+</style>

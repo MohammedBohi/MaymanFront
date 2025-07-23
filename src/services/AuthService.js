@@ -3,8 +3,7 @@ import api from "./api";
 // ✅ Connexion utilisateur
 export const login = async (email, password) => {
   try {
-    const response = await api.post("/utilisateurs/login", { email, motDePasse: password });
-
+    const response = await api.post("/auth/login", { email, motdepasse: password });
 
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
@@ -19,11 +18,10 @@ export const login = async (email, password) => {
   }
 };
 
-
 // ✅ Inscription utilisateur
 export const register = async (userData) => {
   try {
-    const response = await api.post("/utilisateurs/inscription", userData);
+    const response = await api.post("/auth/register", userData);
     return response.data;
   } catch (error) {
     console.error("❌ Erreur d'inscription :", error.response?.data || error.message);
@@ -31,61 +29,55 @@ export const register = async (userData) => {
   }
 };
 
-// ✅ Vérification du profil connecté
+// ✅ Vérification du profil via token
 export const checkAuth = async () => {
   const token = localStorage.getItem("token");
-
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   try {
-
-    const response = await api.get("/utilisateurs/profil", {
+    const response = await api.get("/auth/profil", {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     localStorage.setItem("user", JSON.stringify(response.data));
     return response.data;
   } catch (error) {
-    console.error("❌ Erreur d'authentification :", error.response?.data || error.message);
-    logout();
-    return null;
-  }
+  console.warn("🔐 Token invalide ou expiré.");
+  logout(); // ✅ pour forcer le nettoyage
+  return null;
+}
+
 };
-// ✅ Demande de réinitialisation du mot de passe (envoie un email)
+
+
+// ✅ Réinitialisation mot de passe
 export const requestPasswordReset = async (email) => {
   try {
-    const response = await api.post("/utilisateurs/reinitialiser-mot-de-passe", { email });
+    const response = await api.post("/auth/reset-password", { email });
     return response.data;
   } catch (error) {
-    console.error("❌ Erreur lors de l'envoi de l'email de réinitialisation :", error.response?.data || error.message);
+    console.error("❌ Erreur réinitialisation :", error.response?.data || error.message);
     throw error;
   }
 };
 
-// ✅ Réinitialisation du mot de passe (via le lien reçu par email)
 export const resetPassword = async (token, nouveauMotDePasse) => {
   try {
-    const response = await api.put("/utilisateurs/reinitialiser-mot-de-passe", { token, nouveauMotDePasse });
+    const response = await api.put("/auth/reset-password", { token, nouveauMotDePasse });
     return response.data;
   } catch (error) {
-    console.error("❌ Erreur lors de la réinitialisation du mot de passe :", error.response?.data || error.message);
+    console.error("❌ Erreur réinitialisation :", error.response?.data || error.message);
     throw error;
   }
 };
 
-
-// ✅ Récupération du rôle de l'utilisateur (Admin / Client)
+// ✅ Rôle utilisateur
 export const getRole = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  return user ? user.typeutilisateur : null;
+  return user?.typeutilisateur || null;
 };
-
 
 // ✅ Déconnexion
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.reload();
 };

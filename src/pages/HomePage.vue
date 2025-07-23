@@ -1,82 +1,203 @@
 <template>
   <div class="homepage">
-    <!-- ✅ Bannière d'information temporaire -->
-<div class="alerte-connexion">
-  ⚠️ <strong>Maintenance temporaire :</strong> Le système de réservation est momentanément indisponible pour quelques heures.<br>
-Nous sommes en train d’effectuer une mise à jour importante. Merci pour votre compréhension 🙏
-
+    <!-- ✅ Bloc Nouveautés harmonisé -->
+    <!-- ✅ Bloc Nouveautés harmonisé -->
+     <!-- ✅ Alerte maintenance -->
+<div class="maintenance-banner">
+  ⚠️ Le site est actuellement en maintenance. Les réservations sont temporairement indisponibles. Merci de revenir plus tard.
 </div>
 
+<div class="nouveautes-annonce">
+  <div class="nouveautes-content">
+    <img src="@/assets/images/Soins_visage.jpeg" alt="Supplément soins" class="soin-image" />
+    <div class="texte">
+      <h3>✨ Nouveautés</h3>
+      <ul>
+        <li>➕ Ajoutez jusqu’à <strong>2 personnes</strong> dans une prestation normale.</li>
+        <li>👥 Choisissez la <strong>prestation de groupe</strong> pour 3 à 15 personnes.</li>
+        <li>💆 Ajoutez un <strong>supplément soin visage/barbe</strong> à toute coupe pour seulement +7 €.</li>
+      </ul>
+      <p class="connect-msg">👉 <strong>Connectez-vous pour réserver dès maintenant !</strong></p>
+      <router-link class="cta-btn" to="/login-register">Connexion / Inscription</router-link>
+    </div>
+  </div>
+</div>
+
+
+   
+
+    
+
+    <!-- ✅ Intro -->
     <div class="intro-section">
       <h2>Profitez des meilleures prestations coiffure directement chez vous !</h2>
       <p>
-        May'Man vous offre un service de coiffure directement chez vous, sans contrainte ni déplacement. Disponible dans plusieurs départements d'Occitanie, notamment le Tarn-et-Garonne, l'Aveyron et le Lot. Connectez-vous dès maintenant et réservez votre créneau en quelques clics !
+        May'Man vous offre un service de coiffure à domicile sans contrainte. Nous intervenons dans le Tarn-et-Garonne, l'Aveyron et le Lot.
+        Réservez votre créneau facilement, pour vous ou en groupe, avec supplément soins visage si vous le souhaitez.
       </p>
     </div>
+
+    <!-- ✅ Liste des prestations -->
     <div class="prestations-container">
       <h2> Prestations</h2>
       <div class="prestations-grid">
         <div v-for="prestation in prestations" :key="prestation.id" class="prestation-card">
           <div class="image-wrapper">
-            <img :src="prestation.image" :alt="prestation.nom" class="prestation-image" />
+            <img :src="getImage(prestation.nom, prestation.prix)" :alt="prestation.nom" class="prestation-image" />
           </div>
           <h3>{{ prestation.nom }}</h3>
           <p>{{ prestation.prix }} €</p>
-       <!--   <button 
-  class="reserve-btn"
-  @click="goToReservation(prestation.id)"
->
-  Réserver
-</button>-->
-
+          <button class="reserve-btn" @click="goToReservation(prestation)">
+            Réserver
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
-import prestations from "@/data/prestations.js";
+import { getPrestations } from "@/services/PrestationService";
 
 export default {
   data() {
     return {
-      prestations 
-       };
+      prestations: [],
+      prestationGroupe: {
+        id: "groupe",
+        nom: "Prestation de groupe",
+        prix: "Sur devis",
+        duree_minutes: null,
+        soin_disponible: false
+      }
+    };
   },
   methods: {
-    goToReservation(id) {
-  const prestation = this.prestations.find(p => p.id === id);
-  if (!id) {
-    console.error("❌ Erreur : ID de prestation manquant !");
-    return;
-  }
- 
- 
+    async mounted() {
+      try {
+        const response = await getPrestations();
+        const filtrees = response.filter(
+          (p) => !p.nom.toLowerCase().includes("soin seul")
+        );
+        this.prestations = [...filtrees, this.prestationGroupe];
+      } catch (error) {
+        console.error("Erreur lors du chargement des prestations :", error);
+      }
+    },
 
+    goToReservation(prestation) {
+      this.$router.push({
+        name: "FormulaireReservation",
+        query: {
+          type_id: prestation.id,
+          nom: prestation.nom,
+          prix: prestation.prix,
+          duree: prestation.duree_minutes,
+          soin_dispo: prestation.soin_disponible
+        }
+      });
+    },
 
-this.$router.push({
-  name: "Reservation",
-    params: { id: id.toString() } // On envoie SEULEMENT l'ID
-  
-});
+    getImage(nom) {
+      const mapping = {
+        "Coupe étudiante": "coupeEtudiante.jpeg",
+        "Coupe homme": "coupeHomme.jpeg",
+        "Coupe tondeuse": "coupeTondeuse.jpeg",
+        "Rasage barbe à l ancienne": "RasageBarbeAncienne.jpeg",
+        "Coupe enfant": "CoupeEnfant.jpeg",
+        "Barbe tondeuse": "BarbeTondeuse.jpeg",
+        "Coupe homme + Barbe tondeuse": "CoupeHommeBarbeTondeuse.jpeg",
+        "Coupe homme + Barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg",
+        "Prestation de groupe": "PrestationGroupe.jpeg",
+      };
 
-
-
-}
-
+      const fileName = mapping[nom] || "PhotoAccueil.jpeg";
+      return require(`@/assets/images/${fileName}`);
+    }
+  },
+  mounted() {
+    this.mounted();
   },
 };
 </script>
+
 <style scoped>
 .homepage {
   background-color: #f8f3e7;
   padding: 20px;
   text-align: center;
 }
+
+/* ✅ Bloc Nouveautés */
+.nouveautes-annonce {
+  background-color: #fffaf3;
+  border: 2px solid #d4a373;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
+}
+
+.nouveautes-content {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.soin-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.texte {
+  flex: 1;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #5a3d2b;
+}
+
+.texte h3 {
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+  color: #5a3d2b;
+}
+
+.texte ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 15px;
+}
+
+.texte li {
+  margin-bottom: 8px;
+}
+
+.cta-btn {
+  display: inline-block;
+  background-color: #d4a373;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.cta-btn:hover {
+  background-color: #c58954;
+}
+
+/* ✅ Alerte de connexion */
 .alerte-connexion {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 2px solid #ffeeba;
+  background-color: #fdf5e6;
+  color: #7b5b2f;
+  border: 2px solid #f3d9b1;
   padding: 20px 30px;
   margin-bottom: 30px;
   border-radius: 10px;
@@ -90,15 +211,28 @@ this.$router.push({
   text-align: center;
 }
 
-/* ✅ Section d'introduction */
+/* ✅ Alerte groupe */
+.alerte-groupe {
+  background-color: #f1f8f5;
+  color: #2b6653;
+  border: 2px solid #cce8dd;
+  padding: 15px 25px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ✅ Intro */
 .intro-section {
   max-width: 800px;
   margin: 0 auto 40px;
-  text-align: center;
-  text-align: justify;  /* ✅ Ajoute la justification du texte */
-    line-height: 1.6;  /* ✅ Espacement entre les lignes */
-
-
+  text-align: justify;
+  line-height: 1.6;
 }
 
 .intro-section h2 {
@@ -113,7 +247,7 @@ this.$router.push({
   margin-bottom: 20px;
 }
 
-/* ✅ Section Prestations */
+/* ✅ Prestations */
 .prestations-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -125,7 +259,6 @@ this.$router.push({
   gap: 20px;
 }
 
-/* ✅ Cartes de prestation */
 .prestation-card {
   background-color: #fff;
   border-radius: 10px;
@@ -159,7 +292,6 @@ p {
   margin: 5px 0;
 }
 
-/* ✅ Bouton Réserver */
 .reserve-btn {
   background-color: #d4a373;
   color: white;
@@ -174,8 +306,20 @@ p {
 .reserve-btn:hover {
   background-color: #c58954;
 }
+.maintenance-banner {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 15px 25px;
+  margin-bottom: 20px;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+  font-size: 1.1rem;
+}
 
-/* ✅ 📱 Responsive Mobile (écrans < 768px) */
+
+/* ✅ Responsive */
 @media (max-width: 768px) {
   .prestations-grid {
     grid-template-columns: 1fr;
@@ -209,9 +353,22 @@ p {
   .intro-section p {
     font-size: 1rem;
   }
+
+  .nouveautes-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .soin-image {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .texte {
+    text-align: center;
+  }
 }
 
-/* ✅ 📊 Responsive Tablette (écrans < 1024px) */
 @media (max-width: 1024px) {
   .prestations-grid {
     grid-template-columns: repeat(2, 1fr);

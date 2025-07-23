@@ -1,84 +1,201 @@
 <template>
-    <div class="confirmation-container">
-      <h2>🎉 Réservation Confirmée !</h2>
-      <p>Merci <strong>{{ reservation.nom }} {{ reservation.prenom }}</strong> !</p>
-      
-      <div class="reservation-details">
-        <p><strong>Prestation :</strong> {{ reservation.prestation }}</p>
-        <p><strong>Prix :</strong> {{ reservation.tarif }} €</p>
-        <p><strong>Date :</strong> {{ formatDate(reservation.jour) }}</p>
-        <p><strong>Heure :</strong> {{ reservation.creneau }}</p>
-        <p><strong>Département :</strong> {{ reservation.departement }}</p>
-      </div>
-  
-      <router-link to="/" class="home-button">Retour à l'accueil</router-link>
+  <div class="confirmation-page">
+    <h2>🧾 Récapitulatif de votre réservation</h2>
+
+    <!-- Client -->
+    <div class="section">
+      <h3>👤 Client</h3>
+      <p><strong>Nom :</strong> {{ reservation.client.nom }}</p>
+      <p><strong>Prénom :</strong> {{ reservation.client.prenom }}</p>
+      <p><strong>Téléphone :</strong> {{ reservation.client.telephone }}</p>
+      <p><strong>Prestation :</strong> {{ getPrestationName(reservation.client.prestation_id) }}</p>
+      <p><strong>Soin visage/barbe :</strong> {{ reservation.client.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+      <p><strong>Prix :</strong> {{ getPrixDetail(reservation.client) }}</p>
     </div>
-  </template>
-  
-  <script>
-  import { useRoute } from "vue-router";
-  export default {
-    setup() {
-      const route = useRoute();
 
-      const formatDate = (dateStr) => {
-      if (!dateStr) return "Date inconnue";
-      const date = new Date(dateStr);
+    <!-- Participants (hors client) -->
+    <div v-if="participants.length" class="section">
+      <h3>👥 Personnes incluses dans la réservation</h3>
+      <div v-for="(p, index) in participants" :key="index" class="participant">
+        <p><strong>Nom :</strong> {{ p.nom }}</p>
+        <p><strong>Prénom :</strong> {{ p.prenom }}</p>
+        <p><strong>Prestation :</strong> {{ getPrestationName(p.prestation_id) }}</p>
+        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+        <p><strong>Prix :</strong> {{ getPrixDetail(p) }}</p>
+        <hr v-if="index < participants.length - 1" />
+      </div>
+    </div>
 
-      return date.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-    };
+    <!-- Détails réservation -->
+    <div class="section">
+      <h3>📅 Détails de la réservation</h3>
+      <p><strong>Date :</strong> {{ dateFormatted }}</p>
+      <p><strong>Créneau :</strong> {{ dateRes.slot }} → {{ getHeureFin() }}</p>
+      <p><strong>Durée estimée :</strong> {{ formatDuree(reservation.duree_totale) }}</p>
+    </div>
 
-    return {
-      reservation: route.query,
-      formatDate,
-    };
-  },
+    <!-- Lieu -->
+    <div class="section">
+      <h3>📍 Adresse de la prestation</h3>
+      <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p>
+      <p><strong>Département :</strong> {{ dateRes.departement.nom }} ({{ dateRes.departement.codePostal }})</p>
+    </div>
+
+    <!-- Paiement -->
+    <div class="section">
+      <h3>💰 Paiement</h3>
+      <p><strong>Total à payer :</strong> {{ reservation.tarif_total }} €</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="back" @click="retourCalendrier">← Changer de créneau</button>
+      <button class="confirm" @click="validerReservation">Confirmer la réservation</button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { getPrestations } from "@/services/PrestationService";
+import api from "@/services/api";
+
+const router = useRouter();
+const reservation = JSON.parse(localStorage.getItem("reservation_en_cours")) || { client: {}, participants: [] };
+const dateRes = JSON.parse(localStorage.getItem("reservation_date")) || {};
+
+const prestations = ref([]);
+const participants = computed(() => reservation.participants || []);
+
+const dateFormatted = new Date(dateRes.date).toLocaleDateString("fr-FR", {
+  weekday: "long", day: "numeric", month: "long", year: "numeric"
+});
+
+const fetchPrestations = async () => {
+  try {
+    prestations.value = await getPrestations();
+  } catch (e) {
+    console.error("Erreur chargement prestations :", e);
+  }
 };
-  </script>
-  
-  <style scoped>
-  .confirmation-container {
-    text-align: center;
-    padding: 40px;
-    background-color: #f8f3e7;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 50px auto;
+fetchPrestations();
+const getPrestationName = (id) => {
+  if (id === "groupe") return "Prestation de groupe (sur devis)";
+  const presta = prestations.value.find(p => String(p.id) === String(id));
+  return presta ? presta.nom : "Inconnue";
+};
+
+
+const getPrixDetail = (personne) => {
+  const presta = prestations.value.find(p => String(p.id) === String(personne.prestation_id));
+  if (!presta) return "Inconnu";
+  const base = parseFloat(presta.prix);
+  const soin = personne.avec_soin ? 7 : 0;
+  return `${base} €${soin ? ` + ${soin} € (soin)` : ""} = ${base + soin} €`;
+};
+
+
+const getHeureFin = () => {
+  if (!dateRes.slot || !reservation.duree_totale) return "";
+  const [h, m] = dateRes.slot.split(":").map(Number);
+  const total = h * 60 + m + reservation.duree_totale;
+  const hFin = String(Math.floor(total / 60)).padStart(2, "0");
+  const mFin = String(total % 60).padStart(2, "0");
+  return `${hFin}:${mFin}`;
+};
+
+const formatDuree = (totalMinutes) => {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return h ? `${h}h${m ? m : ""}` : `${m} min`;
+};
+
+const retourCalendrier = () => {
+router.push({ name: "Reservation", params: { id: 'temp' }, query: { duree: reservation.duree_totale } });
+};
+
+const validerReservation = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return router.push("/login-register");
+
+    const personnes = [
+      {
+        nom: reservation.client.nom,
+        prenom: reservation.client.prenom,
+        prestation_id: reservation.client.prestation_id,
+        avec_soin: reservation.client.avec_soin
+      },
+      ...participants.value
+    ];
+
+    const body = {
+      nom: reservation.client.nom,
+      prenom: reservation.client.prenom,
+      telephone: reservation.client.telephone,
+      adresseReservation: reservation.client.adresse,
+      jour: dateRes.date,
+      heure_debut: dateRes.slot,
+      departement: dateRes.departement,
+      personnes
+    };
+
+    const { data } = await api.post("/reservations", body, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    localStorage.removeItem("reservation_en_cours");
+    localStorage.removeItem("reservation_date");
+    router.push({ name: "SuccessPage", query: { id: data.reservation_id } });
+
+  } catch (e) {
+    console.error("❌ Erreur lors de la réservation :", e);
+    alert("Une erreur est survenue, veuillez réessayer.");
   }
-  
-  .reservation-details {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: left;
-    margin-top: 20px;
-  }
-  
-  p {
-    font-size: 16px;
-    margin: 8px 0;
-  }
-  
-  .home-button {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 24px;
-    background-color: #d4a373;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: 0.3s;
-  }
-  
-  .home-button:hover {
-    background-color: #c58954;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.confirmation-page {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #f8f3e7;
+  border-radius: 10px;
+  font-family: 'Segoe UI', sans-serif;
+}
+.section {
+  margin-bottom: 25px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.participant {
+  margin-bottom: 15px;
+}
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.back {
+  background-color: #ccc;
+  color: black;
+}
+.confirm {
+  background-color: #d4a373;
+  color: white;
+}
+.confirm:hover {
+  background-color: #c58954;
+}
+</style>

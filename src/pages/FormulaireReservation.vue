@@ -1,440 +1,212 @@
 <template>
   <div class="reservation-form">
-    <h2>Finaliser la réservation</h2>
-    <form @submit.prevent="submitReservation">
-      <label for="name">Nom</label>
-      <input v-model="name" type="text" id="name" required placeholder="Entrez votre nom" />
+    <h2>Détails de réservation</h2>
 
-      <label for="surname">Prénom</label>
-      <input v-model="surname" type="text" id="surname" required placeholder="Entrez votre prénom" />
+    <!-- 🔹 Informations du client principal -->
+    <div class="person-block">
+      <h3>👤 Client principal</h3>
+      <label>Nom</label>
+      <input v-model="client.nom" required />
+      <label>Prénom</label>
+      <input v-model="client.prenom" required />
+      <label>Téléphone</label>
+      <input v-model="client.telephone" required />
+      <label>Adresse</label>
+      <input v-model="client.adresse" required />
 
-      <label for="phone">Téléphone</label>
-      <input v-model="phone" type="tel" id="phone" required placeholder="Entrez votre téléphone" />
-
-      <label for="address">Adresse</label>
-      <input v-model="address" type="text" id="address" required placeholder="Entrez votre adresse" />
-
-      <label for="department">Département</label>
-      <select v-model="selectedDepartment" id="department" required>
-        <option v-for="dept in departments" :key="dept.codePostal" :value="dept">
-  {{ dept.nom || dept.name || "Inconnu" }} ({{ dept.codePostal || dept.code || "00000" }})
-</option>
-
-
-
-
-
-      </select>
-
-      <h3>Mode de paiement</h3>
-      <div class="payment-buttons">
-        <button type="button" class="golden-button" @click="handleOnSitePayment">Payer sur place</button>
-        <button type="button" class="golden-button" @click="handleOnlinePayment">Payer en ligne</button>
+      <label>Prestation</label>
+      <div v-if="isGroupe">
+        <select v-model="client.prestation_id" required>
+          <option v-for="p in prestations" :key="p.id" :value="p.id">{{ p.nom }}</option>
+        </select>
       </div>
-    </form>
+      <div v-else>
+        <input :value="prestation.nom" disabled />
+      </div>
+
+      <label>Soin visage/barbe ?</label>
+      <select v-model="client.avec_soin">
+        <option :value="true">Oui</option>
+        <option :value="false">Non</option>
+      </select>
+    </div>
+
+    <!-- 🔹 Nombre de participants -->
+    <div v-if="isGroupe">
+      <label>Nombre de participants supplémentaires (2 à 14)</label>
+      <input type="number" v-model.number="nombrePersonnes" min="2" max="14" @change="genererParticipants" />
+    </div>
+    <div v-else>
+      <label>Êtes-vous accompagné(e) ?</label>
+      <select v-model="accompagne" @change="genererParticipants">
+        <option :value="false">Non</option>
+        <option :value="true">Oui</option>
+      </select>
+      <div v-if="accompagne">
+        <label>Nombre de personnes (1 ou 2)</label>
+        <select v-model.number="nombrePersonnes" @change="genererParticipants">
+          <option :value="1">1</option>
+          <option :value="2">2</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 🔹 Participants -->
+    <div v-for="(p, index) in participants" :key="index" class="person-block">
+      <h3>👥 Participant {{ index + 1 }}</h3>
+      <label>Nom</label>
+      <input v-model="p.nom" required />
+      <label>Prénom</label>
+      <input v-model="p.prenom" required />
+      <label>Prestation</label>
+      <select v-model="p.prestation_id" required>
+        <option v-for="presta in prestations" :key="presta.id" :value="presta.id">{{ presta.nom }}</option>
+      </select>
+      <label>Soin visage/barbe ?</label>
+      <select v-model="p.avec_soin">
+        <option :value="true">Oui</option>
+        <option :value="false">Non</option>
+      </select>
+    </div>
+
+    <button @click="passerAuCalendrier" :disabled="!formulaireComplet">Choisir le jour et le créneau</button>
   </div>
 </template>
 
-<script>
-import { reserverSurPlace } from "@/services/ReservationService";
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { checkAuth } from "@/services/AuthService";
-import { useRouter } from "vue-router";
-import { loadStripe } from "@stripe/stripe-js";
-import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
-import { nextTick } from "vue";
+import { getPrestations } from "@/services/PrestationService";
 
+const route = useRoute();
+const router = useRouter();
 
-export default {
-  setup() {
-    const router = useRouter();
-    const route = useRoute(); // ✅ Récupérer les paramètres de l'URL
-    const query = route.query; // ✅ Accéder aux paramètres
-
-    const name = ref("");
-    const surname = ref("");
-    const phone = ref("");
-    const address = ref("");
-    const selectedDepartment = ref(null);
-    const departments = ref([]);
-    const prestation = ref(null);
-    const selectedDay = ref(null);
-    const selectedSlot = ref(null);
-
-
-    onMounted(async () => {
-
-      const user = await checkAuth();
-      if (!user) {
-        router.push("/login-register");
-        return;
-      }
-
-      const query = router.currentRoute.value.query;
-
-      if (query.day) {
-  selectedDay.value = new Date(query.day); 
-  if (!selectedDay.value || isNaN(selectedDay.value.getTime())) {
-            console.error("❌ Date reçue invalide :", query.day);
-            alert("Erreur avec la date sélectionnée. Veuillez réessayer.");
-            return;
-        }
-
-    }
-
-
-      if (Object.keys(query).length === 0) {
-        const pendingReservation = localStorage.getItem("pendingReservation");
-        if (pendingReservation) {
-          const parsedData = JSON.parse(pendingReservation);
-
-          prestation.value = {
-            id: parsedData.prestationId || "unknown",
-            name: parsedData.prestationName || "Prestation inconnue",
-            price: parsedData.prestationPrice || 0,
-          };
-
-          selectedDay.value = new Date(query.day);
-          if (isNaN(selectedDay.value)) {
-        // Si la date est invalide, transforme la date reçue au format `DD/MM/YYYY` en `YYYY-MM-DD`
-        const dateParts = query.day.split('/');
-        selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);  // Format ISO
-      }
-
-
-          selectedSlot.value = parsedData.slot;
-          departments.value = Array.isArray(parsedData.departments) ? parsedData.departments : [];
-
-
-          localStorage.removeItem("pendingReservation");
-        } else {
-          console.warn("⚠ Aucun choix de réservation trouvé.");
-          router.push("/");
-        }
-      } else {
-
-        prestation.value = {
-          id: query.prestationId || "unknown",
-          name: query.prestationName || "Prestation inconnue",
-          price: query.prestationPrice || 0,
-        };
-    selectedDay.value = new Date(query.day); // Utiliser la date reçue en format local
-
-    if (isNaN(selectedDay.value)) {
-      // Si la date est invalide, transforme la date reçue au format `DD/MM/YYYY` en `YYYY-MM-DD`
-      const dateParts = query.day.split('/');
-      selectedDay.value = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);  // Format ISO
-    }
-    selectedSlot.value = query.slot;
-
-        if (query.departments) {
-
-  try {
-    if (typeof query.departments === "string") {
-      const decodedDepartments = decodeURIComponent(query.departments);
-      if (decodedDepartments.startsWith("[") && decodedDepartments.endsWith("]")) {
-        departments.value = JSON.parse(decodedDepartments);
-      } else {
-        console.warn("⚠ `query.departments` n'est pas un JSON valide. Annulation du parsing.");
-        departments.value = [];
-      }
-    } else if (Array.isArray(query.departments)) {
-      // ✅ Si c’est déjà un tableau, on l’utilise directement
-      departments.value = query.departments;
-    } else {
-      console.warn("⚠ Type inattendu pour `query.departments` :", query.departments);
-      departments.value = [];
-    }
-
-  } catch (error) {
-    console.error("❌ Erreur parsing départements :", error);
-    departments.value = [];
-  }
-}
-
-// **🔹 Si `query.departments` est vide, essaie depuis `localStorage`**
-if (!departments.value.length) {
-  console.warn("⚠ Aucun département trouvé dans `query.departments` ! Récupération via `localStorage`...");
-  const pendingReservation = localStorage.getItem("pendingReservation");
-
-  if (pendingReservation) {
-    try {
-      const parsedData = JSON.parse(pendingReservation);
-      departments.value = parsedData.departments || [];
-    } catch (error) {
-      console.error("❌ Erreur parsing `pendingReservation` :", error);
-    }
-  }
-}
-
-await nextTick(); // 🔥 Force Vue à mettre à jour l'affichage
-
-
-
-      } 
-
-      departments.value.forEach((dept, index) => {
-      });
-    });
-
-    // 🔹 Validation du formulaire
-    const validateForm = () => {
-      if (!name.value || !surname.value || !phone.value || !address.value || !selectedDepartment.value) {
-        alert("Veuillez remplir tous les champs obligatoires !");
-        return false;
-      }
-      if (!/^\d{10}$/.test(phone.value)) {
-        alert("Veuillez saisir un numéro de téléphone valide (10 chiffres) !");
-        return false;
-      }
-      return true;
-    };
-    const parseDateForBackend = (dateStr) => {
-    if (!dateStr) return null;
-
-    let parsedDate = new Date(dateStr);
-
-    if (isNaN(parsedDate.getTime()) && dateStr.includes('/')) {
-        // 🔹 Essai de conversion si format DD/MM/YYYY
-        const dateParts = dateStr.split('/');
-        parsedDate = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
-    }
-
-    if (isNaN(parsedDate.getTime())) {
-        console.error("❌ Date invalide après tentative de conversion :", dateStr);
-        return null;
-    }
-
-    return parsedDate; // 🔥 Retourner un objet Date au lieu d'une string
+const isGroupe = route.query?.type_id === "groupe";
+const prestation = {
+  id: route.query.type_id,
+  nom: route.query.nom,
+  prix: route.query.prix,
+  duree_minutes: route.query.duree,
 };
 
+const prestations = ref([]);
+const participants = ref([]);
+const nombrePersonnes = ref(isGroupe ? 2 : 0);
+const accompagne = ref(false);
 
-selectedDay.value = parseDateForBackend(query.day);
-
-    // 🔹 Gérer la réservation sur place
-    const handleOnSitePayment = async () => {
-      if (validateForm()) {
-        const reservationData = {
-          nom: name.value,
-          prenom: surname.value,
-          telephone: phone.value,
-          adresseReservation: address.value,
-          prestation: prestation.value.name,
-          tarif: prestation.value.price,
-          jour: selectedDay.value.toISOString().split('T')[0],
-          creneau: selectedSlot.value,
-          departement: selectedDepartment.value?.nom || "Inconnu",
-          typePaiement: "Sur place",
-        };
-        if (isNaN(prestation.value.price) || prestation.value.price <= 0) {
-  alert("Le tarif est invalide.");
-  return;
-}
-
-        try {
-          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/reservations`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(reservationData),
-          });
-
-          const result = await response.json();
-
-
-          if (!response.ok) {
-            throw new Error(result.error || "Une erreur est survenue.");
-          }
-
-          alert("Votre réservation a bien été prise en compte ! Vous allez recevoir un email de confirmation.");
-
-          router.push({
-            name: "ConfirmationReservation",
-            query: reservationData
-          });
-
-        } catch (error) {
-          console.error("❌ Erreur lors de la réservation :", error);
-          alert("Erreur lors de la réservation ! Veuillez réessayer.");
-        }
-      }
-    };
-
-    // 🔹 Gestion du paiement en ligne
-    const handleOnlinePayment = async () => {
-  if (!validateForm()) return; // ✅ Vérifie que le formulaire est bien rempli
-  if (!(selectedDay.value instanceof Date)) {
-    console.warn("⚠ `selectedDay.value` n'est pas un objet Date ! Conversion en cours...");
-    selectedDay.value = new Date(selectedDay.value);
-  }
-  
-  
-selectedDay.value = parseDateForBackend(query.day);
-  const reservationData = {
-    nom: name.value,
-    prenom: surname.value,
-    telephone: phone.value,
-    adresseReservation: address.value,
-    prestation: prestation.value.name,
-    tarif: prestation.value.price,
-    jour: selectedDay.value.toISOString().split('T')[0],
-    creneau: selectedSlot.value,
-    departement: selectedDepartment.value?.nom || "Inconnu",
-  };
-
-  try {
-
-    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/initier`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(reservationData),
-    });
-
-    const result = await response.json();
-
-if (!response.ok || !result.url || !result.session_id) {  
-  throw new Error(result.error || "Erreur : session_id manquant !");
-}
-
-
-    // **🔥 Vérification et stockage correct de `session_id`**
-    if (result.session_id) {
-  localStorage.setItem("stripe_session_id", result.session_id);
-
-    } else {
-      console.error("❌ Erreur : session_id est NULL ! Le stockage dans localStorage échoue.");
-    }
-
-    // **🔗 Redirection vers Stripe**
-    window.location.href = result.url;
-
-  } catch (error) {
-    console.error("❌ Erreur lors de l'initialisation du paiement :", error);
-    alert("Erreur lors de l'initialisation du paiement.");
-  }
-};
-
-onMounted(async () => {
-  const route = useRoute();
-  let sessionId = route.query.session_id;
-
-  // ✅ Vérifie si la page a été ouverte depuis Stripe
-  if (!sessionId) {
-    return; // 🚀 Arrêter ici si l'utilisateur n'a pas encore payé.
-  }
-
-
-  // 🔥 **Si `session_id` est absent dans l'URL, on essaye `localStorage`**
-  if (!sessionId || sessionId === "undefined" || sessionId === null || sessionId === "") {
-    console.warn("⚠ sessionId absent dans l'URL, récupération depuis localStorage...");
-    sessionId = localStorage.getItem("stripe_session_id");
-  }
-
-  // 🚨 **Si après tout ça `session_id` est toujours invalide, on arrête tout**
-  if (!sessionId || sessionId === "undefined" || sessionId === null) {
-    console.error("❌ sessionId toujours invalide ! Aucun paiement n'a été initié.");
-    return; // ✅ Arrêter ici pour éviter une erreur inutile.
-  }
-
-
-  try {
-    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/paiement/statut/${sessionId}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    const result = await response.json();
-
-    // ❌ **Si la requête échoue ou que la réservation n'est pas confirmée**
-    if (!response.ok || !result.reservation) {
-      console.error("❌ La réservation n'a pas été créée :", result);
-      return;
-    }
-
-
-    // **🔥 Nettoyer le `session_id` stocké après paiement réussi**
-    localStorage.removeItem("stripe_session_id");
-
-    // 🎯 **Rediriger vers la page de confirmation avec les détails**
-    router.push({
-      name: "ConfirmationReservation",
-      query: result.reservation || { error: "Aucune réservation trouvée" }
-    });
-
-  } catch (error) {
-    console.error("❌ Erreur lors de la vérification du paiement :", error);
-  }
+const client = ref({
+  nom: "",
+  prenom: "",
+  telephone: "",
+  adresse: "",
+  prestation_id: isGroupe ? null : prestation.id,
+  avec_soin: false,
 });
 
+onMounted(async () => {
+  const user = await checkAuth();
+  if (!user) return router.push("/login-register");
 
+  client.value.nom = user.nom;
+  client.value.prenom = user.prenom;
 
-  
-return {
-    name,
-    surname,
-    phone,
-    address,
-    selectedDepartment,
-    departments,
-    prestation,
-    selectedDay,
-    selectedSlot,
-    handleOnlinePayment, // ✅ Paiement en ligne
-    handleOnSitePayment, // ✅ Ajout du bouton "Payer sur place"
+  const data = await getPrestations();
+  prestations.value = data.filter(p => !p.nom.toLowerCase().includes("soin seul"));
+
+  if (isGroupe && prestations.value.length) {
+    client.value.prestation_id = prestations.value[0].id;
+  }
+
+  genererParticipants();
+});
+
+const genererParticipants = () => {
+  const nb = isGroupe ? nombrePersonnes.value : accompagne.value ? nombrePersonnes.value : 0;
+  participants.value = [];
+  for (let i = 0; i < nb; i++) {
+    participants.value.push({
+      nom: "",
+      prenom: "",
+      prestation_id: prestations.value[0]?.id || null,
+      avec_soin: false,
+    });
+  }
 };
 
-  },
+const formulaireComplet = computed(() => {
+  if (!client.value.nom || !client.value.prenom || !client.value.telephone || !client.value.adresse || !client.value.prestation_id) {
+    return false;
+  }
+  return participants.value.every(p => p.nom && p.prenom && p.prestation_id);
+});
+
+const passerAuCalendrier = () => {
+  let total = 0;
+  let duree = 15;
+
+  const toutes = [client.value, ...participants.value];
+  for (const p of toutes) {
+    const presta = prestations.value.find(pr => pr.id == p.prestation_id);
+    if (!presta) continue;
+    total += +presta.prix + (p.avec_soin ? 7 : 0);
+    duree += +presta.duree_minutes + (p.avec_soin ? 10 : 0);
+  }
+
+  const reservationData = {
+    client: client.value,
+    participants: participants.value,
+    type_id: isGroupe ? "groupe" : prestation.id,
+    duree_totale: duree,
+    tarif_total: total,
+  };
+
+  localStorage.setItem("reservation_en_cours", JSON.stringify(reservationData));
+  router.push({ name: "Reservation", params: { id: "temp" }, query: { duree } });
 };
 </script>
 
-
 <style scoped>
-.reservation-form { 
-  padding: 20px;
+.reservation-form {
   background-color: #f8f3e7;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 600px;       
-  margin: 0 auto;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  margin: 30px auto;
 }
-
+.person-block {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 5px solid #d4a373;
+  border-radius: 8px;
+}
 label {
   display: block;
   margin-bottom: 5px;
-  color: #333;
+  font-weight: 600;
 }
-
-input, select {
+input,
+select {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
-.payment-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.golden-button {
+button {
   background-color: #d4a373;
   color: white;
-  padding: 10px 20px;
-  border: none;
+  padding: 12px 20px;
   border-radius: 5px;
+  border: none;
   cursor: pointer;
+  width: 100%;
+  font-size: 1.1rem;
 }
-
-.golden-button:hover {
-  background-color: #c58954;
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>

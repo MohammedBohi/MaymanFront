@@ -9,19 +9,18 @@
     <div class="main-header-center">
       <img src="@/assets/images/PhotoAccueil.jpeg" alt="Photo accueil" class="photo-accueil" />
     </div>
-<!--
 
+    <!-- Logo Accueil en bas à gauche -->
     <div class="main-header-bottom-left">
       <router-link to="/">
         <img src="@/assets/icons/LogoAccueil.png" alt="Accueil" class="logo-accueil" />
       </router-link>
     </div>
--->
-<!--
 
+    <!-- Section Connexion / Déconnexion -->
     <div class="main-header-bottom-right">
       <template v-if="user">
-        <span class="user-info">👤 Bienvenue, {{ user.nom }} !</span>
+        <span class="user-info">👤 Bienvenue  {{ user.nom }} !</span>
         <button class="logout-button" @click="handleLogout">Se déconnecter</button>
       </template>
       <template v-else>
@@ -30,8 +29,6 @@
         </router-link>
       </template>
     </div>
-  -->
-
   </header>
 </template>
 

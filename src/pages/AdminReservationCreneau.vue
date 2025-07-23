@@ -1,72 +1,66 @@
 <template>
   <div class="reservation-page">
-    <div class="calendar-section">
-      <h2>Choisissez un jour et un créneau</h2>
-      <v-calendar
-        mode="single"
-        is-expanded
-        :attributes="calendarAttributes"
-        @dayclick="onDateSelected"
-      />
+    <h2>📅 Choisissez un jour et un créneau</h2>
+    <v-calendar
+      mode="single"
+      is-expanded
+      :attributes="calendarAttributes"
+      @dayclick="onDateSelected"
+    />
 
-      <div v-if="selectedDate" class="details-section">
-        <h3>Créneaux disponibles :</h3>
-        <div v-if="availableSlots.length" class="slot-buttons">
-          <button
-            v-for="slot in availableSlots"
-            :key="slot"
-            @click="selectSlot(slot)"
-            :class="{ active: slot === selectedSlot }"
-          >
-            {{ slot }}
-          </button>
-        </div>
-        <p v-else>Aucun créneau disponible pour cette date.</p>
-
-        <div class="departement-select-row">
-          <div class="select-wrapper">
-            <h3>Choisir votre département :</h3>
-            <select v-model="selectedDepartment" required>
-              <option v-for="dept in departments" :key="dept.codePostal" :value="dept">
-                {{ dept.nom }} ({{ dept.codePostal }})
-              </option>
-            </select>
-          </div>
-
-          <div v-if="departments.length" class="departement-info-inline">
-            <p>
-              <strong>Départements desservis le {{ joursSemaine[selectedDate.getDay()] }} :</strong>
-            </p>
-            <ul>
-              <li v-for="dept in departments" :key="dept.codePostal">
-                {{ dept.nom }} ({{ dept.codePostal }})
-              </li>
-            </ul>
-            <p v-if="selectedDate.getDay() === 0" class="dimanche-note">
-              ⚠️ Dimanche = travail occasionnel selon disponibilité
-            </p>
-          </div>
-        </div>
-
+    <div v-if="selectedDate" class="details-section">
+      <h3>Créneaux disponibles :</h3>
+      <div v-if="availableSlots.length" class="slot-buttons">
         <button
-          class="reserve-button"
-          :disabled="!selectedSlot || !selectedDepartment"
-          @click="validerReservation"
+          v-for="slot in availableSlots"
+          :key="slot"
+          @click="selectSlot(slot)"
+          :class="{ active: slot === selectedSlot }"
         >
-          Continuer
+          {{ slot }}
         </button>
-        <button class="back-button" @click="router.back()">⬅ Retour</button>
       </div>
+      <p v-else>Aucun créneau disponible pour cette date.</p>
+
+      <div class="departement-select-row">
+        <div class="select-wrapper">
+          <h3>Choisir le département :</h3>
+          <select v-model="selectedDepartment" required>
+            <option v-for="dept in departments" :key="dept.codePostal" :value="dept">
+              {{ dept.nom }} ({{ dept.codePostal }})
+            </option>
+          </select>
+        </div>
+
+        <div v-if="departments.length" class="departement-info-inline">
+          <p>
+            <strong>Départements desservis le {{ joursSemaine[selectedDate.getDay()] }} :</strong>
+          </p>
+          <ul>
+            <li v-for="dept in departments" :key="dept.codePostal">
+              {{ dept.nom }} ({{ dept.codePostal }})
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <button
+        class="reserve-button"
+        :disabled="!selectedSlot || !selectedDepartment"
+        @click="validerReservation"
+      >
+        ➡ Valider et voir récapitulatif
+      </button>
+      <button class="back-button" @click="router.back()">⬅ Retour</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, nextTick, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { getCreneauxDisponibles } from "@/services/CreneauService";
 
-const route = useRoute();
 const router = useRouter();
 
 const selectedDate = ref(null);
@@ -74,11 +68,9 @@ const selectedSlot = ref(null);
 const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
-const duree = parseInt(route.query.duree, 10);
+const duree = ref(0);
 
-const joursSemaine = [
-  "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
-];
+const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 
 const departementsParJour = [
   [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Puylagarde", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" } ],
@@ -96,7 +88,7 @@ const calendarAttributes = ref([
     dates: (date) => date < new Date().setHours(0, 0, 0, 0),
     excludeMode: "soft",
     class: "unavailable",
-  },
+  }
 ]);
 
 const formatDate = (date) =>
@@ -110,30 +102,21 @@ const getDepartmentsForDay = (day) =>
 const onDateSelected = async ({ date }) => {
   if (!date) return;
 
-  const now = new Date();
-  const selected = new Date(date);
-  selected.setHours(0, 0, 0, 0);
-  now.setHours(0, 0, 0, 0);
-
-  if (selected < now) {
-    alert("😅 Ah, tu savais qu'on ne pouvait pas réserver dans le passé ?");
-    return;
-  }
-
   selectedDate.value = new Date(date);
   departments.value = [];
   await nextTick();
-  departments.value = [...getDepartmentsForDay(selectedDate.value)];
+  departments.value = getDepartmentsForDay(selectedDate.value);
   selectedDepartment.value = departments.value[0] || null;
 
   await getAvailableSlots();
 };
 
 const getAvailableSlots = async () => {
-  if (!selectedDate.value || !duree) return;
+  if (!selectedDate.value || !duree.value) return;
+
   const formatted = formatDate(selectedDate.value);
   try {
-    const data = await getCreneauxDisponibles(formatted, duree);
+    const data = await getCreneauxDisponibles(formatted, duree.value);
     availableSlots.value = data || [];
   } catch (e) {
     console.error("Erreur chargement créneaux :", e);
@@ -151,52 +134,73 @@ const validerReservation = () => {
     slot: selectedSlot.value,
     departement: selectedDepartment.value,
   };
-  localStorage.setItem("reservation_date", JSON.stringify(payload));
-  router.push("/confirmation");
+  localStorage.setItem("admin_reservation_date", JSON.stringify(payload));
+  router.push("/admin/confirmation");
 };
+
+onMounted(() => {
+  const saved = JSON.parse(localStorage.getItem("admin_reservation") || "{}");
+  duree.value = saved.duree_totale || 0;
+});
 </script>
 <style scoped>
 .reservation-page {
-  padding: 20px;
-  background-color: #f8f3e7;
-  max-width: 800px;
+  padding: 40px 20px;
+  background-color: #f9f4ee;
+  max-width: 900px;
   margin: auto;
+  font-family: 'Segoe UI', sans-serif;
 }
-.calendar-section {
-  background: white;
-  border-radius: 10px;
-  padding: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+h2 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  color: #5a3d2b;
+  text-align: center;
 }
+
 .details-section {
-  margin-top: 20px;
+  margin-top: 30px;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
 .slot-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 15px;
+  justify-content: center;
 }
+
 .slot-buttons button {
   padding: 10px 15px;
   background-color: #d4a373;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   color: white;
   cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
 }
 .slot-buttons button.active {
   background-color: #c58954;
 }
-.reserve-button, .back-button {
-  margin-top: 20px;
+
+.reserve-button,
+.back-button {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   font-size: 1.1rem;
-  border-radius: 5px;
+  font-weight: bold;
+  border-radius: 6px;
+  margin-top: 25px;
 }
+
 .reserve-button {
-  background-color: #d4a373;
+  background-color: #6a994e;
   color: white;
   border: none;
 }
@@ -205,39 +209,43 @@ const validerReservation = () => {
   cursor: not-allowed;
 }
 .back-button {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  color: #333;
-  cursor: pointer;
+  background-color: #d4a373;
+  color: white;
+  border: none;
+}
+.back-button:hover {
+  background-color: #c78d56;
 }
 
-/* ✅ Ligne select + infos à droite */
 .departement-select-row {
   display: flex;
   align-items: flex-start;
   gap: 20px;
-  margin-top: 15px;
+  margin-top: 25px;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
+
 .select-wrapper {
   flex: 1;
+  min-width: 250px;
 }
+
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
 .departement-info-inline {
   background: #fdf9f1;
-  padding: 12px;
+  padding: 15px;
   border-left: 5px solid #d4a373;
-  border-radius: 6px;
+  border-radius: 8px;
   min-width: 280px;
   max-width: 300px;
-}
-.dimanche-note {
-  color: #b85c00;
-  margin-top: 5px;
-  font-style: italic;
-}
-.info-message {
-  margin-top: 10px;
-  font-style: italic;
-  color: #a65c00;
 }
 </style>

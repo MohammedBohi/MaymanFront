@@ -1,24 +1,36 @@
 import api from './api';
 
-// 📌 Récupérer toutes les réservations pour l'Admin
-export const getToutesReservations = async () => {
+// 📌 Récupérer les réservations d’un jour spécifique (Admin)
+export const getReservationsParJour = async (date) => {
   try {
-    const response = await api.get('/admin/reservations');
+    const response = await api.get('/admin/reservations', {
+      params: { jour: date }
+    });
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de la récupération des réservations (Admin)', error);
+    console.error('Erreur lors de la récupération des réservations du jour (Admin)', error);
     return [];
   }
 };
 
-// 📌 Annuler une réservation en tant qu'Admin
-export const annulerReservationAdmin = async (reservationId) => {
+// 📌 Récupérer les détails complets d'une réservation (Admin)
+export const getDetailsReservationAdmin = async (reservationId) => {
   try {
-    await api.delete(`/admin/reservations/${reservationId}`);
-    return { message: 'Réservation annulée avec succès par l’Admin.' };
+    const response = await api.get(`/admin/reservations/${reservationId}`);
+    return response.data;
   } catch (error) {
-    console.error('Erreur lors de l’annulation de la réservation (Admin)', error);
+    console.error('Erreur lors de la récupération des détails (Admin)', error);
+    return null;
+  }
+};
+
+// 📌 Supprimer une réservation en tant qu'Admin
+export const supprimerReservationAdmin = async (reservationId) => {
+  try {
+    const response = await api.delete(`/admin/reservations/${reservationId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la réservation (Admin)', error);
     throw error;
   }
 };
-    
