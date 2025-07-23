@@ -1,5 +1,7 @@
 <template>
   <div class="reservation-page">
+    <router-link to="/admin/nouvelle-reservation" class="back-btn">← Retour au formulaire</router-link>
+
     <h2>📅 Choisissez un jour et un créneau</h2>
     <v-calendar
       mode="single"
@@ -187,6 +189,21 @@ h2 {
 }
 .slot-buttons button.active {
   background-color: #c58954;
+}
+.back-btn {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 14px;
+  background-color: #d4a373;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #c78d56;
 }
 
 .reserve-button,

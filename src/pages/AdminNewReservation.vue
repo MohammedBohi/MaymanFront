@@ -72,7 +72,7 @@ export default {
   data() {
     return {
       client: {
-        nom: "", prenom: "", email: "", telephone: "", adresse: "",
+        nom: "", prenom: "", email: "mayliss.mazet24@gmail.com", telephone: "07 68 44 16 10", adresse: "",
         prestation_id: "", avec_soin: false
       },
       prestations: [],
