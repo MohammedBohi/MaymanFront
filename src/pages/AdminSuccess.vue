@@ -10,6 +10,10 @@
       <p><strong>Email :</strong> {{ reservation.email }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.telephone }}</p>
       <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
+      <p><strong>Prestation :</strong> {{ prestationClient }}</p>
+<p><strong>Soin :</strong> {{ reservation.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+<p><strong>Prix :</strong> {{ getPrixClient() }} €</p>
+
     </div>
 
     <!-- Participants -->
@@ -70,6 +74,13 @@ const formatDuree = (totalMinutes) => {
 const getPrix = (p) => {
   const base = parseFloat(p.prix);
   return (base + (p.avec_soin ? 7 : 0)).toFixed(2);
+};
+const prestationClient = ref("Inconnue");
+
+const getPrixClient = () => {
+  const base = parseFloat(reservation.value.prix || 0);
+  const soin = reservation.value.avec_soin ? 7 : 0;
+  return (base + soin).toFixed(2);
 };
 
 onMounted(async () => {

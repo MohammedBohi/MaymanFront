@@ -9,7 +9,10 @@
       <p><strong>Prénom :</strong> {{ reservation.client.prenom }}</p>
       <p><strong>Email :</strong> {{ reservation.client.email }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.client.telephone }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p><p><strong>Prestation :</strong> {{ getPrestation(reservation.client.prestation_id) }}</p>
+<p><strong>Soin :</strong> {{ reservation.client.avec_soin ? 'Oui (+7€)' : 'Non' }}</p>
+<p><strong>Prix :</strong> {{ getPrix(reservation.client) }} €</p>
+
     </div>
 
     <!-- Participants -->
@@ -82,6 +85,14 @@ const getPrestation = (id) => {
   const p = prestations.value.find(pr => pr.id === id);
   return p ? `${p.nom} (${p.duree_minutes}min - ${p.prix}€)` : "Inconnue";
 };
+const getPrix = (personne) => {
+  const p = prestations.value.find(pr => pr.id === personne.prestation_id);
+  if (!p) return "Inconnu";
+  const base = parseFloat(p.prix);
+  const soin = personne.avec_soin ? 7 : 0;
+  return (base + soin).toFixed(2);
+};
+
 
 const formatDuree = (min) => {
   const h = Math.floor(min / 60);
