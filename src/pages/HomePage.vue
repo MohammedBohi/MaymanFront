@@ -1,11 +1,7 @@
 <template>
   <div class="homepage">
-    <!-- ✅ Bloc Nouveautés harmonisé -->
-    <!-- ✅ Bloc Nouveautés harmonisé -->
-     <!-- ✅ Alerte maintenance -->
-<div class="maintenance-banner">
-  ⚠️ Le site est actuellement en maintenance. Les réservations sont temporairement indisponibles. Merci de revenir plus tard.
-</div>
+   
+
 
 <div class="nouveautes-annonce">
   <div class="nouveautes-content">
