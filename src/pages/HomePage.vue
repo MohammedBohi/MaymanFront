@@ -1,6 +1,13 @@
 <template>
   <div class="homepage">
-   
+   <!-- ✅ Bandeau d'information -->
+<div class="maintenance-banner">
+  ⚠️ En raison d’un problème interne, la confirmation de réservation peut prendre environ 
+  <strong>10 secondes</strong>.  
+  Merci de patienter après avoir cliqué sur « Confirmer la réservation ».  
+  Nous faisons le nécessaire pour résoudre ce souci au plus vite 🙏.
+</div>
+
 
 
 <div class="nouveautes-annonce">
