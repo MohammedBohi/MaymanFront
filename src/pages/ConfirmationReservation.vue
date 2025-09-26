@@ -50,7 +50,9 @@
     <!-- Actions -->
     <div class="actions">
       <button class="back" @click="retourCalendrier">← Changer de créneau</button>
-      <button class="confirm" @click="validerReservation">Confirmer la réservation</button>
+<button class="confirm" :disabled="isSubmitting" @click="validerReservation">
+  {{ isSubmitting ? 'Validation...' : 'Confirmer la réservation' }}
+</button>
     </div>
   </div>
 </template>
@@ -136,31 +138,35 @@ const validerReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) return router.push("/login-register");
 
-    const personnes = [
-      {
-        nom: reservation.client.nom,
-        prenom: reservation.client.prenom,
-        prestation_id: reservation.client.prestation_id,
-        avec_soin: reservation.client.avec_soin
-      },
-      ...(participants.value || [])
-    ];
+  const personnes = [
+  {
+    nom: reservation.client.nom,
+    prenom: reservation.client.prenom,
+    prestation_id: Number(reservation.client.prestation_id),   // ← cast
+    avec_soin: Boolean(reservation.client.avec_soin)
+  },
+  ...(participants.value || []).map(p => ({
+    ...p,
+    prestation_id: Number(p.prestation_id),                    // ← cast
+    avec_soin: Boolean(p.avec_soin)
+  }))
+];
 
-    // ✅ sérialiser le département pour la BDD (VARCHAR)
-    const departementStr = typeof dateRes.departement === "string"
-      ? dateRes.departement
-      : JSON.stringify(dateRes.departement ?? {});
+const departementStr = typeof dateRes.departement === "string"
+  ? dateRes.departement
+  : JSON.stringify(dateRes.departement ?? {});
 
-    const body = {
-      nom: reservation.client.nom,
-      prenom: reservation.client.prenom,
-      telephone: reservation.client.telephone,
-      adresseReservation: reservation.client.adresse,
-      jour: dateRes.date,            // ex: "2025-07-11"
-      heure_debut: dateRes.slot,     // ex: "14:30"
-      departement: departementStr,   // toujours une string
-      personnes
-    };
+const body = {
+  nom: reservation.client.nom,
+  prenom: reservation.client.prenom,
+  telephone: reservation.client.telephone,
+  adresseReservation: reservation.client.adresse,
+  jour: dateRes.date,                 // "YYYY-MM-DD"
+  heure_debut: dateRes.slot,          // "HH:mm"
+  departement: departementStr,        // VARCHAR en base
+  personnes
+};
+
 
     // 👉 POST principal
     const resp = await api.post("/reservations", body, {
