@@ -4,7 +4,7 @@
 <div class="maintenance-banner">
   ⚠️ En raison d’un problème interne, la confirmation de réservation peut prendre environ 
   <strong>10 secondes</strong>.  
-  Merci de patienter après avoir cliqué sur « Confirmer la réservation ».  
+  Merci de patienter après avoir cliqué sur « Confirmer la réservation » sur la page du récapitulatif.
   Nous faisons le nécessaire pour résoudre ce souci au plus vite 🙏.
 </div>
 
