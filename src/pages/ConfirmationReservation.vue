@@ -54,7 +54,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -67,34 +66,31 @@ const dateRes = JSON.parse(localStorage.getItem("reservation_date")) || {};
 
 const prestations = ref([]);
 const participants = computed(() => reservation.participants || []);
+const isSubmitting = ref(false); // ✅ anti double-clic
 
 const dateFormatted = new Date(dateRes.date).toLocaleDateString("fr-FR", {
   weekday: "long", day: "numeric", month: "long", year: "numeric"
 });
 
 const fetchPrestations = async () => {
-  try {
-    prestations.value = await getPrestations();
-  } catch (e) {
-    console.error("Erreur chargement prestations :", e);
-  }
+  try { prestations.value = await getPrestations(); }
+  catch (e) { console.error("Erreur chargement prestations :", e); }
 };
 fetchPrestations();
+
 const getPrestationName = (id) => {
   if (id === "groupe") return "Prestation de groupe (sur devis)";
   const presta = prestations.value.find(p => String(p.id) === String(id));
   return presta ? presta.nom : "Inconnue";
 };
 
-
 const getPrixDetail = (personne) => {
   const presta = prestations.value.find(p => String(p.id) === String(personne.prestation_id));
   if (!presta) return "Inconnu";
   const base = parseFloat(presta.prix);
   const soin = personne.avec_soin ? 7 : 0;
-  return `${base} €${soin ? ` + ${soin} € (soin)` : ""} = ${base + soin} €`;
+  return `${base} €${soin ? ` + ${soin} € (soin)` : ""} = ${(base + soin).toFixed(2)} €`;
 };
-
 
 const getHeureFin = () => {
   if (!dateRes.slot || !reservation.duree_totale) return "";
@@ -112,10 +108,30 @@ const formatDuree = (totalMinutes) => {
 };
 
 const retourCalendrier = () => {
-router.push({ name: "Reservation", params: { id: 'temp' }, query: { duree: reservation.duree_totale } });
+  router.push({ name: "Reservation", params: { id: 'temp' }, query: { duree: reservation.duree_totale } });
 };
 
+// 🔁 Fallback: si POST échoue mais que la résa a été créée en BDD,
+// on va la retrouver via /reservations/mes par jour + heure_debut
+async function tryRecoverReservationId(token, jourISO, heureDebut) {
+  try {
+    const { data } = await api.get("/reservations/mes", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const found = (data || []).find(r =>
+      String(r.jour).startsWith(jourISO) && String(r.heure_debut).startsWith(heureDebut)
+    );
+    return found?.id || null;
+  } catch (e) {
+    console.error("❌ Fallback /reservations/mes KO :", e?.response?.data || e);
+    return null;
+  }
+}
+
 const validerReservation = async () => {
+  if (isSubmitting.value) return; // ✅ anti double-clic
+  isSubmitting.value = true;
+
   try {
     const token = localStorage.getItem("token");
     if (!token) return router.push("/login-register");
@@ -127,34 +143,62 @@ const validerReservation = async () => {
         prestation_id: reservation.client.prestation_id,
         avec_soin: reservation.client.avec_soin
       },
-      ...participants.value
+      ...(participants.value || [])
     ];
+
+    // ✅ sérialiser le département pour la BDD (VARCHAR)
+    const departementStr = typeof dateRes.departement === "string"
+      ? dateRes.departement
+      : JSON.stringify(dateRes.departement ?? {});
 
     const body = {
       nom: reservation.client.nom,
       prenom: reservation.client.prenom,
       telephone: reservation.client.telephone,
       adresseReservation: reservation.client.adresse,
-      jour: dateRes.date,
-      heure_debut: dateRes.slot,
-      departement: dateRes.departement,
+      jour: dateRes.date,            // ex: "2025-07-11"
+      heure_debut: dateRes.slot,     // ex: "14:30"
+      departement: departementStr,   // toujours une string
       personnes
     };
 
-    const { data } = await api.post("/reservations", body, {
+    // 👉 POST principal
+    const resp = await api.post("/reservations", body, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
+    // ✅ Succès normal
+    const reservationId = resp?.data?.reservation_id;
+    if (!reservationId) throw new Error("Réservation créée mais ID manquant.");
     localStorage.removeItem("reservation_en_cours");
     localStorage.removeItem("reservation_date");
-    router.push({ name: "SuccessPage", query: { id: data.reservation_id } });
+    return router.replace({ name: "SuccessPage", query: { id: reservationId } });
 
   } catch (e) {
-    console.error("❌ Erreur lors de la réservation :", e);
-    alert("Une erreur est survenue, veuillez réessayer.");
+    console.error("❌ Erreur POST /reservations :", e?.response?.data || e);
+
+    // 🛟 Fallback: tenter de retrouver la résa créée
+    const token = localStorage.getItem("token");
+    const jourISO = dateRes.date;        // "YYYY-MM-DD"
+    const heureDebut = dateRes.slot;     // "HH:mm"
+    const recoveredId = await tryRecoverReservationId(token, jourISO, heureDebut);
+
+    if (recoveredId) {
+      // On a retrouvé la résa -> on nettoie et on redirige
+      localStorage.removeItem("reservation_en_cours");
+      localStorage.removeItem("reservation_date");
+      return router.replace({ name: "SuccessPage", query: { id: recoveredId } });
+    }
+
+    // Sinon message clair
+    const msg = e?.response?.data?.error || e?.message || "Une erreur est survenue, veuillez réessayer.";
+    alert(msg);
+  } finally {
+    isSubmitting.value = false;
   }
 };
 </script>
+
 
 <style scoped>
 .confirmation-page {
