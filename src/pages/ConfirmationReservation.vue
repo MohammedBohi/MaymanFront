@@ -70,6 +70,25 @@ const dateRes = JSON.parse(localStorage.getItem("reservation_date")) || {};
 const prestations = ref([]);
 const participants = computed(() => reservation.participants || []);
 const isSubmitting = ref(false); // anti double-clic
+function goToSuccess(id) {
+  // 🔓 débloque l’UI avant la nav
+  isSubmitting.value = false;
+
+  const target = { name: "SuccessPage", query: { id } };
+
+  // 🚀 lance la nav sans bloquer
+  const nav = router.replace(target);
+
+  // 🛡️ watchdog: si pour une raison quelconque la nav ne prend pas,
+  // on tente un push après 600ms
+  setTimeout(() => {
+    const r = router.currentRoute.value;
+    const onSuccess = r.name === "SuccessPage" && String(r.query?.id || "") === String(id);
+    if (!onSuccess) {
+      router.push(target);
+    }
+  }, 600);
+}
 
 const dateFormatted = new Date(dateRes.date).toLocaleDateString("fr-FR", {
   weekday: "long", day: "numeric", month: "long", year: "numeric"
@@ -180,12 +199,10 @@ const validerReservation = async () => {
     if (!reservationId) throw new Error("Réservation créée mais ID manquant.");
 
     // Débloquer AVANT navigation
-    localStorage.removeItem("reservation_en_cours");
-    localStorage.removeItem("reservation_date");
-    isSubmitting.value = false;
+localStorage.removeItem("reservation_en_cours");
+localStorage.removeItem("reservation_date");
+goToSuccess(reservationId);
 
-    // Navigation non-bloquante
-    void router.replace({ name: "SuccessPage", query: { id: reservationId } });
 
   } catch (e) {
     console.error("❌ POST /reservations :", e?.response?.status, e?.response?.data || e);
@@ -203,11 +220,10 @@ const validerReservation = async () => {
           String(r.heure_debut).startsWith(dateRes.slot)
         );
         if (found?.id) {
-          localStorage.removeItem("reservation_en_cours");
-          localStorage.removeItem("reservation_date");
-          isSubmitting.value = false;
-          void router.replace({ name: "SuccessPage", query: { id: found.id } });
-          return;
+        localStorage.removeItem("reservation_en_cours");
+localStorage.removeItem("reservation_date");
+goToSuccess(found.id);
+return;
         }
       }
     } catch (recErr) {
