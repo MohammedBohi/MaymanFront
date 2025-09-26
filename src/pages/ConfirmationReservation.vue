@@ -50,12 +50,13 @@
     <!-- Actions -->
     <div class="actions">
       <button class="back" @click="retourCalendrier">← Changer de créneau</button>
-<button class="confirm" :disabled="isSubmitting" @click="validerReservation">
-  {{ isSubmitting ? 'Validation...' : 'Confirmer la réservation' }}
-</button>
+      <button class="confirm" :disabled="isSubmitting" @click="validerReservation">
+        {{ isSubmitting ? 'Validation...' : 'Confirmer la réservation' }}
+      </button>
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -68,7 +69,7 @@ const dateRes = JSON.parse(localStorage.getItem("reservation_date")) || {};
 
 const prestations = ref([]);
 const participants = computed(() => reservation.participants || []);
-const isSubmitting = ref(false); // ✅ anti double-clic
+const isSubmitting = ref(false); // anti double-clic
 
 const dateFormatted = new Date(dateRes.date).toLocaleDateString("fr-FR", {
   weekday: "long", day: "numeric", month: "long", year: "numeric"
@@ -113,8 +114,7 @@ const retourCalendrier = () => {
   router.push({ name: "Reservation", params: { id: 'temp' }, query: { duree: reservation.duree_totale } });
 };
 
-// 🔁 Fallback: si POST échoue mais que la résa a été créée en BDD,
-// on va la retrouver via /reservations/mes par jour + heure_debut
+// Fallback: si POST échoue mais que la résa existe déjà, on la retrouve
 async function tryRecoverReservationId(token, jourISO, heureDebut) {
   try {
     const { data } = await api.get("/reservations/mes", {
@@ -131,79 +131,98 @@ async function tryRecoverReservationId(token, jourISO, heureDebut) {
 }
 
 const validerReservation = async () => {
-  if (isSubmitting.value) return; // ✅ anti double-clic
+  if (isSubmitting.value) return; // anti double-clic
   isSubmitting.value = true;
 
   try {
     const token = localStorage.getItem("token");
-    if (!token) return router.push("/login-register");
-
-  const personnes = [
-  {
-    nom: reservation.client.nom,
-    prenom: reservation.client.prenom,
-    prestation_id: Number(reservation.client.prestation_id),   // ← cast
-    avec_soin: Boolean(reservation.client.avec_soin)
-  },
-  ...(participants.value || []).map(p => ({
-    ...p,
-    prestation_id: Number(p.prestation_id),                    // ← cast
-    avec_soin: Boolean(p.avec_soin)
-  }))
-];
-
-const departementStr = typeof dateRes.departement === "string"
-  ? dateRes.departement
-  : JSON.stringify(dateRes.departement ?? {});
-
-const body = {
-  nom: reservation.client.nom,
-  prenom: reservation.client.prenom,
-  telephone: reservation.client.telephone,
-  adresseReservation: reservation.client.adresse,
-  jour: dateRes.date,                 // "YYYY-MM-DD"
-  heure_debut: dateRes.slot,          // "HH:mm"
-  departement: departementStr,        // VARCHAR en base
-  personnes
-};
-
-
-    // 👉 POST principal
-    const resp = await api.post("/reservations", body, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    // ✅ Succès normal
-    const reservationId = resp?.data?.reservation_id;
-    if (!reservationId) throw new Error("Réservation créée mais ID manquant.");
-    localStorage.removeItem("reservation_en_cours");
-    localStorage.removeItem("reservation_date");
-    return router.replace({ name: "SuccessPage", query: { id: reservationId } });
-
-  } catch (e) {
-    console.error("❌ Erreur POST /reservations :", e?.response?.data || e);
-
-    // 🛟 Fallback: tenter de retrouver la résa créée
-    const token = localStorage.getItem("token");
-    const jourISO = dateRes.date;        // "YYYY-MM-DD"
-    const heureDebut = dateRes.slot;     // "HH:mm"
-    const recoveredId = await tryRecoverReservationId(token, jourISO, heureDebut);
-
-    if (recoveredId) {
-      // On a retrouvé la résa -> on nettoie et on redirige
-      localStorage.removeItem("reservation_en_cours");
-      localStorage.removeItem("reservation_date");
-      return router.replace({ name: "SuccessPage", query: { id: recoveredId } });
+    if (!token) {
+      isSubmitting.value = false;
+      router.push("/login-register");
+      return;
     }
 
-    // Sinon message clair
+    const personnes = [
+      {
+        nom: reservation.client.nom,
+        prenom: reservation.client.prenom,
+        prestation_id: Number(reservation.client.prestation_id), // cast number
+        avec_soin: Boolean(reservation.client.avec_soin)
+      },
+      ...(participants.value || []).map(p => ({
+        ...p,
+        prestation_id: Number(p.prestation_id),                  // cast number
+        avec_soin: Boolean(p.avec_soin)
+      }))
+    ];
+
+    const departementStr = typeof dateRes.departement === "string"
+      ? dateRes.departement
+      : JSON.stringify(dateRes.departement ?? {});
+
+    const body = {
+      nom: reservation.client.nom,
+      prenom: reservation.client.prenom,
+      telephone: reservation.client.telephone,
+      adresseReservation: reservation.client.adresse,
+      jour: dateRes.date,           // "YYYY-MM-DD"
+      heure_debut: dateRes.slot,    // "HH:mm"
+      departement: departementStr,  // VARCHAR en BDD
+      personnes
+    };
+
+    const resp = await api.post("/reservations", body, {
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 15000
+    });
+
+    const reservationId = resp?.data?.reservation_id;
+    if (!reservationId) throw new Error("Réservation créée mais ID manquant.");
+
+    // Débloquer AVANT navigation
+    localStorage.removeItem("reservation_en_cours");
+    localStorage.removeItem("reservation_date");
+    isSubmitting.value = false;
+
+    // Navigation non-bloquante
+    void router.replace({ name: "SuccessPage", query: { id: reservationId } });
+
+  } catch (e) {
+    console.error("❌ POST /reservations :", e?.response?.status, e?.response?.data || e);
+
+    // Fallback: retrouver la résa si créée malgré l'erreur (conflit/email)
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const { data: mesRes } = await api.get("/reservations/mes", {
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 10000
+        });
+        const found = (mesRes || []).find(r =>
+          String(r.jour).startsWith(dateRes.date) &&
+          String(r.heure_debut).startsWith(dateRes.slot)
+        );
+        if (found?.id) {
+          localStorage.removeItem("reservation_en_cours");
+          localStorage.removeItem("reservation_date");
+          isSubmitting.value = false;
+          void router.replace({ name: "SuccessPage", query: { id: found.id } });
+          return;
+        }
+      }
+    } catch (recErr) {
+      console.error("❌ Fallback /reservations/mes KO :", recErr?.response?.data || recErr);
+    }
+
     const msg = e?.response?.data?.error || e?.message || "Une erreur est survenue, veuillez réessayer.";
     alert(msg);
   } finally {
+    // filet de sécurité si aucune navigation n'a eu lieu
     isSubmitting.value = false;
   }
 };
 </script>
+
 
 
 <style scoped>
