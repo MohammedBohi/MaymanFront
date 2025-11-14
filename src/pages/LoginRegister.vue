@@ -9,7 +9,7 @@
         <input v-model="password" type="password" id="password" required placeholder="Entrez votre mot de passe" />
         <button type="submit" class="golden-button">Se connecter</button>
         <p class="forgot-password">
-          <router-link to="/forgot-password">Mot de passe oublié ?</router-link>
+<!--      <router-link to="/forgot-password">Mot de passe oublié ?</router-link> -->
         </p>
         <p v-if="loginError" class="error-message">{{ loginError }}</p>
       </form>
