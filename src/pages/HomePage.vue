@@ -3,14 +3,14 @@
    <!-- ✅ Bandeau d'information -->
 
    <!-- 🔔 Bandeau info e-mails indisponibles -->
-<!-- 🔔 Bannière info -->
+<!-- 🔔 Bannière info 
 <div class="maintenance-banner">
   ⚠️ L’envoi des e-mails de confirmation et d’annulation est
   <strong>temporairement indisponible</strong>.  
   Merci de bien <strong>noter la date et l’heure</strong> de votre réservation affichées à l’écran.  
   Nous faisons le maximum pour rétablir le service rapidement 🙏
 </div>
-
+-->
 
 <div class="nouveautes-annonce">
   <div class="nouveautes-content">
