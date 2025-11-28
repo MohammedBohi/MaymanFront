@@ -84,10 +84,10 @@ const departementsParJour = [
   [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Puylagarde", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" } ],
   [ { nom: "Parisot", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" }, { nom: "Limogne-en-Quercy", codePostal: "46260" }, { nom: "Saint-Projet", codePostal: "82160" }, { nom: "Puylagarde", codePostal: "82160" }, { nom: "Villefranche-de-Rouergue", codePostal: "12200" } ],
   [ { nom: "Parisot", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" }, { nom: "Limogne-en-Quercy", codePostal: "46260" }, { nom: "Saint-Projet", codePostal: "82160" }, { nom: "Puylagarde", codePostal: "82160" }, { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Varaire", codePostal: "46260" } ],
-  [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Caylus", codePostal: "82160" }, { nom: "Parisot", codePostal: "82160" }, { nom: "Martiel", codePostal: "12200" }, { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" } ],
-  [ { nom: "Parisot", codePostal: "82160" }, { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Limogne-en-Quercy", codePostal: "46260" },  { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" }, { nom: "Varaire", codePostal: "46260" } ],
-  [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Parisot", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" }, { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" }, { nom: "Saint-Projet", codePostal: "82160" }, { nom: "Puylagarde", codePostal: "82160" }, { nom: "Martiel", codePostal: "12200" }, { nom: "Varaire", codePostal: "46260" } ],
-  [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Parisot", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" }, { nom: "Saint-Antonin-Noble-Val", codePostal: "82140" }, { nom: "Martiel", codePostal: "12200" }, { nom: "Varaire", codePostal: "46260" } ]
+  [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Caylus", codePostal: "82160" }, { nom: "Parisot", codePostal: "82160" }, { nom: "Martiel", codePostal: "12200" } ],
+  [ { nom: "Parisot", codePostal: "82160" }, { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Limogne-en-Quercy", codePostal: "46260" },   { nom: "Varaire", codePostal: "46260" } ],
+  [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Parisot", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" },  { nom: "Saint-Projet", codePostal: "82160" }, { nom: "Puylagarde", codePostal: "82160" }, { nom: "Martiel", codePostal: "12200" }, { nom: "Varaire", codePostal: "46260" } ],
+  [ { nom: "Villefranche-de-Rouergue", codePostal: "12200" }, { nom: "Parisot", codePostal: "82160" }, { nom: "Caylus", codePostal: "82160" },  { nom: "Martiel", codePostal: "12200" }, { nom: "Varaire", codePostal: "46260" } ]
 ];
 
 const calendarAttributes = ref([
