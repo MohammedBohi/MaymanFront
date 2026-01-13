@@ -79,7 +79,7 @@ const duree = parseInt(route.query.duree, 10);
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
 ];
-const SALON = { nom: "Salon May'Man - 196 Route de Montauban, Villefranche-de-Rouergue", codePostal: "12200" };
+const SALON = { nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue", codePostal: "12200" };
 
 const DOMICILE = [
   { nom: "Limogne-en-Quercy", codePostal: "46260" },

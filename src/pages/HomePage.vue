@@ -16,7 +16,7 @@
   <p>
     <strong>Information importante :</strong><br />
     <strong>Mercredi, jeudi, vendredi et samedi</strong> : rendez-vous <strong>au salon</strong>
-    (196 Route de Montauban, 12200 Villefranche-de-Rouergue).<br /><br />
+    (176 Route de Montauban, 12200 Villefranche-de-Rouergue).<br /><br />
     <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les secteurs :
     <strong>46260</strong> (Limogne-en-Quercy, Varaire) et <strong>82160</strong> (Caylus, Parisot).
   </p>

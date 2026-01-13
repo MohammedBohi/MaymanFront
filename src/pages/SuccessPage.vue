@@ -89,7 +89,7 @@ onMounted(async () => {
 
   <p class="adresse-salon">
     <strong>Adresse du salon :</strong><br />
-    196 Route de Montauban, 12200 Villefranche-de-Rouergue
+    176 Route de Montauban, 12200 Villefranche-de-Rouergue
   </p>
 
   <p class="domicile-secteurs">
