@@ -74,7 +74,7 @@ const duree = ref(0);
 
 const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 const SALON = {
-  nom: "Salon May'Man - 176 Route de Montauban",
+  nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue",
   codePostal: "12200"
 };
 
