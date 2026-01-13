@@ -11,6 +11,17 @@
   Nous faisons le maximum pour rétablir le service rapidement 🙏
 </div>
 -->
+<!-- 🔔 Information planning -->
+<div class="planning-info">
+  <p>
+    <strong>Information importante :</strong><br />
+    <strong>Mercredi, jeudi, vendredi et samedi</strong> : rendez-vous <strong>au salon</strong>
+    (196 Route de Montauban, 12200 Villefranche-de-Rouergue).<br /><br />
+    <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les secteurs :
+    <strong>46260</strong> (Limogne-en-Quercy, Varaire) et <strong>82160</strong> (Caylus, Parisot).
+  </p>
+</div>
+
 
 <div class="nouveautes-annonce">
   <div class="nouveautes-content">
@@ -133,7 +144,7 @@ export default {
   text-align: center;
 }
 
-/* ✅ Bloc Nouveautés */
+/* Bloc Nouveautés */
 .nouveautes-annonce {
   background-color: #fffaf3;
   border: 2px solid #d4a373;
@@ -182,6 +193,20 @@ export default {
 .texte li {
   margin-bottom: 8px;
 }
+.planning-info {
+  background-color: #fdf5e6;
+  border: 2px solid #f3d9b1;
+  color: #5a3d2b;
+  padding: 18px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  text-align: center;
+}
 
 .cta-btn {
   display: inline-block;
@@ -198,7 +223,7 @@ export default {
   background-color: #c58954;
 }
 
-/* ✅ Alerte de connexion */
+/*  Alerte de connexion */
 .alerte-connexion {
   background-color: #fdf5e6;
   color: #7b5b2f;
@@ -216,7 +241,7 @@ export default {
   text-align: center;
 }
 
-/* ✅ Alerte groupe */
+/*  Alerte groupe */
 .alerte-groupe {
   background-color: #f1f8f5;
   color: #2b6653;
@@ -232,7 +257,7 @@ export default {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
 }
 
-/* ✅ Intro */
+/* Intro */
 .intro-section {
   max-width: 800px;
   margin: 0 auto 40px;
@@ -252,7 +277,7 @@ export default {
   margin-bottom: 20px;
 }
 
-/* ✅ Prestations */
+/* Prestations */
 .prestations-container {
   max-width: 1200px;
   margin: 0 auto;

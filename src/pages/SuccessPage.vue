@@ -80,6 +80,23 @@ onMounted(async () => {
 <template>
   <div class="success-page" v-if="reservation">
     <h2>🎉 Merci {{ reservation.nom }} pour votre réservation !</h2>
+<!-- 🔔 Information planning -->
+<div class="planning-info">
+  <p>
+    <strong>Information importante :</strong><br />
+    <strong>Mercredi, jeudi, vendredi et samedi</strong> : rendez-vous <strong>au salon</strong>.
+  </p>
+
+  <p class="adresse-salon">
+    <strong>Adresse du salon :</strong><br />
+    196 Route de Montauban, 12200 Villefranche-de-Rouergue
+  </p>
+
+  <p class="domicile-secteurs">
+    <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les secteurs :<br />
+    <strong>46260</strong> (Limogne-en-Quercy, Varaire) • <strong>82160</strong> (Caylus, Parisot)
+  </p>
+</div>
 
     <!-- 👤 Client -->
     <div class="section">
@@ -160,6 +177,24 @@ onMounted(async () => {
   border-radius: 6px;
   font-weight: 500;
 }
+.planning-info {
+  background-color: #fffaf3;
+  border: 2px solid #d4a373;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 1.05rem;
+  color: #5a3d2b;
+}
+
+.adresse-salon,
+.domicile-secteurs {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
 .btn-retour:hover {
   background-color: #c58954;
 }
