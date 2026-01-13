@@ -82,9 +82,12 @@ const joursSemaine = [
 const SALON = { nom: "Salon May'Man - 196 Route de Montauban, Villefranche-de-Rouergue", codePostal: "12200" };
 
 const DOMICILE = [
-  { nom: "Secteur 46260 (Limogne-en-Quercy, Varaire)", codePostal: "46260" },
-  { nom: "Secteur 82160 (Caylus, Parisot)", codePostal: "82160" }
+  { nom: "Limogne-en-Quercy", codePostal: "46260" },
+  { nom: "Varaire", codePostal: "46260" },
+  { nom: "Caylus", codePostal: "82160" },
+  { nom: "Parisot", codePostal: "82160" }
 ];
+
 
 const departementsParJour = [
   [],         // Dimanche
