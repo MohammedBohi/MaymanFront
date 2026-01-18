@@ -103,6 +103,7 @@ onMounted(async () => {
       <h3>👤 Informations du client</h3>
       <p><strong>Nom :</strong> {{ reservation.nom }}</p>
       <p><strong>Prénom :</strong> {{ reservation.prenom }}</p>
+      <p v-if="reservation.email"><strong>Email :</strong> {{ reservation.email }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.telephone }}</p>
       <p><strong>Prestation :</strong> {{ clientPrestation.nom }}</p>
       <p><strong>Soin visage/barbe :</strong> {{ clientPrestation.soin ? 'Oui (+10 €)' : 'Non' }}</p>
