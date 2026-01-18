@@ -94,14 +94,14 @@
         
         <!-- Ajouter un département -->
         <div class="add-dept">
-          <select v-model="newDept.code">
+          <select v-model="newDept.selected">
             <option value="">Choisir une ville</option>
-            <option value="46260">Limogne en Quercy (46260)</option>
-            <option value="46260">Varaire (46260)</option>
-            <option value="82160">Caylus (82160)</option>
-            <option value="82160">Parisot (82160)</option>
+            <option value="46260|Limogne en Quercy">Limogne en Quercy (46260)</option>
+            <option value="46260|Varaire">Varaire (46260)</option>
+            <option value="82160|Caylus">Caylus (82160)</option>
+            <option value="82160|Parisot">Parisot (82160)</option>
           </select>
-          <button @click="addDepartement" class="action-btn" :disabled="!newDept.code">➕ Ajouter</button>
+          <button @click="addDepartement" class="action-btn" :disabled="!newDept.selected">➥ Ajouter</button>
         </div>
 
         <!-- Liste des départements -->
@@ -159,12 +159,7 @@ const message = ref("");
 const error = ref("");
 
 const newPlage = ref({ heureDebut: "", heureFin: "" });
-const newDept = ref({ code: "" });
-
-const deptMapping = {
-  "46260": "Limogne en Quercy",
-  "82160": "Caylus"
-};
+const newDept = ref({ selected: "" });
 
 onMounted(async () => {
   await loadPlannings();
@@ -209,7 +204,7 @@ const selectDay = (index) => {
   selectedDay.value = JSON.parse(JSON.stringify(planning)); // Clone
   selectedMode.value = planning.mode || "SALON";
   newPlage.value = { heureDebut: "", heureFin: "" };
-  newDept.value = { code: "" };
+  newDept.value = { selected: "" };
 };
 
 const updateMode = async () => {
@@ -331,10 +326,12 @@ const deletePlage = async (plageId) => {
 };
 
 const addDepartement = async () => {
-  if (!newDept.value.code) {
-    error.value = "❌ Sélectionnez un département";
+  if (!newDept.value.selected) {
+    error.value = "❌ Sélectionnez une ville";
     return;
   }
+
+  const [code, nom] = newDept.value.selected.split('|');
 
   try {
     if (!selectedDay.value.id) {
@@ -347,14 +344,14 @@ const addDepartement = async () => {
     }
 
     await api.post(`/planning-hebdo/${selectedDay.value.id}/departements`, {
-      code: newDept.value.code,
-      nom: deptMapping[newDept.value.code]
+      code: code,
+      nom: nom
     });
 
-    newDept.value.code = "";
+    newDept.value.selected = "";
     // Recharger les données du jour
     await reloadDayData();
-    message.value = "✅ Département ajouté";
+    message.value = "✅ Ville ajoutée";
     setTimeout(() => message.value = "", 3000);
   } catch (e) {
     error.value = e.response?.data?.error || "Erreur";
