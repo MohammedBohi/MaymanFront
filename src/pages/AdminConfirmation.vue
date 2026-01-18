@@ -43,13 +43,7 @@
       <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
       <p><strong>Créneau :</strong> {{ dateInfo.slot }} → {{ heureFin }}</p>
       <p><strong>Durée totale :</strong> {{ formatDuree(reservation.duree_totale) }}</p>
-      <p><strong>Mode :</strong> {{ afficherMode(dateInfo.mode) }}</p>
-      <template v-if="dateInfo.mode === 'SALON'">
-        <p>🏛️ Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
-      </template>
-      <template v-else>
-        <p><strong>Département :</strong> {{ dateInfo.departement }}</p>
-      </template>
+      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.client.adresse }}</p>
     </div>
 
     <!-- Paiement -->

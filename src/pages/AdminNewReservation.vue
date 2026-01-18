@@ -12,8 +12,8 @@
       <h2>Lieu de la prestation</h2>
       <label>Mode :</label>
       <select v-model="selectedMode" @change="resetDepartement">
-        <option value="SALON">🏛️ Salon</option>
-        <option value="DOMICILE">🏠 Domicile</option>
+        <option value="SALON">Salon</option>
+        <option value="DOMICILE">Domicile</option>
       </select>
 
       <div v-if="selectedMode === 'DOMICILE'">
@@ -26,7 +26,7 @@
       </div>
 
       <div v-else>
-        <p style="color: #666; margin-top: 10px;">✅ Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+        <p style="color: #666; margin-top: 10px;">✅ 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
       </div>
     </div>
 

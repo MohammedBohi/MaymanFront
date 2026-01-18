@@ -49,12 +49,11 @@
 
         <div class="departement-info-inline">
           <p v-if="adminReservationData.mode === 'SALON'">
-            <strong>🏛️ Salon May'Man</strong><br />
+            <strong>📍 Adresse :</strong><br />
             176 Route de Montauban, 12200 Villefranche-de-Rouergue
           </p>
           <div v-else>
-            <p><strong>🏠 Domicile (Départements 46 et 82)</strong></p>
-            <p>Département sélectionné : <strong>{{ selectedDepartment || "—" }}</strong></p>
+            <p>Ville sélectionnée : <strong>{{ selectedDepartment || "—" }}</strong></p>
           </div>
         </div>
       </div>
