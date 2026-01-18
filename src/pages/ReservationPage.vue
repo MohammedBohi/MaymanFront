@@ -27,8 +27,8 @@
           <h3>📍 Étape 2 : Choisissez votre ville</h3>
           <select v-model="selectedDepartment" class="department-select" required>
             <option :value="null" disabled>Sélectionnez une ville</option>
-            <option v-for="dept in departments" :key="dept.code + dept.nom" :value="dept">
-              {{ dept.nom }} ({{ dept.code }})
+            <option v-for="dept in departments" :key="dept.code_postal + dept.nom" :value="dept">
+              {{ dept.nom }} ({{ dept.code_postal }})
             </option>
           </select>
         </div>

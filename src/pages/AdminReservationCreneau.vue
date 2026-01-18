@@ -57,8 +57,8 @@
           <h3>Ville :</h3>
           <select v-model="selectedDepartment">
             <option disabled :value="null">Choisir une ville</option>
-            <option v-for="dept in departments" :key="dept.code + dept.nom" :value="dept">
-              {{ dept.nom }} ({{ dept.code }})
+            <option v-for="dept in departments" :key="dept.code_postal + dept.nom" :value="dept">
+              {{ dept.nom }} ({{ dept.code_postal }})
             </option>
           </select>
         </div>

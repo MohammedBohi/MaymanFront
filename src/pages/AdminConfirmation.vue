@@ -136,7 +136,7 @@ const validerReservation = async () => {
       jour: date,
       heure_debut: slot,
       mode,
-      ...(mode === 'DOMICILE' && departement ? { departement: departement.code } : {}),
+      ...(mode === 'DOMICILE' && departement ? { departement: departement.code_postal } : {}),
       personnes: [
         {
           nom: client.nom,

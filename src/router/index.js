@@ -19,6 +19,7 @@ import AdminPrestations from "@/pages/AdminPrestations.vue";
 import AdminReservationCreneau from "@/pages/AdminReservationCreneau.vue";
 import AdminReservations from "@/pages/AdminReservations.vue";
 import AdminPlanning from "@/pages/AdminPlanning.vue";
+import AdminDepartements from "@/pages/AdminDepartements.vue";
 
 import { checkAuth } from "@/services/AuthService";
 
@@ -37,6 +38,7 @@ const routes = [
   // 🔐 ADMIN
   { path: "/admin", name: "AdminDashboard", component: AdminDashboard, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/planning", name: "AdminPlanning", component: AdminPlanning, meta: { requiresAuth: true, role: "Admin" } },
+  { path: "/admin/departements", name: "AdminDepartements", component: AdminDepartements, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/selection-prestation", name: "AdminSelectionPrestation", component: AdminSelectionPrestation, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/reservation-creneau", name: "AdminReservationCreneau", component: AdminReservationCreneau, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/nouvelle-reservation", name: "AdminNewReservation", component: AdminNewReservation, meta: { requiresAuth: true, role: "Admin" } },

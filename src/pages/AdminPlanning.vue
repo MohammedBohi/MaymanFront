@@ -96,10 +96,13 @@
         <div class="add-dept">
           <select v-model="newDept.selected">
             <option value="">Choisir une ville</option>
-            <option value="46260|Limogne en Quercy">Limogne en Quercy (46260)</option>
-            <option value="46260|Varaire">Varaire (46260)</option>
-            <option value="82160|Caylus">Caylus (82160)</option>
-            <option value="82160|Parisot">Parisot (82160)</option>
+            <option 
+              v-for="dept in departementsDisponibles.filter(d => d.mode === 'DOMICILE')"
+              :key="dept.id"
+              :value="dept.id"
+            >
+              {{ dept.nom }} ({{ dept.code_postal }})
+            </option>
           </select>
           <button @click="addDepartement" class="action-btn" :disabled="!newDept.selected">➥ Ajouter</button>
         </div>
@@ -111,7 +114,7 @@
                :initial="{ opacity: 0, y: 20 }"
                :enter="{ opacity: 1, y: 0, transition: { duration: 300, delay: idx * 50 } }">
             <div class="dept-info">
-              <strong>{{ dept.nom }} ({{ dept.code }})</strong>
+              <strong>{{ dept.nom }} ({{ dept.code_postal }})</strong>
             </div>
             <button @click="deleteDepartement(dept.id)" class="action-btn delete-btn">🗑 Supprimer</button>
           </div>
@@ -160,11 +163,23 @@ const error = ref("");
 
 const newPlage = ref({ heureDebut: "", heureFin: "" });
 const newDept = ref({ selected: "" });
+const departementsDisponibles = ref([]);
 
 onMounted(async () => {
   await loadPlannings();
+  await loadDepartements();
   selectDay(1);
 });
+
+const loadDepartements = async () => {
+  try {
+    const res = await api.get("/departements");
+    departementsDisponibles.value = res.data;
+  } catch (e) {
+    console.error("Erreur chargement départements:", e);
+    error.value = "Erreur lors du chargement des départements";
+  }
+};
 
 const loadPlannings = async () => {
   try {
@@ -331,7 +346,11 @@ const addDepartement = async () => {
     return;
   }
 
-  const [code, nom] = newDept.value.selected.split('|');
+  const dept = departementsDisponibles.value.find(d => d.id === parseInt(newDept.value.selected));
+  if (!dept) {
+    error.value = "❌ Département invalide";
+    return;
+  }
 
   try {
     if (!selectedDay.value.id) {
@@ -344,8 +363,8 @@ const addDepartement = async () => {
     }
 
     await api.post(`/planning-hebdo/${selectedDay.value.id}/departements`, {
-      code: code,
-      nom: nom
+      code_postal: dept.code_postal,
+      nom: dept.nom
     });
 
     newDept.value.selected = "";

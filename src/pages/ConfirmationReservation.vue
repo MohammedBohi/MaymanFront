@@ -47,7 +47,7 @@
       </template>
       <template v-else>
         <p><strong>Adresse :</strong> {{ reservation.contact?.adresse }}</p>
-        <p v-if="reservation.departement && reservation.departement.nom && reservation.departement.code"><strong>Département :</strong> {{ reservation.departement.nom }} ({{ reservation.departement.code }})</p>
+        <p v-if="reservation.departement && reservation.departement.nom && reservation.departement.code_postal"><strong>Département :</strong> {{ reservation.departement.nom }} ({{ reservation.departement.code_postal }})</p>
       </template>
     </div>
 
@@ -159,14 +159,14 @@ const validerReservation = async () => {
       avec_soin: Boolean(p.avecSoin)
     }));
 
-    // Préparer le département à envoyer: code pur pour DOMICILE, sinon rien
+    // Préparer le département à envoyer: code_postal pour DOMICILE, sinon rien
     let departementToSend = undefined;
     if (reservation.mode === 'DOMICILE') {
       if (reservation.departement && typeof reservation.departement === 'object') {
-        if (reservation.departement.code) {
-          departementToSend = String(reservation.departement.code);
+        if (reservation.departement.code_postal) {
+          departementToSend = String(reservation.departement.code_postal);
         } else if (reservation.departement.codePostal) {
-          departementToSend = String(reservation.departement.codePostal).substring(0,2);
+          departementToSend = String(reservation.departement.codePostal);
         } else {
           departementToSend = JSON.stringify(reservation.departement);
         }

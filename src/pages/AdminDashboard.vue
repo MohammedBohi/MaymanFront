@@ -13,27 +13,33 @@
         🗓️ Gestion du planning
       </router-link>
 
-      <router-link to="/admin/reservations" class="card card-reservation" v-motion
+      <router-link to="/admin/departements" class="card card-departements" v-motion
         :initial="{ opacity: 0, scale: 0.8 }"
         :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 50 } }">
+        📍 Gestion des départements
+      </router-link>
+
+      <router-link to="/admin/reservations" class="card card-reservation" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 100 } }">
         📅 Réservations du jour
       </router-link>
 
       <router-link to="/admin/selection-prestation" class="card card-ajout" v-motion
         :initial="{ opacity: 0, scale: 0.8 }"
-        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 100 } }">
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 150 } }">
         ➕ Créer une réservation
       </router-link>
 
       <router-link to="/admin/indisponibilites" class="card card-indispo" v-motion
         :initial="{ opacity: 0, scale: 0.8 }"
-        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 150 } }">
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 200 } }">
         ❌ Indisponibilités
       </router-link>
 
       <router-link to="/admin/plages-horaires" class="card card-horaires" v-motion
         :initial="{ opacity: 0, scale: 0.8 }"
-        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 200 } }">
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 250 } }">
         🕒 Plages horaires
       </router-link>
 
@@ -98,6 +104,9 @@ export default {
 /* Couleurs personnalisées */
 .card-planning {
   background: linear-gradient(135deg, #d4a373 0%, #b8915c 100%);
+}
+.card-departements {
+  background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%);
 }
 .card-reservation {
   background-color: #6a994e;
