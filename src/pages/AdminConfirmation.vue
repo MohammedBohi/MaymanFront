@@ -77,8 +77,14 @@ onMounted(async () => {
   reservation.value = JSON.parse(localStorage.getItem("admin_reservation") || "{}");
   dateInfo.value = JSON.parse(localStorage.getItem("admin_reservation_date") || "{}");
 
-  const data = await getPrestations();
-  prestations.value = data;
+  // Charger les prestations AVANT d'afficher la page
+  try {
+    const data = await getPrestations();
+    prestations.value = data;
+  } catch (error) {
+    console.error("Erreur chargement prestations:", error);
+    prestations.value = [];
+  }
 
   if (reservation.value && dateInfo.value?.slot) {
     const [h, m] = dateInfo.value.slot.split(":").map(Number);
