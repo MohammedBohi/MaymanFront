@@ -1,17 +1,17 @@
 <template>
   <div class="homepage">
-   <!-- ✅ Bandeau d'information -->
-
-   <!-- 🔔 Bandeau info e-mails indisponibles -->
-<!-- 🔔 Bannière info 
-<div class="maintenance-banner">
-  ⚠️ L’envoi des e-mails de confirmation et d’annulation est
-  <strong>temporairement indisponible</strong>.  
-  Merci de bien <strong>noter la date et l’heure</strong> de votre réservation affichées à l’écran.  
-  Nous faisons le maximum pour rétablir le service rapidement 🙏
-</div>
--->
-<!-- Les blocs 'notes' et 'nouveautés' ont été retirés -->
+    <!-- 🚧 Bannière de maintenance -->
+    <div v-if="modeMaintenanceActif" class="maintenance-banner">
+      <div class="maintenance-content">
+        <span class="maintenance-icon">🚧</span>
+        <div class="maintenance-text">
+          <h3>Site en cours de maintenance</h3>
+          <p>Les réservations en ligne ne sont pas disponibles pour le moment.</p>
+          <p>Merci de nous contacter directement par téléphone ou de revenir plus tard.</p>
+        </div>
+        <span class="maintenance-icon">🚧</span>
+      </div>
+    </div>
 
 
    
@@ -60,8 +60,11 @@
           </div>
           <h3>{{ prestation.nom }}</h3>
           <p>{{ prestation.prix }} €</p>
-          <button class="reserve-btn" @click="goToReservation(prestation)">
-            Réserver
+          <button 
+            class="reserve-btn" 
+            :class="{ 'btn-disabled': modeMaintenanceActif }"
+            @click="goToReservation(prestation)">
+            {{ modeMaintenanceActif ? 'Indisponible' : 'Réserver' }}
           </button>
         </div>
       </div>
@@ -75,6 +78,9 @@ import { getPrestations } from "@/services/PrestationService";
 export default {
   data() {
     return {
+      // ⚙️ MODE MAINTENANCE - Passez à true pour bloquer les réservations clients
+      modeMaintenanceActif: false,
+      
       prestations: [],
       prestationGroupe: {
         id: "groupe",
@@ -99,6 +105,12 @@ export default {
     },
 
     goToReservation(prestation) {
+      // Bloquer la réservation si mode maintenance activé
+      if (this.modeMaintenanceActif) {
+        alert("⚠️ Les réservations en ligne ne sont pas disponibles pour le moment.\n\nMerci de nous contacter directement.");
+        return;
+      }
+
       // Stocker la prestation sélectionnée dans localStorage
       localStorage.setItem("selected_prestation", JSON.stringify({
         id: prestation.id,
@@ -145,6 +157,67 @@ export default {
   background-color: #f8f3e7;
   padding: 20px;
   text-align: center;
+}
+
+/* 🚧 Bannière de maintenance */
+.maintenance-banner {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  color: white;
+  padding: 25px 20px;
+  margin-bottom: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.maintenance-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.maintenance-icon {
+  font-size: 3rem;
+  animation: rotate 3s linear infinite;
+}
+
+.maintenance-text {
+  text-align: center;
+}
+
+.maintenance-text h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.maintenance-text p {
+  margin: 5px 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 30px rgba(238, 90, 36, 0.6);
+  }
+}
+
+@keyframes rotate {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
 }
 
 /* Présentation + Photo salon */
@@ -368,21 +441,26 @@ p {
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
+  transition: all 0.3s ease;
 }
 
 .reserve-btn:hover {
   background-color: #c58954;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
-.maintenance-banner {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 15px 25px;
-  margin-bottom: 20px;
-  border: 1px solid #ffeeba;
-  border-radius: 8px;
-  font-weight: 500;
-  text-align: center;
-  font-size: 1.1rem;
+
+.btn-disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.btn-disabled:hover {
+  background-color: #ccc !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 
