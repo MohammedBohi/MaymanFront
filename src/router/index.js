@@ -77,15 +77,17 @@ const router = createRouter({
   routes,
 });router.beforeEach(async (to, from, next) => {
   const publicPages = ["/", "/login-register", "/forgot-password", "/reset-password"];
+  const reservationPages = ["/selection-prestation", "/reservation", "/formulaire-reservation", "/confirmation", "/success"];
   const isPublic = publicPages.includes(to.path);
+  const isReservation = reservationPages.some(page => to.path.startsWith(page));
 
   const user = await checkAuth();
 
   // 🔐 Route protégée sans user
   if (to.meta.requiresAuth && !user) return next("/");
 
-  // 🔁 Redirection automatique après login
-  if (user && isPublic) {
+  // 🔁 Redirection automatique après login (SAUF si c'est pour réserver)
+  if (user && isPublic && !isReservation) {
     const redirectPath = user.typeutilisateur === "Admin" ? "/admin" : "/client";
     if (to.path !== redirectPath) return next(redirectPath);
     return next(); // déjà sur bonne page
