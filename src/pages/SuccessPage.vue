@@ -108,6 +108,7 @@ onMounted(async () => {
   <p class="domicile-secteurs">
     <strong>Dimanche, lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> dans les secteurs de
     <em>Limogne en Quercy, Varaire, Caylus et Parisot</em>.
+  </p>
 </div>
 
     <!-- 👤 Client -->
