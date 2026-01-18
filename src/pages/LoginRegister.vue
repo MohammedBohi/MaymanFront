@@ -1,6 +1,8 @@
 <template>
   <div class="auth-page">
-    <div class="form-container">
+    <div class="form-container" v-motion
+         :initial="{ opacity: 0, x: -50 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
       <h2>Connexion</h2>
       <form @submit.prevent="handleLogin">
         <label for="email">Adresse e-mail</label>
@@ -9,13 +11,15 @@
         <input v-model="password" type="password" id="password" required placeholder="Entrez votre mot de passe" />
         <button type="submit" class="golden-button">Se connecter</button>
         <p class="forgot-password">
-<!--      <router-link to="/forgot-password">Mot de passe oublié ?</router-link> -->
+          <router-link to="/forgot-password">🔑 Mot de passe oublié ?</router-link>
         </p>
         <p v-if="loginError" class="error-message">{{ loginError }}</p>
       </form>
     </div>
 
-    <div class="form-container">
+    <div class="form-container" v-motion
+         :initial="{ opacity: 0, x: 50 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
       <h2>Inscription</h2>
       <form @submit.prevent="handleRegister">
         <label for="register-email">Adresse e-mail</label>

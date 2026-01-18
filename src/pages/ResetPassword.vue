@@ -1,13 +1,23 @@
 <template>
     <div class="reset-password-page">
-      <div class="form-container">
+      <div class="form-container" v-motion
+           :initial="{ opacity: 0, scale: 0.95 }"
+           :enter="{ opacity: 1, scale: 1, transition: { duration: 400 } }">
         <h2>Réinitialisation du mot de passe</h2>
-        <p>Définissez votre nouveau mot de passe ci-dessous.</p>
-        <form @submit.prevent="resetPassword">
+        <p>Entrez le code reçu par email et votre nouveau mot de passe.</p>
+        <form @submit.prevent="handleReset">
+          <label for="email">Adresse e-mail</label>
+          <input v-model="email" type="email" id="email" required placeholder="Votre e-mail" />
+          
+          <label for="code">Code (6 chiffres)</label>
+          <input v-model="code" type="text" id="code" required placeholder="000000" maxlength="6" />
+          
           <label for="password">Nouveau mot de passe</label>
           <input v-model="password" type="password" id="password" required placeholder="Entrez un nouveau mot de passe" />
           
-          <button type="submit" class="golden-button">Réinitialiser</button>
+          <button type="submit" class="golden-button" :disabled="isLoading">
+            {{ isLoading ? "Traitement..." : "Réinitialiser" }}
+          </button>
           <p v-if="message" class="success-message">{{ message }}</p>
           <p v-if="error" class="error-message">{{ error }}</p>
         </form>
@@ -17,44 +27,48 @@
   
   <script>
   import { resetPassword } from "@/services/AuthService";
-  import { useRoute } from "vue-router";
   
   export default {
     data() {
       return {
+        email: "",
+        code: "",
         password: "",
         message: null,
         error: null,
+        isLoading: false,
       };
     },
-    computed: {
-      token() {
-        return this.$route.params.token;  // 🔥 Correction pour récupérer le token de l'URL
-    },
-    },
     methods: {
-      async resetPassword() {
+      async handleReset() {
         this.message = null;
         this.error = null;
+        
+        if (this.code.length !== 6 || !/^\d+$/.test(this.code)) {
+          this.error = "❌ Le code doit contenir 6 chiffres.";
+          return;
+        }
+        
+        this.isLoading = true;
         try {
-          await resetPassword(this.token, this.password);
+          await resetPassword(this.email, this.code, this.password);
           this.message = "✅ Mot de passe mis à jour ! Redirection vers la connexion...";
           setTimeout(() => {
-          this.loading = false;
-          this.$router.push("/login-register");
-        }, 2500);
-      } catch (error) {
-        console.error("❌ Erreur API :", error); // 🔥 Debugging en console
-
-        if (error.response && error.response.data && error.response.data.error) {
-            this.error = `❌ ${error.response.data.error}`; // 🔥 Afficher l'erreur exacte reçue du serveur
-        } else {
+            this.$router.push("/login-register");
+          }, 2500);
+        } catch (error) {
+          console.error("❌ Erreur API :", error);
+          if (error.response?.data?.error) {
+            this.error = `❌ ${error.response.data.error}`;
+          } else {
             this.error = "❌ Erreur lors de la mise à jour du mot de passe.";
+          }
+        } finally {
+          this.isLoading = false;
         }
-    }
-},
-  },
-};
+      },
+    },
+  };
   </script>
   <style scoped>
   /* ✅ Style de la page */

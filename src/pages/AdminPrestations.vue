@@ -1,10 +1,14 @@
 <template>
   <div class="admin-prestations">
-    <h1>💇 Gestion des prestations</h1>
+    <h1 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">💇 Gestion des prestations</h1>
     <router-link to="/admin" class="back-btn">← Retour au menu admin</router-link>
 
     <!-- Formulaire modification uniquement -->
-    <form v-if="isEditing" @submit.prevent="updatePrestation()">
+    <form v-if="isEditing" @submit.prevent="updatePrestation()" v-motion
+          :initial="{ opacity: 0, x: -30 }"
+          :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
       <h3>✏️ Modifier une prestation</h3>
       <input v-model="form.nom" placeholder="Nom" required />
       <input type="number" v-model.number="form.duree_minutes" placeholder="Durée (min)" min="5" required />
@@ -15,7 +19,9 @@
 
     <!-- Tableau prestations -->
     <h3>📋 Prestations existantes</h3>
-    <table>
+    <table v-motion
+           :initial="{ opacity: 0, y: 20 }"
+           :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
       <thead>
         <tr>
           <th>Nom</th>
@@ -25,7 +31,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="pres in prestations" :key="pres.id">
+        <tr v-for="(pres, idx) in prestations" :key="pres.id" v-motion
+            :initial="{ opacity: 0, x: -20 }"
+            :enter="{ opacity: 1, x: 0, transition: { duration: 300, delay: 150 + idx * 50 } }">
           <td>{{ pres.nom }}</td>
           <td>{{ pres.duree_minutes }} min</td>
           <td>{{ pres.prix }} €</td>

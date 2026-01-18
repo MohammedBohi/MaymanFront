@@ -1,39 +1,55 @@
 <template>
   <div class="confirmation-page" v-if="ready">
-    <h2>🧾 Récapitulatif de la réservation</h2>
+    <h2 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">🧾 Récapitulatif de la réservation</h2>
 
     <!-- Client -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
       <h3>👤 Client</h3>
       <p><strong>Nom :</strong> {{ reservation.client.nom }}</p>
       <p><strong>Prénom :</strong> {{ reservation.client.prenom }}</p>
       <p><strong>Email :</strong> {{ reservation.client.email }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.client.telephone }}</p>
       <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p><p><strong>Prestation :</strong> {{ getPrestation(reservation.client.prestation_id) }}</p>
-<p><strong>Soin :</strong> {{ reservation.client.avec_soin ? 'Oui (+7€)' : 'Non' }}</p>
+<p><strong>Soin :</strong> {{ reservation.client.avec_soin ? 'Oui (+10€)' : 'Non' }}</p>
 <p><strong>Prix :</strong> {{ getPrix(reservation.client) }} €</p>
 
     </div>
 
     <!-- Participants -->
-    <div v-if="reservation.participants.length" class="section">
+    <div v-if="reservation.participants.length" class="section" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 100 } }">
       <h3>👥 Participants</h3>
-      <div v-for="(p, index) in reservation.participants" :key="index">
+      <div v-for="(p, index) in reservation.participants" :key="index" v-motion
+           :initial="{ opacity: 0, y: 10 }"
+           :enter="{ opacity: 1, y: 0, transition: { duration: 300, delay: 150 + index * 50 } }">
         <p><strong>Nom :</strong> {{ p.nom }}</p>
         <p><strong>Prénom :</strong> {{ p.prenom }}</p>
         <p><strong>Prestation :</strong> {{ getPrestation(p.prestation_id) }}</p>
-        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+7€)' : 'Non' }}</p>
+        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+10€)' : 'Non' }}</p>
         <hr v-if="index < reservation.participants.length - 1" />
       </div>
     </div>
 
     <!-- Détails -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 200 } }">
       <h3>📅 Détails</h3>
       <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
       <p><strong>Créneau :</strong> {{ dateInfo.slot }} → {{ heureFin }}</p>
       <p><strong>Durée totale :</strong> {{ formatDuree(reservation.duree_totale) }}</p>
-      <p><strong>Département :</strong> {{ dateInfo.departement.nom }} ({{ dateInfo.departement.codePostal }})</p>
+      <p><strong>Mode :</strong> {{ afficherMode(dateInfo.mode) }}</p>
+      <template v-if="dateInfo.mode === 'SALON'">
+        <p>🏛️ Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+      </template>
+      <template v-else>
+        <p><strong>Département :</strong> {{ dateInfo.departement }}</p>
+      </template>
     </div>
 
     <!-- Paiement -->
@@ -89,8 +105,14 @@ const getPrix = (personne) => {
   const p = prestations.value.find(pr => pr.id === personne.prestation_id);
   if (!p) return "Inconnu";
   const base = parseFloat(p.prix);
-  const soin = personne.avec_soin ? 7 : 0;
+  const soin = personne.avec_soin ? 10 : 0;
   return (base + soin).toFixed(2);
+};
+
+const afficherMode = (mode) => {
+  if (mode === 'SALON') return '🏛️ Salon';
+  if (mode === 'DOMICILE') return '🏠 Domicile';
+  return '—';
 };
 
 
@@ -107,8 +129,8 @@ const formatDate = (str) =>
 
 const validerReservation = async () => {
   try {
-    const { client, participants } = reservation.value;
-    const { date, slot, departement } = dateInfo.value;
+    const { client, participants, mode, departement } = reservation.value;
+    const { date, slot } = dateInfo.value;
 
     const body = {
       utilisateur_id: null,
@@ -119,7 +141,8 @@ const validerReservation = async () => {
       adresseReservation: client.adresse,
       jour: date,
       heure_debut: slot,
-      departement,
+      mode,
+      ...(mode === 'DOMICILE' && departement ? { departement } : {}),
       personnes: [
         {
           nom: client.nom,

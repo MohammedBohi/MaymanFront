@@ -1,6 +1,8 @@
 <template>
   <div class="admin-plages">
-    <h1>🕒 Gestion des plages horaires</h1>
+    <h1 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">🕒 Gestion des plages horaires</h1>
 
     <router-link to="/admin" class="back-btn">← Retour au menu admin</router-link>
 
@@ -8,7 +10,9 @@
       <v-calendar is-expanded @dayclick="onDayClick" />
     </div>
 
-    <div v-if="selectedDate" class="form-section">
+    <div v-if="selectedDate" class="form-section" v-motion
+         :initial="{ opacity: 0, y: 20 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       <h3>Plage horaire du {{ selectedDate }}</h3>
 
       <div v-if="plage.par_defaut">

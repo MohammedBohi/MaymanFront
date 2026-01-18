@@ -1,16 +1,46 @@
 <template>
   <div class="admin-new-resa">
     <router-link to="/admin" class="back-btn">← Retour</router-link>
-    <h1>➕ Nouvelle réservation (Admin)</h1>
+    <h1 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">➕ Nouvelle réservation (Admin)</h1>
+
+    <!-- Mode et Département -->
+    <div class="form-block" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
+      <h2>Lieu de la prestation</h2>
+      <label>Mode :</label>
+      <select v-model="selectedMode" @change="resetDepartement">
+        <option value="SALON">🏛️ Salon</option>
+        <option value="DOMICILE">🏠 Domicile</option>
+      </select>
+
+      <div v-if="selectedMode === 'DOMICILE'">
+        <label>Département :</label>
+        <select v-model="selectedDepartement">
+          <option disabled value="">Choisir un département</option>
+          <option value="46">Lot (46)</option>
+          <option value="82">Tarn-et-Garonne (82)</option>
+        </select>
+      </div>
+
+      <div v-else>
+        <p style="color: #666; margin-top: 10px;">✅ Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+      </div>
+    </div>
 
     <!-- Infos client principal -->
-    <div class="form-block">
+    <div class="form-block" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 100 } }">
       <h2>Client principal</h2>
       <input v-model="client.nom" placeholder="Nom" required />
       <input v-model="client.prenom" placeholder="Prénom" required />
       <input v-model="client.email" placeholder="Email" required />
       <input v-model="client.telephone" placeholder="Téléphone" required />
-      <input v-model="client.adresse" placeholder="Adresse" required />
+      <input v-model="client.adresse" placeholder="Adresse" :readonly="selectedMode === 'SALON'" required :class="{ 'readonly-field': selectedMode === 'SALON' }" />
+      <small v-if="selectedMode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Adresse du salon pré-remplie</small>
 
       <label>Prestation :</label>
       <select v-model="client.prestation_id">
@@ -20,14 +50,16 @@
         </option>
       </select>
 
-      <label v-if="soinDisponible(client.prestation_id)" class="checkbox-label">
+      <label v-if="selectedMode === 'SALON' && soinDisponible(client.prestation_id)" class="checkbox-label">
         <input type="checkbox" v-model="client.avec_soin" />
-        Supplément soin (+10 min, +7 €)
+        Supplément soin (+10 min, +10 €)
       </label>
     </div>
 
     <!-- Ajout de participants -->
-    <div class="form-block">
+    <div class="form-block" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 200 } }">
       <label>Souhaitez-vous ajouter des personnes ?</label>
       <select v-model="ajoutParticipants" @change="genererParticipants">
         <option :value="false">Non</option>
@@ -54,9 +86,9 @@
             {{ pres.nom }} ({{ pres.duree_minutes }} min - {{ pres.prix }} €)
           </option>
         </select>
-        <label v-if="soinDisponible(p.prestation_id)" class="checkbox-label">
+        <label v-if="selectedMode === 'SALON' && soinDisponible(p.prestation_id)" class="checkbox-label">
           <input type="checkbox" v-model="p.avec_soin" />
-          Supplément soin (+10 min, +7 €)
+          Supplément soin (+10 min, +10 €)
         </label>
       </div>
     </div>
@@ -67,6 +99,8 @@
 
 <script>
 import api from "@/services/api";
+
+const ADRESSE_SALON = "Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue";
 
 export default {
   data() {
@@ -79,6 +113,8 @@ export default {
       participants: [],
       ajoutParticipants: false,
       nombre: 1,
+      selectedMode: "SALON",
+      selectedDepartement: "",
     };
   },
   methods: {
@@ -102,7 +138,27 @@ export default {
         });
       }
     },
+    resetDepartement() {
+      this.selectedDepartement = "";
+      // Pré-remplir l'adresse selon le mode
+      if (this.selectedMode === 'SALON') {
+        this.client.adresse = ADRESSE_SALON;
+      } else {
+        this.client.adresse = "";
+      }
+    },
     validerEtRediriger() {
+      // Validation
+      if (!this.client.nom || !this.client.prenom || !this.client.email || !this.client.telephone || !this.client.adresse) {
+        alert("❌ Veuillez remplir tous les champs du client");
+        return;
+      }
+
+      if (this.selectedMode === "DOMICILE" && !this.selectedDepartement) {
+        alert("❌ Veuillez sélectionner un département pour le mode domicile");
+        return;
+      }
+
       let total = 0;
       let duree = 15;
 
@@ -114,13 +170,15 @@ export default {
       for (const p of toutes) {
         const pres = this.prestations.find(pr => pr.id == p.prestation_id);
         if (!pres) continue;
-        total += parseFloat(pres.prix) + (p.avec_soin ? 7 : 0);
+        total += parseFloat(pres.prix) + (p.avec_soin ? 10 : 0);
         duree += pres.duree_minutes + (p.avec_soin ? 10 : 0);
       }
 
       localStorage.setItem("admin_reservation", JSON.stringify({
         client: this.client,
         participants: this.participants,
+        mode: this.selectedMode,
+        departement: this.selectedMode === "DOMICILE" ? this.selectedDepartement : null,
         duree_totale: duree,
         tarif_total: total
       }));
@@ -130,6 +188,10 @@ export default {
   },
   mounted() {
     this.fetchPrestations();
+    // Initialiser l'adresse du salon si mode SALON par défaut
+    if (this.selectedMode === 'SALON') {
+      this.client.adresse = ADRESSE_SALON;
+    }
   }
 };
 </script>
@@ -198,6 +260,13 @@ select {
   gap: 8px;
   font-weight: 500;
   margin-top: 10px;
+}
+
+.readonly-field {
+  background-color: #f0f0f0 !important;
+  cursor: not-allowed;
+  font-weight: 600;
+  color: #333;
 }
 
 button {

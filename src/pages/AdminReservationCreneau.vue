@@ -2,7 +2,9 @@
   <div class="reservation-page">
     <router-link to="/admin/nouvelle-reservation" class="back-btn">← Retour au formulaire</router-link>
 
-    <h2>📅 Choisissez un jour et un créneau</h2>
+    <h2 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">📅 Choisissez un jour et un créneau</h2>
     <v-calendar
       mode="single"
       is-expanded
@@ -10,45 +12,54 @@
       @dayclick="onDateSelected"
     />
 
-    <div v-if="selectedDate" class="details-section">
+    <div v-if="selectedDate" class="details-section" v-motion
+         :initial="{ opacity: 0, y: 20 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+      <div class="selected-date-info">
+        <h3>📅 Date sélectionnée : {{ formatSelectedDate(selectedDate) }}</h3>
+      </div>
       <h3>Créneaux disponibles :</h3>
       <div v-if="availableSlots.length" class="slot-buttons">
         <button
-          v-for="slot in availableSlots"
+          v-for="(slot, idx) in availableSlots"
           :key="slot"
           @click="selectSlot(slot)"
           :class="{ active: slot === selectedSlot }"
+          v-motion
+          :initial="{ opacity: 0, scale: 0.9 }"
+          :enter="{ opacity: 1, scale: 1, transition: { duration: 300, delay: idx * 50 } }"
         >
           {{ slot }}
         </button>
       </div>
       <p v-else>Aucun créneau disponible pour cette date.</p>
 
-      <div class="departement-select-row">
-        <div class="select-wrapper">
-          <h3>Choisir le département :</h3>
-          <select v-model="selectedDepartment" required>
-            <option v-for="dept in departments" :key="dept.codePostal" :value="dept">
-              {{ dept.nom }} ({{ dept.codePostal }})
-            </option>
+      <!-- Affichage mode et département -->
+      <div class="departement-select-row" v-if="adminReservationData">
+        <div v-if="adminReservationData.mode === 'DOMICILE'" class="select-wrapper">
+          <h3>Département :</h3>
+          <select v-model="selectedDepartment">
+            <option disabled value="">Choisir un département</option>
+            <option value="46">Lot (46)</option>
+            <option value="82">Tarn-et-Garonne (82)</option>
           </select>
         </div>
 
-        <div v-if="departments.length" class="departement-info-inline">
-          <p>
-            <strong>Départements desservis le {{ joursSemaine[selectedDate.getDay()] }} :</strong>
+        <div class="departement-info-inline">
+          <p v-if="adminReservationData.mode === 'SALON'">
+            <strong>🏛️ Salon May'Man</strong><br />
+            176 Route de Montauban, 12200 Villefranche-de-Rouergue
           </p>
-          <ul>
-            <li v-for="dept in departments" :key="dept.codePostal">
-              {{ dept.nom }} ({{ dept.codePostal }})
-            </li>
-          </ul>
+          <div v-else>
+            <p><strong>🏠 Domicile (Départements 46 et 82)</strong></p>
+            <p>Département sélectionné : <strong>{{ selectedDepartment || "—" }}</strong></p>
+          </div>
         </div>
       </div>
 
       <button
         class="reserve-button"
-        :disabled="!selectedSlot || !selectedDepartment"
+        :disabled="!selectedSlot || (adminReservationData?.mode === 'DOMICILE' && !selectedDepartment)"
         @click="validerReservation"
       >
         ➡ Valider et voir récapitulatif
@@ -78,39 +89,40 @@ const SALON = {
   codePostal: "12200"
 };
 
-const DOMICILE = [
-  { nom: "Limogne-en-Quercy", codePostal: "46260" },
-  { nom: "Varaire", codePostal: "46260" },
-  { nom: "Caylus", codePostal: "82160" },
-  { nom: "Parisot", codePostal: "82160" }
-];
-
 const departementsParJour = [
   [],         // Dimanche
-  DOMICILE,   // Lundi
-  DOMICILE,   // Mardi
-  [SALON],    // Mercredi
-  [SALON],    // Jeudi
-  [SALON],    // Vendredi
-  [SALON],    // Samedi
+  "DOMICILE",   // Lundi
+  "DOMICILE",   // Mardi
+  "SALON",    // Mercredi
+  "SALON",    // Jeudi
+  "SALON",    // Vendredi
+  "SALON",    // Samedi
 ];
 
-const calendarAttributes = ref([
-  {
-    key: "past-dates",
-    dates: (date) => date < new Date().setHours(0, 0, 0, 0),
-    excludeMode: "soft",
-    class: "unavailable",
+const modePourJour = (day) => departementsParJour[day.getDay()] || null;
+
+const adminReservationData = ref(null);
+
+const getDepartmentsForDay = (day) => {
+  const mode = modePourJour(day);
+  if (mode === 'SALON') return [];
+  // Pour DOMICILE, retourner les codes 46/82
+  if (mode === 'DOMICILE') {
+    return [
+      { nom: "Lot", code: "46" },
+      { nom: "Tarn-et-Garonne", code: "82" }
+    ];
   }
-]);
+  return [];
+};
 
-const formatDate = (date) =>
-  date.getFullYear() + "-" +
-  String(date.getMonth() + 1).padStart(2, "0") + "-" +
-  String(date.getDate()).padStart(2, "0");
-
-const getDepartmentsForDay = (day) =>
-  departementsParJour[day.getDay()] || [];
+onMounted(() => {
+  const data = localStorage.getItem("admin_reservation");
+  if (data) {
+    adminReservationData.value = JSON.parse(data);
+    duree.value = adminReservationData.value.duree_totale;
+  }
+});
 
 const onDateSelected = async ({ date }) => {
   if (!date) return;
@@ -141,11 +153,22 @@ const selectSlot = (slot) => {
   selectedSlot.value = slot;
 };
 
+const formatSelectedDate = (date) => {
+  const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const jour = jours[date.getDay()];
+  const numJour = date.getDate();
+  const nomMois = mois[date.getMonth()];
+  const annee = date.getFullYear();
+  return `${jour} ${numJour} ${nomMois} ${annee}`;
+};
+
 const validerReservation = () => {
   const payload = {
     date: formatDate(selectedDate.value),
     slot: selectedSlot.value,
-    departement: selectedDepartment.value,
+    mode: adminReservationData.value.mode,
+    departement: adminReservationData.value.mode === 'DOMICILE' ? selectedDepartment.value : null,
   };
   localStorage.setItem("admin_reservation_date", JSON.stringify(payload));
   router.push("/admin/confirmation");
@@ -178,6 +201,21 @@ h2 {
   padding: 25px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.selected-date-info {
+  background: linear-gradient(135deg, #457b9d 0%, #1d3557 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+.selected-date-info h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 
 .slot-buttons {

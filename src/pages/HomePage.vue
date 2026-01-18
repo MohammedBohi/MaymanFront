@@ -11,46 +11,43 @@
   Nous faisons le maximum pour rétablir le service rapidement 🙏
 </div>
 -->
-<!-- 🔔 Information planning -->
-<div class="planning-info">
-  <p>
-    <strong>Information importante :</strong><br />
-    <strong>Mercredi, jeudi, vendredi et samedi</strong> : rendez-vous <strong>au salon</strong>
-    (176 Route de Montauban, 12200 Villefranche-de-Rouergue).<br /><br />
-    <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les secteurs :
-    <strong>46260</strong> (Limogne-en-Quercy, Varaire) et <strong>82160</strong> (Caylus, Parisot).
-  </p>
-</div>
-
-
-<div class="nouveautes-annonce">
-  <div class="nouveautes-content">
-    <img src="@/assets/images/Soins_visage.jpeg" alt="Supplément soins" class="soin-image" />
-    <div class="texte">
-      <h3>✨ Nouveautés</h3>
-      <ul>
-        <li>➕ Ajoutez jusqu’à <strong>2 personnes</strong> dans une prestation normale.</li>
-        <li>👥 Choisissez la <strong>prestation de groupe</strong> pour 3 à 15 personnes.</li>
-        <li>💆 Ajoutez un <strong>supplément soin visage/barbe</strong> à toute coupe pour seulement +7 €.</li>
-      </ul>
-      <p class="connect-msg">👉 <strong>Connectez-vous pour réserver dès maintenant !</strong></p>
-      <router-link class="cta-btn" to="/login-register">Connexion / Inscription</router-link>
-    </div>
-  </div>
-</div>
+<!-- Les blocs 'notes' et 'nouveautés' ont été retirés -->
 
 
    
 
     
 
-    <!-- ✅ Intro -->
-    <div class="intro-section">
-      <h2>Profitez des meilleures prestations coiffure directement chez vous !</h2>
-      <p>
-        May'Man vous offre un service de coiffure à domicile sans contrainte. Nous intervenons dans le Tarn-et-Garonne, l'Aveyron et le Lot.
-        Réservez votre créneau facilement, pour vous ou en groupe, avec supplément soins visage si vous le souhaitez.
-      </p>
+    <!-- ✅ Présentation + Photo salon -->
+    <div class="presentation-salon">
+      <div class="presentation-texte" v-motion
+           :initial="{ opacity: 0, y: 20 }"
+           :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+        <p>
+          <strong>MayMan</strong> vous propose des prestations <strong>à domicile</strong>,
+          exclusivement le <strong>lundi</strong> et le <strong>mardi</strong>, dans les villages suivants :
+          <strong>Caylus</strong>, <strong>Parisot</strong>, <strong>Varen</strong>, <strong>Limogne-en-Quercy</strong>.
+        </p>
+        <p>
+          Il s’agit d’un service entièrement à domicile : elle se déplace avec tout son matériel.
+          <strong>Aucun déplacement de votre part</strong>, il ne vous reste plus qu’à profiter du moment.
+        </p>
+        <p>
+          Vous pouvez également la retrouver dans <strong>son salon de barbier</strong>, situé à
+          <strong>Villefranche-de-Rouergue</strong> :
+        </p>
+        <p class="adresse">
+          <span class="pin">📍</span> <strong>176 route de Montauban</strong>
+        </p>
+        <p>
+          <em>Toutes les prestations sont réalisées dans son salon, il ne vous reste plus qu’à vous installer !</em>
+        </p>
+      </div>
+      <div class="presentation-image" v-motion
+           :initial="{ opacity: 0, scale: 0.96 }"
+           :enter="{ opacity: 1, scale: 1, transition: { duration: 600 } }">
+        <img src="@/assets/images/PhotoSalon.jpeg" alt="Salon MayMan" />
+      </div>
     </div>
 
     <!-- ✅ Liste des prestations -->
@@ -142,6 +139,40 @@ export default {
   background-color: #f8f3e7;
   padding: 20px;
   text-align: center;
+}
+
+/* Présentation + Photo salon */
+.presentation-salon {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto 30px auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  text-align: left;
+}
+
+.presentation-texte {
+  flex: 1.2;
+  color: #5a3d2b;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.presentation-texte p { margin: 10px 0; }
+.presentation-texte .adresse { font-size: 1.1rem; }
+.presentation-texte .pin { margin-right: 6px; }
+
+.presentation-image { flex: 1; max-width: 420px; }
+.presentation-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 /* Bloc Nouveautés */
@@ -397,6 +428,10 @@ p {
   .texte {
     text-align: center;
   }
+
+  .presentation-salon { flex-direction: column; text-align: center; }
+  .presentation-texte { text-align: left; }
+  .presentation-image { max-width: 100%; }
 }
 
 @media (max-width: 1024px) {

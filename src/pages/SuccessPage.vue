@@ -15,7 +15,7 @@ const autres = ref([]);
 
 const getPrix = (p) => {
   const base = parseFloat(p.prix);
-  const total = base + (p.avec_soin ? 7 : 0);
+  const total = base + (p.avec_soin ? 10 : 0);
   return total.toFixed(2);
 };
 
@@ -34,19 +34,28 @@ onMounted(async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    reservation.value = {
-      ...data,
-    departement: (() => {
-  try {
-    const parsed = typeof data.departement === 'string' ? JSON.parse(data.departement) : data.departement;
-    if (parsed && parsed.nom && parsed.codePostal) return parsed;
-    return { nom: "Inconnu", codePostal: "" };
-  } catch {
-    return { nom: "Inconnu", codePostal: "" };
-  }
-})()
+    // Prépare les champs d'affichage selon le mode et la structure de departement
+    let departementDisplay = null;
+    if (data.mode === 'DOMICILE') {
+      const dep = data.departement;
+      if (typeof dep === 'string') {
+        // code simple ("46") ou JSON stringifié
+        if (/^\d{2,3}$/.test(dep)) {
+          departementDisplay = { code: dep };
+        } else {
+          try {
+            const parsed = JSON.parse(dep);
+            if (parsed?.code) departementDisplay = { code: String(parsed.code) };
+            else if (parsed?.codePostal) departementDisplay = { code: String(parsed.codePostal).substring(0,2) };
+          } catch {}
+        }
+      } else if (dep && typeof dep === 'object') {
+        if (dep.code) departementDisplay = { code: String(dep.code) };
+        else if (dep.codePostal) departementDisplay = { code: String(dep.codePostal).substring(0,2) };
+      }
+    }
 
-    };
+    reservation.value = { ...data, departementDisplay };
 
     formattedDate.value = new Date(data.jour).toLocaleDateString("fr-FR", {
       weekday: "long", day: "numeric", month: "long", year: "numeric"
@@ -79,9 +88,13 @@ onMounted(async () => {
 
 <template>
   <div class="success-page" v-if="reservation">
-    <h2>🎉 Merci {{ reservation.nom }} pour votre réservation !</h2>
+    <h2 v-motion
+        :initial="{ opacity: 0, scale: 0.95 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400 } }">🎉 Merci {{ reservation.nom }} pour votre réservation !</h2>
 <!-- 🔔 Information planning -->
-<div class="planning-info">
+<div class="planning-info" v-motion
+     :initial="{ opacity: 0, y: 20 }"
+     :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
   <p>
     <strong>Information importante :</strong><br />
     <strong>Mercredi, jeudi, vendredi et samedi</strong> : rendez-vous <strong>au salon</strong>.
@@ -93,48 +106,57 @@ onMounted(async () => {
   </p>
 
   <p class="domicile-secteurs">
-    <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les secteurs :<br />
-    <strong>46260</strong> (Limogne-en-Quercy, Varaire) • <strong>82160</strong> (Caylus, Parisot)
+    <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les départements :<br />
+    <strong>46</strong> (Lot) • <strong>82</strong> (Tarn-et-Garonne)
   </p>
 </div>
 
     <!-- 👤 Client -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 200 } }">
       <h3>👤 Informations du client</h3>
       <p><strong>Nom :</strong> {{ reservation.nom }}</p>
       <p><strong>Prénom :</strong> {{ reservation.prenom }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.telephone }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.mode === 'SALON' ? 'Salon May\'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.adressereservation }}</p>
       <p><strong>Prestation :</strong> {{ clientPrestation.nom }}</p>
-      <p><strong>Soin visage/barbe :</strong> {{ clientPrestation.soin ? 'Oui (+7 €)' : 'Non' }}</p>
+      <p><strong>Soin visage/barbe :</strong> {{ clientPrestation.soin ? 'Oui (+10 €)' : 'Non' }}</p>
       <p><strong>Prix :</strong> {{ clientPrestation.prix }} €</p>
     </div>
 
     <!-- 👥 Participants -->
-    <div class="section" v-if="autres.length">
+    <div class="section" v-if="autres.length" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 300 } }">
       <h3>👥 Personnes incluses avec le client</h3>
-      <div v-for="(p, index) in autres" :key="index" class="participant">
+      <div v-for="(p, index) in autres" :key="index" class="participant" v-motion
+           :initial="{ opacity: 0, y: 10 }"
+           :enter="{ opacity: 1, y: 0, transition: { duration: 300, delay: 350 + index * 50 } }">
         <p><strong>Nom :</strong> {{ p.nom }}</p>
         <p><strong>Prénom :</strong> {{ p.prenom }}</p>
         <p><strong>Prestation :</strong> {{ p.nom_prestation }}</p>
-        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+10 €)' : 'Non' }}</p>
         <p><strong>Prix :</strong> {{ getPrix(p) }} €</p>
         <hr v-if="index < autres.length - 1" />
       </div>
     </div>
 
     <!-- 📅 Détails -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 400 } }">
       <h3>📅 Détails de la réservation</h3>
       <p><strong>Date :</strong> {{ formattedDate }}</p>
       <p><strong>Créneau :</strong> {{ formatHeure(reservation.heure_debut) }} → {{ heureFin }}</p>
       <p><strong>Durée estimée :</strong> {{ dureeFormatee }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
-      <p><strong>Département :</strong> {{ reservation.departement.nom }} {{ reservation.departement.codePostal }}</p>
+      <p v-if="reservation.mode === 'DOMICILE'"><strong>Département :</strong> {{ reservation.departementDisplay?.code || '—' }}</p>
     </div>
 
     <!-- 💸 Paiement -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 500 } }">
       <h3>💶 Paiement</h3>
       <p><strong>Total à payer :</strong> {{ reservation.tarif }} €</p>
     </div>

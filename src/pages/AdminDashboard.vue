@@ -1,25 +1,45 @@
 <template>
   <div class="admin-dashboard">
-    <h1 class="title">Bienvenue sur l'espace Admin</h1>
+    <h1 class="title" v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+      Bienvenue sur l'espace Admin
+    </h1>
 
     <div class="grid">
-      <router-link to="/admin/reservations" class="card card-reservation">
+      <router-link to="/admin/planning" class="card card-planning" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 0 } }">
+        🗓️ Gestion du planning
+      </router-link>
+
+      <router-link to="/admin/reservations" class="card card-reservation" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 50 } }">
         📅 Réservations du jour
       </router-link>
 
-      <router-link to="/admin/nouvelle-reservation" class="card card-ajout">
+      <router-link to="/admin/nouvelle-reservation" class="card card-ajout" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 100 } }">
         ➕ Créer une réservation
       </router-link>
 
-      <router-link to="/admin/indisponibilites" class="card card-indispo">
+      <router-link to="/admin/indisponibilites" class="card card-indispo" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 150 } }">
         ❌ Indisponibilités
       </router-link>
 
-      <router-link to="/admin/plages-horaires" class="card card-horaires">
+      <router-link to="/admin/plages-horaires" class="card card-horaires" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 200 } }">
         🕒 Plages horaires
       </router-link>
 
-      <router-link to="/admin/prestations" class="card card-prestations">
+      <router-link to="/admin/prestations" class="card card-prestations" v-motion
+        :initial="{ opacity: 0, scale: 0.8 }"
+        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 250 } }">
         💇 Gérer les prestations
       </router-link>
     </div>
@@ -71,11 +91,14 @@ export default {
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* Couleurs personnalisées */
+.card-planning {
+  background: linear-gradient(135deg, #d4a373 0%, #b8915c 100%);
+}
 .card-reservation {
   background-color: #6a994e;
 }

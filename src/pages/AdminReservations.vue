@@ -1,29 +1,39 @@
 <template>
   <div class="admin-reservations">
-    <h1>📅 Réservations du jour</h1>
+    <h1 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">📅 Réservations du jour</h1>
     <router-link to="/admin" class="back-btn">← Retour au menu admin</router-link>
 
     <v-calendar @dayclick="onDayClick" />
 
-    <h3 v-if="selectedDate">Réservations du {{ selectedDate }}</h3>
+    <h3 v-if="selectedDate" v-motion
+        :initial="{ opacity: 0, x: -20 }"
+        :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">Réservations du {{ selectedDate }}</h3>
 
-    <table v-if="reservations.length > 0" class="styled-table">
+    <table v-if="reservations.length > 0" class="styled-table" v-motion
+           :initial="{ opacity: 0, y: 20 }"
+           :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
       <thead>
         <tr>
           <th>Client</th>
           <th>Heure</th>
           <th>Durée</th>
+          <th>Mode</th>
           <th>Département</th>
           <th>Personnes</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="resa in reservations" :key="resa.id">
+        <tr v-for="(resa, idx) in reservations" :key="resa.id" v-motion
+            :initial="{ opacity: 0, x: -20 }"
+            :enter="{ opacity: 1, x: 0, transition: { duration: 300, delay: 150 + idx * 50 } }">
           <td>{{ resa.nom }} {{ resa.prenom }}</td>
           <td>{{ resa.heure_debut }}</td>
           <td>{{ convertirDuree(resa.duree_totale_minutes) }}</td>
-          <td>{{ afficherDepartement(resa.departement) }}</td>
+          <td>{{ afficherMode(resa.mode) }}</td>
+          <td>{{ afficherDepartement(resa.departement, resa.mode) }}</td>
           <td>{{ resa.nombre_personnes }}</td>
           <td>
             <button @click="voirDetails(resa)">👁️ Détails</button>
@@ -37,12 +47,18 @@
 
     <!-- ✅ Modale de détails -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal-content">
+      <div class="modal-content" v-motion
+           :initial="{ opacity: 0, scale: 0.9 }"
+           :enter="{ opacity: 1, scale: 1, transition: { duration: 300 } }">
         <h3>Détails de la réservation</h3>
         <p><strong>Client :</strong> {{ detail.nom }} {{ detail.prenom }}</p>
         <p><strong>Téléphone :</strong> {{ detail.telephone }}</p>
-        <p><strong>Adresse :</strong> {{ detail.adressereservation }}</p>
-        <p><strong>Département :</strong> {{ afficherDepartement(detail.departement) }}</p>
+        <p><strong>Mode :</strong> {{ afficherMode(detail.mode) }}</p>
+        <p v-if="detail.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+        <template v-else>
+          <p><strong>Adresse client :</strong> {{ detail.adressereservation }}</p>
+          <p><strong>Département :</strong> {{ afficherDepartement(detail.departement, detail.mode) }}</p>
+        </template>
         <p><strong>Heure :</strong> {{ detail.heure_debut }} → {{ calculHeureFin(detail.heure_debut, detail.duree_totale_minutes) }}</p>
 
         <h4>Participants :</h4>
@@ -87,13 +103,36 @@ export default {
         console.error("Erreur récupération réservations :", err);
       }
     },
-    afficherDepartement(dep) {
-      try {
-        const obj = typeof dep === "string" ? JSON.parse(dep) : dep;
-        return `${obj.nom} (${obj.codePostal})`;
-      } catch {
-        return "—";
+    afficherDepartement(dep, mode) {
+      // Pour SALON, pas de département
+      if (mode === 'SALON') return '🏛️ Salon';
+      
+      // Pour DOMICILE : afficher le code (46 ou 82)
+      if (!dep) return '—';
+      
+      // Si c'est un string (simple code)
+      if (typeof dep === 'string') {
+        if (/^\d{2}$/.test(dep)) return dep; // code simple "46"
+        // Sinon, essayer de parser comme JSON
+        try {
+          const obj = JSON.parse(dep);
+          return obj.code || obj.codePostal?.substring(0, 2) || '—';
+        } catch {
+          return dep;
+        }
       }
+      
+      // Si c'est un objet
+      if (dep && typeof dep === 'object') {
+        return dep.code || dep.codePostal?.substring(0, 2) || '—';
+      }
+      
+      return '—';
+    },
+    afficherMode(mode) {
+      if (mode === 'SALON') return '🏛️ Salon';
+      if (mode === 'DOMICILE') return '🏠 Domicile';
+      return '—';
     },
     convertirDuree(minutes) {
       const h = Math.floor(minutes / 60);
@@ -119,7 +158,7 @@ export default {
     calculPrix(p) {
       try {
         const prix = parseFloat(p.prix || 0);
-        return (prix + (p.avec_soin ? 7 : 0)).toFixed(2);
+        return (prix + (p.avec_soin ? 10 : 0)).toFixed(2);
       } catch {
         return "—";
       }
@@ -127,7 +166,7 @@ export default {
     calculTotal(personnes) {
       return personnes.reduce((total, p) => {
         const prix = parseFloat(p.prix || 0);
-        return total + prix + (p.avec_soin ? 7 : 0);
+        return total + prix + (p.avec_soin ? 10 : 0);
       }, 0).toFixed(2);
     },
     async supprimerReservation(id) {

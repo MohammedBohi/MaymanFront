@@ -3,31 +3,37 @@
     <h2>🧾 Récapitulatif de votre réservation</h2>
 
     <!-- Client -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, y: 10 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       <h3>👤 Client</h3>
       <p><strong>Nom :</strong> {{ reservation.client.nom }}</p>
       <p><strong>Prénom :</strong> {{ reservation.client.prenom }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.client.telephone }}</p>
       <p><strong>Prestation :</strong> {{ getPrestationName(reservation.client.prestation_id) }}</p>
-      <p><strong>Soin visage/barbe :</strong> {{ reservation.client.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+      <p><strong>Soin visage/barbe :</strong> {{ reservation.client.avec_soin ? 'Oui (+10 €)' : 'Non' }}</p>
       <p><strong>Prix :</strong> {{ getPrixDetail(reservation.client) }}</p>
     </div>
 
     <!-- Participants (hors client) -->
-    <div v-if="participants.length" class="section">
+    <div v-if="participants.length" class="section" v-motion
+         :initial="{ opacity: 0, y: 10 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 50 } }">
       <h3>👥 Personnes incluses dans la réservation</h3>
       <div v-for="(p, index) in participants" :key="index" class="participant">
         <p><strong>Nom :</strong> {{ p.nom }}</p>
         <p><strong>Prénom :</strong> {{ p.prenom }}</p>
         <p><strong>Prestation :</strong> {{ getPrestationName(p.prestation_id) }}</p>
-        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+10 €)' : 'Non' }}</p>
         <p><strong>Prix :</strong> {{ getPrixDetail(p) }}</p>
         <hr v-if="index < participants.length - 1" />
       </div>
     </div>
 
     <!-- Détails réservation -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, y: 10 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 150 } }">
       <h3>📅 Détails de la réservation</h3>
       <p><strong>Date :</strong> {{ dateFormatted }}</p>
       <p><strong>Créneau :</strong> {{ dateRes.slot }} → {{ getHeureFin() }}</p>
@@ -35,20 +41,31 @@
     </div>
 
     <!-- Lieu -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, y: 10 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
       <h3>📍 Adresse de la prestation</h3>
-      <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p>
-      <p><strong>Département :</strong> {{ dateRes.departement.nom }} ({{ dateRes.departement.codePostal }})</p>
+      <template v-if="dateRes.mode === 'SALON'">
+        <p>Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue (12200)</p>
+      </template>
+      <template v-else>
+        <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p>
+        <p v-if="dateRes.departement && dateRes.departement.nom && dateRes.departement.code"><strong>Département :</strong> {{ dateRes.departement.nom }} ({{ dateRes.departement.code }})</p>
+      </template>
     </div>
 
     <!-- Paiement -->
-    <div class="section">
+    <div class="section" v-motion
+         :initial="{ opacity: 0, y: 10 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 200 } }">
       <h3>💰 Paiement</h3>
       <p><strong>Total à payer :</strong> {{ reservation.tarif_total }} €</p>
     </div>
 
     <!-- Actions -->
-    <div class="actions">
+    <div class="actions" v-motion
+         :initial="{ opacity: 0, y: 20 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 250 } }">
       <button class="back" @click="retourCalendrier">← Changer de créneau</button>
       <button class="confirm" :disabled="isSubmitting" @click="validerReservation">
         {{ isSubmitting ? 'Validation...' : 'Confirmer la réservation' }}
@@ -110,7 +127,7 @@ const getPrixDetail = (personne) => {
   const presta = prestations.value.find(p => String(p.id) === String(personne.prestation_id));
   if (!presta) return "Inconnu";
   const base = parseFloat(presta.prix);
-  const soin = personne.avec_soin ? 7 : 0;
+  const soin = personne.avec_soin ? 10 : 0;
   return `${base} €${soin ? ` + ${soin} € (soin)` : ""} = ${(base + soin).toFixed(2)} €`;
 };
 
@@ -175,9 +192,21 @@ const validerReservation = async () => {
       }))
     ];
 
-    const departementStr = typeof dateRes.departement === "string"
-      ? dateRes.departement
-      : JSON.stringify(dateRes.departement ?? {});
+    // Préparer le département à envoyer: code pur pour DOMICILE, sinon rien
+    let departementToSend = undefined;
+    if (dateRes.mode === 'DOMICILE') {
+      if (dateRes.departement && typeof dateRes.departement === 'object') {
+        if (dateRes.departement.code) {
+          departementToSend = String(dateRes.departement.code);
+        } else if (dateRes.departement.codePostal) {
+          departementToSend = String(dateRes.departement.codePostal).substring(0,2);
+        } else {
+          departementToSend = JSON.stringify(dateRes.departement);
+        }
+      } else if (typeof dateRes.departement === 'string') {
+        departementToSend = dateRes.departement;
+      }
+    }
 
     const body = {
       nom: reservation.client.nom,
@@ -186,7 +215,8 @@ const validerReservation = async () => {
       adresseReservation: reservation.client.adresse,
       jour: dateRes.date,           // "YYYY-MM-DD"
       heure_debut: dateRes.slot,    // "HH:mm"
-      departement: departementStr,  // VARCHAR en BDD
+      ...(dateRes.mode ? { mode: dateRes.mode } : {}),
+      ...(dateRes.mode === 'DOMICILE' && departementToSend ? { departement: departementToSend } : {}),
       personnes
     };
 

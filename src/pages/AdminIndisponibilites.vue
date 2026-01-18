@@ -1,6 +1,8 @@
 <template>
   <div class="admin-indispo">
-    <h1>❌ Gérer les indisponibilités</h1>
+    <h1 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">❌ Gérer les indisponibilités</h1>
 
     <router-link to="/admin" class="back-btn">← Retour au menu admin</router-link>
 
@@ -8,7 +10,9 @@
       <v-calendar is-expanded @dayclick="onDayClick" />
     </div>
 
-    <div v-if="selectedDate" class="form-section">
+    <div v-if="selectedDate" class="form-section" v-motion
+         :initial="{ opacity: 0, y: 20 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       <h3>Ajouter une indisponibilité pour le {{ selectedDate }}</h3>
       <form @submit.prevent="ajouterIndispo">
         <label>Heure de début :
@@ -24,10 +28,14 @@
       </form>
     </div>
 
-    <div v-if="indispos.length > 0" class="list-section">
+    <div v-if="indispos.length > 0" class="list-section" v-motion
+         :initial="{ opacity: 0, y: 20 }"
+         :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
       <h3>Indisponibilités du {{ selectedDate }}</h3>
       <ul>
-        <li v-for="indispo in indispos" :key="indispo.id">
+        <li v-for="(indispo, idx) in indispos" :key="indispo.id" v-motion
+            :initial="{ opacity: 0, x: -20 }"
+            :enter="{ opacity: 1, x: 0, transition: { duration: 300, delay: 150 + idx * 50 } }">
           ⛔ {{ indispo.heure_debut }} → {{ indispo.heure_fin }}
           <span v-if="indispo.motif">({{ indispo.motif }})</span>
           <button @click="supprimerIndispo(indispo.id)">Supprimer</button>

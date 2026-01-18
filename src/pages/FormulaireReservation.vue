@@ -12,7 +12,8 @@
       <label>Téléphone</label>
       <input v-model="client.telephone" required />
       <label>Adresse</label>
-      <input v-model="client.adresse" required />
+      <input v-model="client.adresse" :readonly="avecSoin" required :class="{ 'readonly-field': avecSoin }" />
+      <small v-if="avecSoin" style="color: #d4a373; font-weight: 600;">📍 Le soin nécessite une visite au salon</small>
 
       <label>Prestation</label>
       <div v-if="isGroupe">
@@ -24,7 +25,7 @@
         <input :value="prestation.nom" disabled />
       </div>
 
-      <label>Soin visage/barbe ?</label>
+      <label>Soin visage/barbe ? <small>(+10€, uniquement au salon)</small></label>
       <select v-model="client.avec_soin">
         <option :value="true">Oui</option>
         <option :value="false">Non</option>
@@ -62,7 +63,7 @@
       <select v-model="p.prestation_id" required>
         <option v-for="presta in prestations" :key="presta.id" :value="presta.id">{{ presta.nom }}</option>
       </select>
-      <label>Soin visage/barbe ?</label>
+      <label>Soin visage/barbe ? <small>(+10€, uniquement au salon)</small></label>
       <select v-model="p.avec_soin">
         <option :value="true">Oui</option>
         <option :value="false">Non</option>
@@ -74,10 +75,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { checkAuth } from "@/services/AuthService";
 import { getPrestations } from "@/services/PrestationService";
+
+const ADRESSE_SALON = "Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue";
 
 const route = useRoute();
 const router = useRouter();
@@ -134,6 +137,18 @@ const genererParticipants = () => {
   }
 };
 
+const avecSoin = computed(() => {
+  if (client.value.avec_soin) return true;
+  return participants.value.some(p => p.avec_soin);
+});
+
+// Watcher pour gérer l'adresse automatiquement
+watch(avecSoin, (newVal) => {
+  if (newVal) {
+    client.value.adresse = ADRESSE_SALON;
+  }
+});
+
 const formulaireComplet = computed(() => {
   if (!client.value.nom || !client.value.prenom || !client.value.telephone || !client.value.adresse || !client.value.prestation_id) {
     return false;
@@ -149,7 +164,7 @@ const passerAuCalendrier = () => {
   for (const p of toutes) {
     const presta = prestations.value.find(pr => pr.id == p.prestation_id);
     if (!presta) continue;
-    total += +presta.prix + (p.avec_soin ? 7 : 0);
+    total += +presta.prix + (p.avec_soin ? 10 : 0);
     duree += +presta.duree_minutes + (p.avec_soin ? 10 : 0);
   }
 
@@ -208,5 +223,11 @@ button {
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+.readonly-field {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+  font-weight: 600;
+  color: #333;
 }
 </style>

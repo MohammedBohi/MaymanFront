@@ -1,7 +1,9 @@
 <template>
   <div class="reservation-page">
     <div class="calendar-section">
-      <h2>Choisissez un jour et un créneau</h2>
+      <h2 v-motion
+          :initial="{ opacity: 0, y: -30 }"
+          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">Choisissez un jour et un créneau</h2>
       <v-calendar
         mode="single"
         is-expanded
@@ -9,48 +11,66 @@
         @dayclick="onDateSelected"
       />
 
-      <div v-if="selectedDate" class="details-section">
+      <div v-if="selectedDate" class="details-section" v-motion
+           :initial="{ opacity: 0, y: 20 }"
+           :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+        <div class="selected-date-info">
+          <h3>📅 Date sélectionnée : {{ formatSelectedDate(selectedDate) }}</h3>
+        </div>
         <h3>Créneaux disponibles :</h3>
         <div v-if="availableSlots.length" class="slot-buttons">
           <button
-            v-for="slot in availableSlots"
+            v-for="(slot, idx) in availableSlots"
             :key="slot"
             @click="selectSlot(slot)"
             :class="{ active: slot === selectedSlot }"
+            v-motion
+            :initial="{ opacity: 0, scale: 0.9 }"
+            :enter="{ opacity: 1, scale: 1, transition: { duration: 300, delay: idx * 50 } }"
           >
             {{ slot }}
           </button>
         </div>
         <p v-else>Aucun créneau disponible pour cette date.</p>
 
-        <div class="departement-select-row">
-          <div class="select-wrapper">
-            <h3>Choisir votre département :</h3>
-            <select v-model="selectedDepartment" required>
-              <option v-for="dept in departments" :key="dept.codePostal" :value="dept">
-                {{ dept.nom }} ({{ dept.codePostal }})
-              </option>
-            </select>
-          </div>
+        <div class="departement-select-row" v-motion
+             :initial="{ opacity: 0, y: 10 }"
+             :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+          <template v-if="!isSalonDay(selectedDate)">
+            <div class="select-wrapper">
+              <h3>Choisir votre département :</h3>
+              <select v-model="selectedDepartment" required>
+                <option v-for="dept in departments" :key="dept.code" :value="dept">
+                  {{ dept.nom }} ({{ dept.code }})
+                </option>
+              </select>
+            </div>
 
-          <div v-if="departments.length" class="departement-info-inline">
-            <p>
-              <strong>Départements desservis le {{ joursSemaine[selectedDate.getDay()] }} :</strong>
-            </p>
-            <ul>
-              <li v-for="dept in departments" :key="dept.codePostal">
-                {{ dept.nom }} ({{ dept.codePostal }})
-              </li>
-            </ul>
-            <p v-if="selectedDate.getDay() === 0" class="dimanche-note">
-              ⚠️ Dimanche = travail occasionnel selon disponibilité
-            </p>
-          </div>
+            <div v-if="departments.length" class="departement-info-inline">
+              <p>
+                <strong>Départements desservis :</strong>
+              </p>
+              <ul>
+                <li v-for="dept in departments" :key="dept.code">
+                  {{ dept.nom }} ({{ dept.code }})
+                </li>
+              </ul>
+              <p v-if="selectedDate.getDay() === 0" class="dimanche-note">
+                ⚠️ Dimanche = travail occasionnel selon disponibilité
+              </p>
+            </div>
+          </template>
+          <template v-else>
+            <div class="departement-info-inline" style="flex:1">
+              <p><strong>🏛️ Salon May'Man</strong></p>
+              <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+            </div>
+          </template>
         </div>
 
         <button
           class="reserve-button"
-          :disabled="!selectedSlot || !selectedDepartment"
+          :disabled="!selectedSlot || (!isSalonDay(selectedDate) && !selectedDepartment)"
           @click="validerReservation"
         >
           Continuer
@@ -79,13 +99,12 @@ const duree = parseInt(route.query.duree, 10);
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
 ];
-const SALON = { nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue", codePostal: "12200" };
+const SALON = { nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue", code: "SALON" };
 
+// Aligne avec le backend: départements par code (46, 82)
 const DOMICILE = [
-  { nom: "Limogne-en-Quercy", codePostal: "46260" },
-  { nom: "Varaire", codePostal: "46260" },
-  { nom: "Caylus", codePostal: "82160" },
-  { nom: "Parisot", codePostal: "82160" }
+  { nom: "Lot", code: "46" },
+  { nom: "Tarn-et-Garonne", code: "82" }
 ];
 
 
@@ -132,8 +151,14 @@ const onDateSelected = async ({ date }) => {
   selectedDate.value = new Date(date);
   departments.value = [];
   await nextTick();
-  departments.value = [...getDepartmentsForDay(selectedDate.value)];
-  selectedDepartment.value = departments.value[0] || null;
+  const list = getDepartmentsForDay(selectedDate.value);
+  departments.value = [...list];
+  // Pour les jours SALON, pas de sélection de département requise
+  if (isSalonDay(selectedDate.value)) {
+    selectedDepartment.value = null;
+  } else {
+    selectedDepartment.value = departments.value[0] || null;
+  }
 
   await getAvailableSlots();
 };
@@ -154,11 +179,30 @@ const selectSlot = (slot) => {
   selectedSlot.value = slot;
 };
 
+const isSalonDay = (date) => {
+  const d = date.getDay();
+  return d === 3 || d === 4 || d === 5 || d === 6; // Mer->Sam
+};
+
+const formatSelectedDate = (date) => {
+  const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const jour = jours[date.getDay()];
+  const numJour = date.getDate();
+  const nomMois = mois[date.getMonth()];
+  const annee = date.getFullYear();
+  return `${jour} ${numJour} ${nomMois} ${annee}`;
+};
+
+const computeMode = (date) => (isSalonDay(date) ? "SALON" : "DOMICILE");
+
 const validerReservation = () => {
+  const mode = computeMode(selectedDate.value);
   const payload = {
     date: formatDate(selectedDate.value),
     slot: selectedSlot.value,
-    departement: selectedDepartment.value,
+    departement: selectedDepartment.value, // null pour SALON, { code: '46' } pour DOMICILE
+    mode,
   };
   localStorage.setItem("reservation_date", JSON.stringify(payload));
   router.push("/confirmation");
@@ -179,6 +223,20 @@ const validerReservation = () => {
 }
 .details-section {
   margin-top: 20px;
+}
+.selected-date-info {
+  background: linear-gradient(135deg, #d4a373 0%, #c58954 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.selected-date-info h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 .slot-buttons {
   display: flex;

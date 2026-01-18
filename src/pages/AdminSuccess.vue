@@ -11,7 +11,7 @@
       <p><strong>Téléphone :</strong> {{ reservation.telephone }}</p>
       <p><strong>Adresse :</strong> {{ reservation.adressereservation }}</p>
       <p><strong>Prestation :</strong> {{ prestationClient }}</p>
-<p><strong>Soin :</strong> {{ reservation.avec_soin ? 'Oui (+7 €)' : 'Non' }}</p>
+<p><strong>Soin :</strong> {{ reservation.avec_soin ? 'Oui (+10 €)' : 'Non' }}</p>
 
     </div>
 
@@ -22,7 +22,7 @@
         <p><strong>Nom :</strong> {{ p.nom }}</p>
         <p><strong>Prénom :</strong> {{ p.prenom }}</p>
         <p><strong>Prestation :</strong> {{ p.nom_prestation }}</p>
-        <p><strong>Soin :</strong> {{ p.avec_soin ? "Oui (+7 €)" : "Non" }}</p>
+        <p><strong>Soin :</strong> {{ p.avec_soin ? "Oui (+10 €)" : "Non" }}</p>
         <p><strong>Prix :</strong> {{ getPrix(p) }} €</p>
         <hr v-if="i < autres.length - 1" />
       </div>
@@ -72,7 +72,7 @@ const formatDuree = (totalMinutes) => {
 
 const getPrix = (p) => {
   const base = parseFloat(p.prix);
-  return (base + (p.avec_soin ? 7 : 0)).toFixed(2);
+  return (base + (p.avec_soin ? 10 : 0)).toFixed(2);
 };
 const prestationClient = ref("Inconnue");
 

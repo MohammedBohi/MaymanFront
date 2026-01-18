@@ -49,23 +49,45 @@ export const checkAuth = async () => {
 };
 
 
-// ✅ Réinitialisation mot de passe
+// ✅ Demander code de réinitialisation (email)
 export const requestPasswordReset = async (email) => {
   try {
     const response = await api.post("/auth/reset-password", { email });
-    return response.data;
+    return response.data; // { message: "Code envoyé" }
+  } catch (error) {
+    console.error("❌ Erreur demande reset :", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// ✅ Réinitialiser mot de passe avec email+code
+export const resetPassword = async (email, code, nouveauMotDePasse) => {
+  try {
+    const response = await api.put("/auth/reset-password", { 
+      email, 
+      code, 
+      nouveauMotDePasse 
+    });
+    return response.data; // { message: "Mot de passe réinitialisé" }
   } catch (error) {
     console.error("❌ Erreur réinitialisation :", error.response?.data || error.message);
     throw error;
   }
 };
 
-export const resetPassword = async (token, nouveauMotDePasse) => {
+// ✅ Changer mot de passe (utilisateur connecté)
+export const changerMotDePasse = async (ancienMotDePasse, nouveauMotDePasse) => {
   try {
-    const response = await api.put("/auth/reset-password", { token, nouveauMotDePasse });
-    return response.data;
+    const token = localStorage.getItem("token");
+    const response = await api.put("/auth/changer-motdepasse", { 
+      ancienMotDePasse, 
+      nouveauMotDePasse 
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data; // { message: "Mot de passe changé" }
   } catch (error) {
-    console.error("❌ Erreur réinitialisation :", error.response?.data || error.message);
+    console.error("❌ Erreur changement mot de passe :", error.response?.data || error.message);
     throw error;
   }
 };
