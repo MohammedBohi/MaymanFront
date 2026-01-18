@@ -9,13 +9,13 @@
          :initial="{ opacity: 0, x: -30 }"
          :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
       <h3>👤 Client</h3>
-      <p><strong>Nom :</strong> {{ reservation.client.nom }}</p>
-      <p><strong>Prénom :</strong> {{ reservation.client.prenom }}</p>
-      <p><strong>Email :</strong> {{ reservation.client.email }}</p>
-      <p><strong>Téléphone :</strong> {{ reservation.client.telephone }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.client.adresse }}</p><p><strong>Prestation :</strong> {{ getPrestation(reservation.client.prestation_id) }}</p>
-<p><strong>Soin :</strong> {{ reservation.client.avec_soin ? 'Oui (+10€)' : 'Non' }}</p>
-<p><strong>Prix :</strong> {{ getPrix(reservation.client) }} €</p>
+      <p><strong>Nom :</strong> {{ reservation.contact.nom }}</p>
+      <p><strong>Prénom :</strong> {{ reservation.contact.prenom }}</p>
+      <p><strong>Email :</strong> {{ reservation.contact.email }}</p>
+      <p><strong>Téléphone :</strong> {{ reservation.contact.telephone }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.contact.adresse }}</p><p><strong>Prestation :</strong> {{ getPrestation(reservation.contact.prestation_id) }}</p>
+<p><strong>Soin :</strong> {{ reservation.contact.avec_soin ? 'Oui (+10€)' : 'Non' }}</p>
+<p><strong>Prix :</strong> {{ getPrix(reservation.contact) }} €</p>
 
     </div>
 
@@ -43,13 +43,13 @@
       <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
       <p><strong>Créneau :</strong> {{ dateInfo.slot }} → {{ heureFin }}</p>
       <p><strong>Durée totale :</strong> {{ formatDuree(reservation.duree_totale) }}</p>
-      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.client.adresse }}</p>
+      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.contact.adresse }}</p>
     </div>
 
     <!-- Paiement -->
     <div class="section">
       <h3>💰 Tarif</h3>
-      <p><strong>Total à payer :</strong> {{ reservation.tarif_total }} €</p>
+      <p><strong>Total à payer :</strong> {{ reservation.prix_total }} €</p>
     </div>
 
     <!-- Actions -->
@@ -129,7 +129,7 @@ const formatDate = (str) =>
 
 const validerReservation = async () => {
   try {
-    const { client, participants } = reservation.value;
+    const { contact, participants } = reservation.value;
     const { date, slot, mode, departement } = dateInfo.value;
 
     // Préparer le département à envoyer
@@ -147,21 +147,21 @@ const validerReservation = async () => {
 
     const body = {
       utilisateur_id: null,
-      nom: client.nom,
-      prenom: client.prenom,
-      email: client.email,
-      telephone: client.telephone,
-      adresseReservation: client.adresse,
+      nom: contact.nom,
+      prenom: contact.prenom,
+      email: contact.email,
+      telephone: contact.telephone,
+      adresseReservation: contact.adresse,
       jour: date,
       heure_debut: slot,
       mode,
       ...(departementToSend ? { departement: departementToSend } : {}),
       personnes: [
         {
-          nom: client.nom,
-          prenom: client.prenom,
-          prestation_id: client.prestation_id,
-          avec_soin: client.avec_soin
+          nom: contact.nom,
+          prenom: contact.prenom,
+          prestation_id: contact.prestation_id,
+          avec_soin: contact.avec_soin
         },
         ...participants
       ]
