@@ -81,8 +81,8 @@ import { getPrestations } from "@/services/PrestationService";
 import api from "@/services/api";
 
 const router = useRouter();
-const reservation = JSON.parse(localStorage.getItem("reservation_en_cours")) || { client: {}, participants: [] };
-const dateRes = JSON.parse(localStorage.getItem("reservation_date")) || {};
+const reservation = JSON.parse(localStorage.getItem("reservation_finale")) || { client: {}, participants: [] };
+const dateRes = reservation; // Les données de date/créneau sont maintenant dans reservation_finale
 
 const prestations = ref([]);
 const participants = computed(() => reservation.participants || []);
@@ -147,7 +147,7 @@ const formatDuree = (totalMinutes) => {
 };
 
 const retourCalendrier = () => {
-  router.push({ name: "Reservation", params: { id: 'temp' }, query: { duree: reservation.duree_totale } });
+  router.push({ name: "ReservationPage" });
 };
 
 // Fallback: si POST échoue mais que la résa existe déjà, on la retrouve
@@ -229,9 +229,10 @@ const validerReservation = async () => {
     if (!reservationId) throw new Error("Réservation créée mais ID manquant.");
 
     // Débloquer AVANT navigation
-localStorage.removeItem("reservation_en_cours");
-localStorage.removeItem("reservation_date");
-goToSuccess(reservationId);
+    localStorage.removeItem("reservation_finale");
+    localStorage.removeItem("reservation_date");
+    localStorage.removeItem("selected_prestation");
+    goToSuccess(reservationId);
 
 
   } catch (e) {

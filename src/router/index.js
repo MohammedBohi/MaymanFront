@@ -25,8 +25,9 @@ const routes = [
   { path: "/forgot-password", component: ForgotPassword },
   { path: "/reset-password", component: ResetPassword },
   { path: "/change-password", name: "ChangePassword", component: ChangePassword, meta: { requiresAuth: true } },
-  { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation },
+  { path: "/reservation", name: "ReservationPage", component: ReservationPage },
   { path: "/reservation/:id", name: "Reservation", component: ReservationPage },
+  { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation },
   { path: "/confirmation", name: "ConfirmationReservation", component: ConfirmationReservation },
   { path: "/success", name: "SuccessPage", component: SuccessPage },
 

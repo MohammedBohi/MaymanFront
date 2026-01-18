@@ -3,7 +3,12 @@
     <div class="calendar-section">
       <h2 v-motion
           :initial="{ opacity: 0, y: -30 }"
-          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">Choisissez un jour et un créneau</h2>
+          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+        📅 Étape 1 : Choisissez votre date
+      </h2>
+      <p class="instruction-text">
+        💡 <strong>Astuce :</strong> Les soins ne sont disponibles qu'au salon (mercredi à samedi)
+      </p>
       <v-calendar
         mode="single"
         is-expanded
@@ -15,57 +20,53 @@
            :initial="{ opacity: 0, y: 20 }"
            :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
         <div class="selected-date-info">
-          <h3>📅 Date sélectionnée : {{ formatSelectedDate(selectedDate) }}</h3>
+          <h3>📅 {{ formatSelectedDate(selectedDate) }}</h3>
+          <p class="mode-badge" :class="isSalonDay(selectedDate) ? 'salon-mode' : 'domicile-mode'">
+            {{ isSalonDay(selectedDate) ? '🏛️ Mode SALON' : '🏠 Mode DOMICILE' }}
+          </p>
         </div>
-        <h3>Créneaux disponibles :</h3>
-        <div v-if="availableSlots.length" class="slot-buttons">
-          <button
-            v-for="(slot, idx) in availableSlots"
-            :key="slot"
-            @click="selectSlot(slot)"
-            :class="{ active: slot === selectedSlot }"
-            v-motion
-            :initial="{ opacity: 0, scale: 0.9 }"
-            :enter="{ opacity: 1, scale: 1, transition: { duration: 300, delay: idx * 50 } }"
-          >
-            {{ slot }}
-          </button>
-        </div>
-        <p v-else>Aucun créneau disponible pour cette date.</p>
 
-        <div class="departement-select-row" v-motion
+        <!-- ÉTAPE 2 : Département (uniquement si DOMICILE) -->
+        <div v-if="!isSalonDay(selectedDate)" class="step-section" v-motion
              :initial="{ opacity: 0, y: 10 }"
-             :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
-          <template v-if="!isSalonDay(selectedDate)">
-            <div class="select-wrapper">
-              <h3>Choisir votre département :</h3>
-              <select v-model="selectedDepartment" required>
-                <option v-for="dept in departments" :key="dept.code" :value="dept">
-                  {{ dept.nom }} ({{ dept.code }})
-                </option>
-              </select>
-            </div>
+             :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
+          <h3>📍 Étape 2 : Choisissez votre ville</h3>
+          <select v-model="selectedDepartment" class="department-select" required>
+            <option :value="null" disabled>Sélectionnez une ville</option>
+            <option v-for="dept in departments" :key="dept.code + dept.nom" :value="dept">
+              {{ dept.nom }} ({{ dept.code }})
+            </option>
+          </select>
+        </div>
 
-            <div v-if="departments.length" class="departement-info-inline">
-              <p>
-                <strong>Départements desservis :</strong>
-              </p>
-              <ul>
-                <li v-for="dept in departments" :key="dept.code">
-                  {{ dept.nom }} ({{ dept.code }})
-                </li>
-              </ul>
-              <p v-if="selectedDate.getDay() === 0" class="dimanche-note">
-                ⚠️ Dimanche = travail occasionnel selon disponibilité
-              </p>
-            </div>
-          </template>
-          <template v-else>
-            <div class="departement-info-inline" style="flex:1">
-              <p><strong>🏛️ Salon May'Man</strong></p>
-              <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
-            </div>
-          </template>
+        <!-- Info SALON -->
+        <div v-else class="salon-info" v-motion
+             :initial="{ opacity: 0, y: 10 }"
+             :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
+          <p><strong>🏛️ Adresse du salon :</strong></p>
+          <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+          <p class="info-note">✨ Soins disponibles au salon</p>
+        </div>
+
+        <!-- ÉTAPE 3 : Créneaux -->
+        <div class="step-section" v-motion
+             :initial="{ opacity: 0, y: 10 }"
+             :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 200 } }">
+          <h3>⏰ {{ isSalonDay(selectedDate) ? 'Étape 2' : 'Étape 3' }} : Choisissez votre créneau</h3>
+          <div v-if="availableSlots.length" class="slot-buttons">
+            <button
+              v-for="(slot, idx) in availableSlots"
+              :key="slot"
+              @click="selectSlot(slot)"
+              :class="{ active: slot === selectedSlot }"
+              v-motion
+              :initial="{ opacity: 0, scale: 0.9 }"
+              :enter="{ opacity: 1, scale: 1, transition: { duration: 300, delay: idx * 50 } }"
+            >
+              {{ slot }}
+            </button>
+          </div>
+          <p v-else class="no-slots">Aucun créneau disponible pour cette date.</p>
         </div>
 
         <button
@@ -214,11 +215,13 @@ const validerReservation = () => {
   const payload = {
     date: formatDate(selectedDate.value),
     slot: selectedSlot.value,
-    departement: selectedDepartment.value, // null pour SALON, { code: '46' } pour DOMICILE
+    departement: selectedDepartment.value, // null pour SALON, { code, nom } pour DOMICILE
     mode,
   };
   localStorage.setItem("reservation_date", JSON.stringify(payload));
-  router.push("/confirmation");
+  
+  // Rediriger vers le formulaire pour saisir les détails
+  router.push("/formulaire-reservation");
 };
 </script>
 <style scoped>
@@ -234,22 +237,94 @@ const validerReservation = () => {
   padding: 25px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.instruction-text {
+  text-align: center;
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+}
+
 .details-section {
   margin-top: 20px;
 }
+
 .selected-date-info {
   background: linear-gradient(135deg, #d4a373 0%, #c58954 100%);
   color: white;
-  padding: 15px 20px;
+  padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
+
 .selected-date-info h3 {
-  margin: 0;
+  margin: 0 0 10px 0;
   font-size: 1.3rem;
   font-weight: 600;
+}
+
+.mode-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.salon-mode {
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid white;
+}
+
+.domicile-mode {
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid white;
+}
+
+.step-section {
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #d4a373;
+}
+
+.step-section h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.salon-info {
+  background: #f0f7ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #5a9fd4;
+  text-align: center;
+}
+
+.info-note {
+  color: #5a9fd4;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.department-select {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+.department-select:focus {
+  outline: none;
+  border-color: #d4a373;
 }
 .slot-buttons {
   display: flex;
@@ -257,16 +332,35 @@ const validerReservation = () => {
   gap: 10px;
   margin-top: 10px;
 }
+
 .slot-buttons button {
-  padding: 10px 15px;
+  padding: 12px 20px;
   background-color: #d4a373;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   color: white;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
 }
+
+.slot-buttons button:hover {
+  background-color: #c58954;
+  transform: scale(1.05);
+}
+
 .slot-buttons button.active {
   background-color: #c58954;
+  box-shadow: 0 0 0 3px rgba(197, 137, 84, 0.3);
+  transform: scale(1.05);
+}
+
+.no-slots {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
 .reserve-button, .back-button {
   margin-top: 20px;

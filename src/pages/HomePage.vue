@@ -99,14 +99,20 @@ export default {
     },
 
     goToReservation(prestation) {
+      // Stocker la prestation sélectionnée dans localStorage
+      localStorage.setItem("selected_prestation", JSON.stringify({
+        id: prestation.id,
+        nom: prestation.nom,
+        prix: prestation.prix,
+        duree: prestation.duree_minutes,
+        soin_dispo: prestation.soin_disponible
+      }));
+      
+      // Rediriger directement vers le calendrier (ReservationPage)
       this.$router.push({
-        name: "FormulaireReservation",
+        name: "ReservationPage",
         query: {
-          type_id: prestation.id,
-          nom: prestation.nom,
-          prix: prestation.prix,
-          duree: prestation.duree_minutes,
-          soin_dispo: prestation.soin_disponible
+          duree: prestation.duree_minutes
         }
       });
     },

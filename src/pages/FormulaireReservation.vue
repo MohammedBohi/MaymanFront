@@ -12,8 +12,9 @@
       <label>Téléphone</label>
       <input v-model="client.telephone" required />
       <label>Adresse</label>
-      <input v-model="client.adresse" :readonly="avecSoin" required :class="{ 'readonly-field': avecSoin }" />
-      <small v-if="avecSoin" style="color: #d4a373; font-weight: 600;">📍 Le soin nécessite une visite au salon</small>
+      <input v-model="client.adresse" :readonly="reservationData?.mode === 'SALON'" required :class="{ 'readonly-field': reservationData?.mode === 'SALON' }" />
+      <small v-if="reservationData?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Prestation au salon</small>
+      <small v-else style="color: #999;">📍 Veuillez saisir votre adresse complète</small>
 
       <label>Prestation</label>
       <div v-if="isGroupe">
@@ -26,10 +27,11 @@
       </div>
 
       <label>Soin visage/barbe ? <small>(+10€, uniquement au salon)</small></label>
-      <select v-model="client.avec_soin">
+      <select v-model="client.avec_soin" :disabled="reservationData?.mode !== 'SALON'">
         <option :value="true">Oui</option>
         <option :value="false">Non</option>
       </select>
+      <small v-if="reservationData?.mode !== 'SALON'" style="color: #999;">Le soin n'est disponible qu'au salon</small>
     </div>
 
     <!-- 🔹 Nombre de participants -->
@@ -64,13 +66,14 @@
         <option v-for="presta in prestations" :key="presta.id" :value="presta.id">{{ presta.nom }}</option>
       </select>
       <label>Soin visage/barbe ? <small>(+10€, uniquement au salon)</small></label>
-      <select v-model="p.avec_soin">
+      <select v-model="p.avec_soin" :disabled="reservationData?.mode !== 'SALON'">
         <option :value="true">Oui</option>
         <option :value="false">Non</option>
       </select>
+      <small v-if="reservationData?.mode !== 'SALON'" style="color: #999;">Le soin n'est disponible qu'au salon</small>
     </div>
 
-    <button @click="passerAuCalendrier" :disabled="!formulaireComplet">Choisir le jour et le créneau</button>
+    <button @click="passerAConfirmation" :disabled="!formulaireComplet">Confirmer et payer</button>
   </div>
 </template>
 
@@ -85,17 +88,13 @@ const ADRESSE_SALON = "Salon May'Man - 176 Route de Montauban, 12200 Villefranch
 const route = useRoute();
 const router = useRouter();
 
-const isGroupe = route.query?.type_id === "groupe";
-const prestation = {
-  id: route.query.type_id,
-  nom: route.query.nom,
-  prix: route.query.prix,
-  duree_minutes: route.query.duree,
-};
+// Récupérer les données du calendrier et de la prestation
+const reservationData = ref(null);
+const prestationData = ref(null);
 
 const prestations = ref([]);
 const participants = ref([]);
-const nombrePersonnes = ref(isGroupe ? 2 : 0);
+const nombrePersonnes = ref(0);
 const accompagne = ref(false);
 
 const client = ref({
@@ -103,7 +102,7 @@ const client = ref({
   prenom: "",
   telephone: "",
   adresse: "",
-  prestation_id: isGroupe ? null : prestation.id,
+  prestation_id: null,
   avec_soin: false,
 });
 
@@ -111,21 +110,44 @@ onMounted(async () => {
   const user = await checkAuth();
   if (!user) return router.push("/login-register");
 
+  // Récupérer les données stockées
+  const dateData = localStorage.getItem("reservation_date");
+  const prestData = localStorage.getItem("selected_prestation");
+  
+  if (!dateData || !prestData) {
+    alert("Données manquantes. Veuillez recommencer la réservation.");
+    return router.push("/");
+  }
+
+  reservationData.value = JSON.parse(dateData);
+  prestationData.value = JSON.parse(prestData);
+
   client.value.nom = user.nom;
   client.value.prenom = user.prenom;
+  client.value.prestation_id = prestationData.value.id;
+
+  // Pré-remplir l'adresse selon le mode
+  if (reservationData.value.mode === 'SALON') {
+    client.value.adresse = ADRESSE_SALON;
+  } else if (reservationData.value.departement) {
+    // Pour DOMICILE, laisser vide pour que l'utilisateur saisisse
+    client.value.adresse = "";
+  }
 
   const data = await getPrestations();
   prestations.value = data.filter(p => !p.nom.toLowerCase().includes("soin seul"));
 
-  if (isGroupe && prestations.value.length) {
-    client.value.prestation_id = prestations.value[0].id;
-  }
-
   genererParticipants();
 });
 
+const isGroupe = computed(() => {
+  return prestationData.value?.nom?.toLowerCase().includes("groupe");
+});
+
+const prestation = computed(() => prestationData.value || {});
+
 const genererParticipants = () => {
-  const nb = isGroupe ? nombrePersonnes.value : accompagne.value ? nombrePersonnes.value : 0;
+  const nb = accompagne.value ? nombrePersonnes.value : 0;
   participants.value = [];
   for (let i = 0; i < nb; i++) {
     participants.value.push({
@@ -138,13 +160,15 @@ const genererParticipants = () => {
 };
 
 const avecSoin = computed(() => {
+  // Soin uniquement disponible au salon
+  if (reservationData.value?.mode !== 'SALON') return false;
   if (client.value.avec_soin) return true;
   return participants.value.some(p => p.avec_soin);
 });
 
-// Watcher pour gérer l'adresse automatiquement
+// Watcher pour bloquer l'adresse si mode SALON
 watch(avecSoin, (newVal) => {
-  if (newVal) {
+  if (newVal || reservationData.value?.mode === 'SALON') {
     client.value.adresse = ADRESSE_SALON;
   }
 });
@@ -156,7 +180,7 @@ const formulaireComplet = computed(() => {
   return participants.value.every(p => p.nom && p.prenom && p.prestation_id);
 });
 
-const passerAuCalendrier = () => {
+const passerAConfirmation = () => {
   let total = 0;
   let duree = 15;
 
@@ -168,16 +192,16 @@ const passerAuCalendrier = () => {
     duree += +presta.duree_minutes + (p.avec_soin ? 10 : 0);
   }
 
-  const reservationData = {
+  const finalData = {
+    ...reservationData.value, // date, créneau, département, mode
     client: client.value,
     participants: participants.value,
-    type_id: isGroupe ? "groupe" : prestation.id,
     duree_totale: duree,
     tarif_total: total,
   };
 
-  localStorage.setItem("reservation_en_cours", JSON.stringify(reservationData));
-  router.push({ name: "Reservation", params: { id: "temp" }, query: { duree } });
+  localStorage.setItem("reservation_finale", JSON.stringify(finalData));
+  router.push({ name: "ConfirmationReservation" });
 };
 </script>
 
