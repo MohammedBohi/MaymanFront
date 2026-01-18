@@ -31,13 +31,13 @@
           <div v-for="(participant, index) in participants" :key="index" class="participant-item">
             <div class="participant-info">
               <span class="participant-number">{{ index + 1 }}.</span>
-              <span class="participant-prestation">{{ participant.nom }} - {{ participant.duree }}min - {{ participant.prix }}€</span>
+              <span class="participant-prestation">{{ participant.nom }} - {{ participant.duree }}min - {{ participant.prix.toFixed(2) }}€</span>
             </div>
             <button class="btn-remove" @click="retirerParticipant(index)">🗑️</button>
           </div>
           <div class="duree-total">
             <p>⏱️ Durée totale : <strong>{{ dureeTotal }} minutes</strong></p>
-            <p>💰 Prix total : <strong>{{ prixTotal }}€</strong></p>
+            <p>💰 Prix total : <strong>{{ prixTotal.toFixed(2) }}€</strong></p>
           </div>
         </div>
 
@@ -49,7 +49,7 @@
             <select id="prestation" v-model="prestationSelectionnee">
               <option :value="null" disabled>Sélectionnez une prestation</option>
               <option v-for="p in prestationsDisponibles" :key="p.id" :value="p">
-                {{ p.nom }} - {{ p.duree }}min - {{ p.prix }}€
+                {{ p.nom }} - {{ p.duree }}min - {{ Number(p.prix).toFixed(2) }}€
               </option>
             </select>
           </div>
@@ -131,8 +131,9 @@ const changerMode = () => {
 
 const ajouterParticipant = () => {
   if (prestationSelectionnee.value) {
-    let duree = prestationSelectionnee.value.duree;
-    let prix = prestationSelectionnee.value.prix;
+    // Convertir explicitement en nombres
+    let duree = Number(prestationSelectionnee.value.duree) || 0;
+    let prix = Number(prestationSelectionnee.value.prix) || 0;
     let nom = prestationSelectionnee.value.nom;
 
     // Ajouter le soin si sélectionné (uniquement SALON)
