@@ -18,10 +18,10 @@
       <input v-model="contact.email" type="email" required />
       <label>Téléphone</label>
       <input v-model="contact.telephone" type="tel" required />
-      <label>Adresse</label>
-      <input v-model="contact.adresse" :readonly="selectionData?.mode === 'SALON'" required :class="{ 'readonly-field': selectionData?.mode === 'SALON' }" />
-      <small v-if="selectionData?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Prestation au salon</small>
-      <small v-else style="color: #666;">📍 Veuillez saisir votre adresse complète pour le déplacement</small>
+      <label>Adresse {{ selectionData?.mode === 'DOMICILE' ? 'de déplacement' : '' }}</label>
+      <input v-model="contact.adresse" :readonly="selectionData?.mode === 'SALON'" required :class="{ 'readonly-field': selectionData?.mode === 'SALON' }" placeholder="Votre adresse complète..." />
+      <small v-if="selectionData?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Rendez-vous au salon : {{ ADRESSE_SALON }}</small>
+      <small v-else style="color: #e74c3c; font-weight: 600;">📍 Veuillez indiquer l'adresse complète de votre domicile pour le déplacement</small>
     </div>
 
     <!-- 🔹 Participants -->

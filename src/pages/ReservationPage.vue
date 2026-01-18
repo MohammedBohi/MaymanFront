@@ -106,6 +106,20 @@ const calendarAttributes = ref([
     excludeMode: "soft",
     class: "unavailable",
   },
+  {
+    key: "wrong-mode-days",
+    dates: (date) => {
+      if (!planningData.value || !modeReservation.value) return false;
+      
+      const jourSemaine = date.getDay();
+      const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+      
+      // Désactiver si le jour n'est pas actif OU si le mode ne correspond pas
+      return !planning || !planning.actif || planning.mode !== modeReservation.value;
+    },
+    excludeMode: "soft",
+    class: "unavailable",
+  },
 ]);
 
 const formatDate = (date) =>
@@ -169,6 +183,15 @@ const onDateSelected = async ({ date }) => {
     return;
   }
 
+  // Vérifier que le jour correspond au mode choisi
+  const jourSemaine = selected.getDay();
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  
+  if (!planning || !planning.actif || planning.mode !== modeReservation.value) {
+    alert(`❌ Ce jour n'est pas disponible pour le mode ${modeReservation.value}`);
+    return;
+  }
+
   selectedDate.value = new Date(date);
   departments.value = [];
   selectedDepartment.value = null;
@@ -207,8 +230,13 @@ const selectSlot = (slot) => {
 };
 
 const isSalonDay = (date) => {
-  // Utiliser le mode de la sélection
-  return modeReservation.value === 'SALON';
+  if (!planningData.value || !date) return false;
+  
+  const jourSemaine = date.getDay(); // 0=dimanche, 1=lundi, etc.
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  
+  // Le jour est considéré SALON si le planning existe, est actif, et est en mode SALON
+  return planning && planning.actif && planning.mode === 'SALON';
 };
 
 const formatSelectedDate = (date) => {

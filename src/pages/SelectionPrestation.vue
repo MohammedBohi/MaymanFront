@@ -49,7 +49,6 @@
             <button class="btn-remove" @click="retirerParticipant(index)">❌</button>
           </div>
           <p><strong>Prestation :</strong> {{ p.nom }}</p>
-          <p><strong>Durée :</strong> {{ p.duree }}min</p>
           <p><strong>Prix :</strong> {{ p.prix.toFixed(2) }}€</p>
         </div>
       </div>
@@ -86,7 +85,6 @@
       <div v-if="participants.length > 0" class="summary">
         <h3>📊 Récapitulatif</h3>
         <p><strong>Nombre de personnes :</strong> {{ participants.length }}</p>
-        <p><strong>Durée totale :</strong> {{ dureeTotal }} minutes</p>
         <p><strong>Prix total :</strong> {{ prixTotal.toFixed(2) }}€</p>
       </div>
 
