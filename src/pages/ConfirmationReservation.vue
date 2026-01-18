@@ -175,12 +175,12 @@ const validerReservation = async () => {
       }
     }
 
-    // Récupérer les infos de l'utilisateur connecté
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    // Utiliser le premier participant comme client principal (celui qui réserve)
+    const premierParticipant = reservation.participants?.[0] || {};
 
     const body = {
-      nom: user.nom || "",
-      prenom: user.prenom || "",
+      nom: premierParticipant.nomClient || "",
+      prenom: premierParticipant.prenomClient || "",
       telephone: reservation.contact?.telephone,
       adresseReservation: reservation.contact?.adresse,
       jour: reservation.date,           // "YYYY-MM-DD"

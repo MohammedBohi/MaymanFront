@@ -77,6 +77,10 @@ onMounted(async () => {
         prix: getPrix(first)
       };
       autres.value = rest;
+      
+      // Si nom/prenom vides dans reservation, utiliser ceux du premier participant
+      if (!data.nom && first.nom) data.nom = first.nom;
+      if (!data.prenom && first.prenom) data.prenom = first.prenom;
     }
 
   } catch (error) {
