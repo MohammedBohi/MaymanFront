@@ -1,109 +1,65 @@
 <template>
   <div class="reservation-form">
-    <h2>Détails de réservation</h2>
+    <h2>📝 Informations des participants</h2>
 
-    <!-- 🔹 Informations du client principal -->
+    <!-- Récapitulatif de la réservation -->
+    <div class="recap-block" v-if="selectionData">
+      <h3>📊 Récapitulatif</h3>
+      <p><strong>Mode :</strong> <span :class="selectionData.mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">{{ selectionData.mode }}</span></p>
+      <p><strong>Nombre de personnes :</strong> {{ selectionData.nbPersonnes }}</p>
+      <p><strong>Durée totale :</strong> {{ selectionData.duree_totale }} min</p>
+      <p><strong>Prix total :</strong> {{ selectionData.prix_total.toFixed(2) }}€</p>
+    </div>
+
+    <!-- Informations de contact -->
     <div class="person-block">
-      <h3>👤 Client principal</h3>
-      <label>Nom</label>
-      <input v-model="client.nom" required />
-      <label>Prénom</label>
-      <input v-model="client.prenom" required />
+      <h3>📞 Informations de contact</h3>
+      <label>Email</label>
+      <input v-model="contact.email" type="email" required />
       <label>Téléphone</label>
-      <input v-model="client.telephone" required />
+      <input v-model="contact.telephone" type="tel" required />
       <label>Adresse</label>
-      <input v-model="client.adresse" :readonly="reservationData?.mode === 'SALON'" required :class="{ 'readonly-field': reservationData?.mode === 'SALON' }" />
-      <small v-if="reservationData?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Prestation au salon</small>
-      <small v-else style="color: #999;">📍 Veuillez saisir votre adresse complète</small>
-
-      <label>Prestation</label>
-      <div v-if="isGroupe">
-        <select v-model="client.prestation_id" required>
-          <option v-for="p in prestations" :key="p.id" :value="p.id">{{ p.nom }}</option>
-        </select>
-      </div>
-      <div v-else>
-        <input :value="prestation.nom" disabled />
-      </div>
-
-      <label>Soin visage/barbe ? <small>(+10€, uniquement au salon)</small></label>
-      <select v-model="client.avec_soin" :disabled="reservationData?.mode !== 'SALON'">
-        <option :value="true">Oui</option>
-        <option :value="false">Non</option>
-      </select>
-      <small v-if="reservationData?.mode !== 'SALON'" style="color: #999;">Le soin n'est disponible qu'au salon</small>
-    </div>
-
-    <!-- 🔹 Nombre de participants -->
-    <div v-if="isGroupe">
-      <label>Nombre de participants supplémentaires (2 à 14)</label>
-      <input type="number" v-model.number="nombrePersonnes" min="2" max="14" @change="genererParticipants" />
-    </div>
-    <div v-else>
-      <label>Êtes-vous accompagné(e) ?</label>
-      <select v-model="accompagne" @change="genererParticipants">
-        <option :value="false">Non</option>
-        <option :value="true">Oui</option>
-      </select>
-      <div v-if="accompagne">
-        <label>Nombre de personnes (1 ou 2)</label>
-        <select v-model.number="nombrePersonnes" @change="genererParticipants">
-          <option :value="1">1</option>
-          <option :value="2">2</option>
-        </select>
-      </div>
+      <input v-model="contact.adresse" :readonly="selectionData?.mode === 'SALON'" required :class="{ 'readonly-field': selectionData?.mode === 'SALON' }" />
+      <small v-if="selectionData?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Prestation au salon</small>
+      <small v-else style="color: #666;">📍 Veuillez saisir votre adresse complète pour le déplacement</small>
     </div>
 
     <!-- 🔹 Participants -->
     <div v-for="(p, index) in participants" :key="index" class="person-block">
-      <h3>👥 Participant {{ index + 1 }}</h3>
+      <h3>👤 Participant {{ index + 1 }}</h3>
+      <p class="prestation-info">
+        <strong>Prestation :</strong> {{ p.nom }} - {{ p.duree }}min - {{ p.prix.toFixed(2) }}€
+        <span v-if="p.avecSoin" class="badge-soin">+ Soin visage</span>
+      </p>
       <label>Nom</label>
-      <input v-model="p.nom" required />
+      <input v-model="p.nomClient" required />
       <label>Prénom</label>
-      <input v-model="p.prenom" required />
-      <label>Prestation</label>
-      <select v-model="p.prestation_id" required>
-        <option v-for="presta in prestations" :key="presta.id" :value="presta.id">{{ presta.nom }}</option>
-      </select>
-      <label>Soin visage/barbe ? <small>(+10€, uniquement au salon)</small></label>
-      <select v-model="p.avec_soin" :disabled="reservationData?.mode !== 'SALON'">
-        <option :value="true">Oui</option>
-        <option :value="false">Non</option>
-      </select>
-      <small v-if="reservationData?.mode !== 'SALON'" style="color: #999;">Le soin n'est disponible qu'au salon</small>
+      <input v-model="p.prenomClient" required />
     </div>
 
     <button @click="passerAConfirmation" :disabled="!formulaireComplet">Confirmer et payer</button>
+    <button class="back-button" @click="$router.back()">⬅ Retour</button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { checkAuth } from "@/services/AuthService";
-import { getPrestations } from "@/services/PrestationService";
 
 const ADRESSE_SALON = "Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue";
 
-const route = useRoute();
 const router = useRouter();
 
-// Récupérer les données du calendrier et de la prestation
+// Récupérer les données du calendrier et de la sélection
 const reservationData = ref(null);
-const prestationData = ref(null);
-
-const prestations = ref([]);
+const selectionData = ref(null);
 const participants = ref([]);
-const nombrePersonnes = ref(0);
-const accompagne = ref(false);
 
-const client = ref({
-  nom: "",
-  prenom: "",
+const contact = ref({
+  email: "",
   telephone: "",
-  adresse: "",
-  prestation_id: null,
-  avec_soin: false,
+  adresse: ""
 });
 
 onMounted(async () => {
@@ -112,97 +68,46 @@ onMounted(async () => {
 
   // Récupérer les données stockées
   const dateData = localStorage.getItem("reservation_date");
-  const prestData = localStorage.getItem("selected_prestation");
+  const selectionSaved = localStorage.getItem("client_prestation_selection");
   
-  if (!dateData || !prestData) {
+  if (!dateData || !selectionSaved) {
     alert("Données manquantes. Veuillez recommencer la réservation.");
     return router.push("/");
   }
 
   reservationData.value = JSON.parse(dateData);
-  prestationData.value = JSON.parse(prestData);
+  selectionData.value = JSON.parse(selectionSaved);
 
-  client.value.nom = user.nom;
-  client.value.prenom = user.prenom;
-  client.value.prestation_id = prestationData.value.id;
+  // Pré-remplir l'email avec l'utilisateur connecté
+  contact.value.email = user.email || "";
 
   // Pré-remplir l'adresse selon le mode
-  if (reservationData.value.mode === 'SALON') {
-    client.value.adresse = ADRESSE_SALON;
-  } else if (reservationData.value.departement) {
-    // Pour DOMICILE, laisser vide pour que l'utilisateur saisisse
-    client.value.adresse = "";
+  if (selectionData.value.mode === 'SALON') {
+    contact.value.adresse = ADRESSE_SALON;
   }
 
-  const data = await getPrestations();
-  prestations.value = data.filter(p => !p.nom.toLowerCase().includes("soin seul"));
-
-  genererParticipants();
-});
-
-const isGroupe = computed(() => {
-  return prestationData.value?.nom?.toLowerCase().includes("groupe");
-});
-
-const prestation = computed(() => prestationData.value || {});
-
-const genererParticipants = () => {
-  const nb = accompagne.value ? nombrePersonnes.value : 0;
-  participants.value = [];
-  for (let i = 0; i < nb; i++) {
-    participants.value.push({
-      nom: "",
-      prenom: "",
-      prestation_id: prestations.value[0]?.id || null,
-      avec_soin: false,
-    });
-  }
-};
-
-const avecSoin = computed(() => {
-  // Soin uniquement disponible au salon
-  if (reservationData.value?.mode !== 'SALON') return false;
-  if (client.value.avec_soin) return true;
-  return participants.value.some(p => p.avec_soin);
-});
-
-// Watcher pour bloquer l'adresse si mode SALON
-watch(avecSoin, (newVal) => {
-  if (newVal || reservationData.value?.mode === 'SALON') {
-    client.value.adresse = ADRESSE_SALON;
-  }
+  // Initialiser les participants avec les prestations déjà choisies
+  participants.value = selectionData.value.participants.map(p => ({
+    ...p,
+    nomClient: "",
+    prenomClient: ""
+  }));
 });
 
 const formulaireComplet = computed(() => {
-  if (!client.value.nom || !client.value.prenom || !client.value.telephone || !client.value.adresse || !client.value.prestation_id) {
+  if (!contact.value.email || !contact.value.telephone || !contact.value.adresse) {
     return false;
   }
-  return participants.value.every(p => p.nom && p.prenom && p.prestation_id);
+  return participants.value.every(p => p.nomClient && p.prenomClient);
 });
 
 const passerAConfirmation = () => {
-  let total = 0;
-  let duree = 15; // Marge de base
-
-  const toutes = [client.value, ...participants.value];
-  for (const p of toutes) {
-    const presta = prestations.value.find(pr => pr.id == p.prestation_id);
-    if (!presta) continue;
-    total += +presta.prix + (p.avec_soin ? 10 : 0);
-    duree += +presta.duree_minutes + (p.avec_soin ? 10 : 0);
-  }
-
-  // ➕ Ajouter 15 min pour déplacement + paiement si mode DOMICILE
-  if (reservationData.value?.mode === 'DOMICILE') {
-    duree += 15;
-  }
-
   const finalData = {
     ...reservationData.value, // date, créneau, département, mode
-    client: client.value,
+    contact: contact.value,
     participants: participants.value,
-    duree_totale: duree,
-    tarif_total: total,
+    duree_totale: selectionData.value.duree_totale,
+    tarif_total: selectionData.value.prix_total,
   };
 
   localStorage.setItem("reservation_finale", JSON.stringify(finalData));
@@ -226,11 +131,71 @@ const passerAConfirmation = () => {
   border-left: 5px solid #d4a373;
   border-radius: 8px;
 }
+
+.recap-block {
+  background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  border-left: 5px solid #457b9d;
+}
+
+.recap-block h3 {
+  margin-top: 0;
+  color: #5a3d2b;
+}
+
+.recap-block p {
+  margin: 8px 0;
+  font-size: 1.05rem;
+}
+
+.prestation-info {
+  background-color: #e8f4f8;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #333;
+}
+
+.badge-soin {
+  display: inline-block;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-salon {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge-domicile {
+  display: inline-block;
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 label {
   display: block;
   margin-bottom: 5px;
   font-weight: 600;
 }
+
 input,
 select {
   width: 100%;
@@ -239,6 +204,7 @@ select {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 button {
   background-color: #d4a373;
   color: white;
@@ -248,11 +214,22 @@ button {
   cursor: pointer;
   width: 100%;
   font-size: 1.1rem;
+  margin-bottom: 10px;
 }
+
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.back-button {
+  background-color: #6c757d;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
 .readonly-field {
   background-color: #f0f0f0;
   cursor: not-allowed;

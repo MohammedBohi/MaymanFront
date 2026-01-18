@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "@/pages/HomePage.vue";
+import SelectionPrestation from "@/pages/SelectionPrestation.vue";
 import ReservationPage from "@/pages/ReservationPage.vue";
 import LoginRegister from "@/pages/LoginRegister.vue";
 import FormulaireReservation from "@/pages/FormulaireReservation.vue";
@@ -26,6 +27,7 @@ const routes = [
   { path: "/forgot-password", component: ForgotPassword },
   { path: "/reset-password", component: ResetPassword },
   { path: "/change-password", name: "ChangePassword", component: ChangePassword, meta: { requiresAuth: true } },
+  { path: "/selection-prestation", name: "SelectionPrestation", component: SelectionPrestation },
   { path: "/reservation", name: "ReservationPage", component: ReservationPage },
   { path: "/reservation/:id", name: "Reservation", component: ReservationPage },
   { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation },

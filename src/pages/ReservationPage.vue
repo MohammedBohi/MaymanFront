@@ -89,7 +89,9 @@ const selectedSlot = ref(null);
 const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
-const duree = parseInt(route.query.duree, 10);
+const selectionData = ref(null); // Données de la sélection prestation
+const duree = ref(0);
+const modeReservation = ref(null);
 const planningData = ref(null); // Stocker les données du planning
 
 const joursSemaine = [
@@ -132,8 +134,22 @@ const getDepartmentsForDay = (day) => {
 // Charger les données du planning au montage
 onMounted(async () => {
   try {
+    // Charger le planning hebdomadaire
     const res = await api.get('/planning-hebdo');
     planningData.value = res.data;
+
+    // Récupérer les données de la sélection prestation
+    const savedSelection = localStorage.getItem("client_prestation_selection");
+    if (!savedSelection) {
+      alert("⚠️ Veuillez d'abord configurer votre réservation");
+      router.push("/selection-prestation");
+      return;
+    }
+
+    selectionData.value = JSON.parse(savedSelection);
+    duree.value = selectionData.value.duree_totale;
+    modeReservation.value = selectionData.value.mode;
+
   } catch (error) {
     console.error('Erreur chargement planning:', error);
     planningData.value = [];
@@ -174,15 +190,11 @@ const onDateSelected = async ({ date }) => {
 };
 
 const getAvailableSlots = async () => {
-  if (!selectedDate.value || !duree) return;
+  if (!selectedDate.value || !duree.value) return;
   const formatted = formatDate(selectedDate.value);
   
-  // Ajouter 15 min pour déplacement + paiement si mode DOMICILE
-  const isDomicile = !isSalonDay(selectedDate.value);
-  const dureeAvecDeplacement = isDomicile ? duree + 15 : duree;
-  
   try {
-    const data = await getCreneauxDisponibles(formatted, dureeAvecDeplacement);
+    const data = await getCreneauxDisponibles(formatted, duree.value);
     availableSlots.value = data || [];
   } catch (e) {
     console.error("Erreur chargement créneaux :", e);
@@ -195,10 +207,8 @@ const selectSlot = (slot) => {
 };
 
 const isSalonDay = (date) => {
-  if (!planningData.value) return false;
-  const jourSemaine = date.getDay();
-  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
-  return planning?.mode === 'SALON';
+  // Utiliser le mode de la sélection
+  return modeReservation.value === 'SALON';
 };
 
 const formatSelectedDate = (date) => {

@@ -120,13 +120,8 @@ export default {
         soin_dispo: prestation.soin_disponible
       }));
       
-      // Rediriger directement vers le calendrier (ReservationPage)
-      this.$router.push({
-        name: "ReservationPage",
-        query: {
-          duree: prestation.duree_minutes
-        }
-      });
+      // Rediriger vers la page de sélection des participants
+      this.$router.push({ name: "SelectionPrestation" });
     },
 
     getImage(nom) {
