@@ -106,9 +106,8 @@ onMounted(async () => {
   </p>
 
   <p class="domicile-secteurs">
-    <strong>Lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> uniquement dans les départements :<br />
-    <strong>46</strong> (Lot) • <strong>82</strong> (Tarn-et-Garonne)
-  </p>
+    <strong>Dimanche, lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> dans les secteurs de
+    <em>Limogne en Quercy, Varaire, Caylus et Parisot</em>.
 </div>
 
     <!-- 👤 Client -->
