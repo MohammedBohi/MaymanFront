@@ -9,29 +9,31 @@
          :initial="{ opacity: 0, x: -30 }"
          :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
       <h3>👤 Client</h3>
-      <p><strong>Nom :</strong> {{ reservation.contact.nom }}</p>
-      <p><strong>Prénom :</strong> {{ reservation.contact.prenom }}</p>
+      <p><strong>Nom :</strong> {{ reservation.participants[0]?.nomClient }}</p>
+      <p><strong>Prénom :</strong> {{ reservation.participants[0]?.prenomClient }}</p>
       <p><strong>Email :</strong> {{ reservation.contact.email }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.contact.telephone }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.contact.adresse }}</p><p><strong>Prestation :</strong> {{ getPrestation(reservation.contact.prestation_id) }}</p>
-<p><strong>Soin :</strong> {{ reservation.contact.avec_soin ? 'Oui (+10€)' : 'Non' }}</p>
-<p><strong>Prix :</strong> {{ getPrix(reservation.contact) }} €</p>
+      <p><strong>Adresse :</strong> {{ reservation.contact.adresse }}</p>
+      <p><strong>Prestation :</strong> {{ reservation.participants[0]?.nom }} - {{ reservation.participants[0]?.duree }}min</p>
+      <p><strong>Soin :</strong> {{ reservation.participants[0]?.avecSoin ? 'Oui (+10€)' : 'Non' }}</p>
+      <p><strong>Prix :</strong> {{ reservation.participants[0]?.prix?.toFixed(2) }} €</p>
 
     </div>
 
     <!-- Participants -->
-    <div v-if="reservation.participants.length" class="section" v-motion
+    <div v-if="reservation.participants.length > 1" class="section" v-motion
          :initial="{ opacity: 0, x: -30 }"
          :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 100 } }">
-      <h3>👥 Participants</h3>
-      <div v-for="(p, index) in reservation.participants" :key="index" v-motion
+      <h3>👥 Participants additionnels</h3>
+      <div v-for="(p, index) in reservation.participants.slice(1)" :key="index" v-motion
            :initial="{ opacity: 0, y: 10 }"
            :enter="{ opacity: 1, y: 0, transition: { duration: 300, delay: 150 + index * 50 } }">
-        <p><strong>Nom :</strong> {{ p.nom }}</p>
-        <p><strong>Prénom :</strong> {{ p.prenom }}</p>
-        <p><strong>Prestation :</strong> {{ getPrestation(p.prestation_id) }}</p>
-        <p><strong>Soin :</strong> {{ p.avec_soin ? 'Oui (+10€)' : 'Non' }}</p>
-        <hr v-if="index < reservation.participants.length - 1" />
+        <p><strong>Nom :</strong> {{ p.nomClient }}</p>
+        <p><strong>Prénom :</strong> {{ p.prenomClient }}</p>
+        <p><strong>Prestation :</strong> {{ p.nom }} - {{ p.duree }}min</p>
+        <p><strong>Soin :</strong> {{ p.avecSoin ? 'Oui (+10€)' : 'Non' }}</p>
+        <p><strong>Prix :</strong> {{ p.prix.toFixed(2) }} €</p>
+        <hr v-if="index < reservation.participants.length - 2" />
       </div>
     </div>
 
@@ -145,10 +147,13 @@ const validerReservation = async () => {
       }
     }
 
+    // Le premier participant est le contact principal
+    const premierParticipant = participants[0];
+
     const body = {
       utilisateur_id: null,
-      nom: contact.nom,
-      prenom: contact.prenom,
+      nom: premierParticipant.nomClient,
+      prenom: premierParticipant.prenomClient,
       email: contact.email,
       telephone: contact.telephone,
       adresseReservation: contact.adresse,
@@ -156,20 +161,18 @@ const validerReservation = async () => {
       heure_debut: slot,
       mode,
       ...(departementToSend ? { departement: departementToSend } : {}),
-      personnes: [
-        {
-          nom: contact.nom,
-          prenom: contact.prenom,
-          prestation_id: contact.prestation_id,
-          avec_soin: contact.avec_soin
-        },
-        ...participants
-      ]
+      personnes: participants.map(p => ({
+        nom: p.nomClient,
+        prenom: p.prenomClient,
+        prestation_id: p.id,
+        avec_soin: p.avecSoin || false
+      }))
     };
 
     const res = await api.post("/admin/reservations", body);
     localStorage.removeItem("admin_reservation");
     localStorage.removeItem("admin_reservation_date");
+    localStorage.removeItem("admin_prestation_selection");
 
     router.push({ name: "AdminSuccess", query: { id: res.data.reservation_id } });
   } catch (e) {
