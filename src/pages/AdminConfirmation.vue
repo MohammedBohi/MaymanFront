@@ -126,6 +126,19 @@ const validerReservation = async () => {
     const { client, participants } = reservation.value;
     const { date, slot, mode, departement } = dateInfo.value;
 
+    // Préparer le département à envoyer
+    let departementToSend = undefined;
+    if (mode === 'DOMICILE' && departement) {
+      // Si c'est un objet avec code_postal
+      if (typeof departement === 'object' && departement.code_postal) {
+        departementToSend = departement.code_postal;
+      }
+      // Si c'est déjà une chaîne (ancien format)
+      else if (typeof departement === 'string') {
+        departementToSend = departement;
+      }
+    }
+
     const body = {
       utilisateur_id: null,
       nom: client.nom,
@@ -136,7 +149,7 @@ const validerReservation = async () => {
       jour: date,
       heure_debut: slot,
       mode,
-      ...(mode === 'DOMICILE' && departement ? { departement: departement.code_postal } : {}),
+      ...(departementToSend ? { departement: departementToSend } : {}),
       personnes: [
         {
           nom: client.nom,

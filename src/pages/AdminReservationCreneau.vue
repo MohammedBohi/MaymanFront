@@ -69,7 +69,7 @@
             176 Route de Montauban, 12200 Villefranche-de-Rouergue
           </p>
           <div v-else-if="selectedDepartment">
-            <p>Ville sélectionnée : <strong>{{ selectedDepartment.nom }} ({{ selectedDepartment.code }})</strong></p>
+            <p>Ville sélectionnée : <strong>{{ selectedDepartment.nom }} ({{ selectedDepartment.code_postal }})</strong></p>
           </div>
         </div>
       </div>
