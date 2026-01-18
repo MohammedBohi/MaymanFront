@@ -210,7 +210,8 @@ onMounted(async () => {
 
 const loadDepartements = async () => {
   try {
-    const res = await api.get("/departements");
+    // Charger TOUS les départements (y compris inactifs) pour l'interface admin
+    const res = await api.get("/departements?all=true");
     departements.value = res.data;
     error.value = "";
   } catch (e) {
