@@ -33,7 +33,7 @@
           <td>{{ resa.heure_debut }}</td>
           <td>{{ convertirDuree(resa.duree_totale_minutes) }}</td>
           <td>{{ afficherMode(resa.mode) }}</td>
-          <td>{{ afficherDepartement(resa.departement, resa.mode) }}</td>
+          <td>{{ afficherDepartement(resa) }}</td>
           <td>{{ resa.nombre_personnes }}</td>
           <td>
             <button @click="voirDetails(resa)">👁️ Détails</button>
@@ -57,7 +57,7 @@
         <p v-if="detail.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
         <template v-else>
           <p><strong>Adresse client :</strong> {{ detail.adressereservation }}</p>
-          <p><strong>Département :</strong> {{ afficherDepartement(detail.departement, detail.mode) }}</p>
+          <p><strong>Département :</strong> {{ afficherDepartement(detail) }}</p>
         </template>
         <p><strong>Heure :</strong> {{ detail.heure_debut }} → {{ calculHeureFin(detail.heure_debut, detail.duree_totale_minutes) }}</p>
 
@@ -103,29 +103,17 @@ export default {
         console.error("Erreur récupération réservations :", err);
       }
     },
-    afficherDepartement(dep, mode) {
+    afficherDepartement(resa) {
       // Pour SALON, pas de département
-      if (mode === 'SALON') return '🏛️ Salon';
+      if (resa.mode === 'SALON') return '🏛️ Salon';
       
-      // Pour DOMICILE : afficher le code (46 ou 82)
-      if (!dep) return '—';
-      
-      // Si c'est un string (simple code)
-      if (typeof dep === 'string') {
-        if (/^\d{2}$/.test(dep)) return dep; // code simple "46"
-        // Sinon, essayer de parser comme JSON
-        try {
-          const obj = JSON.parse(dep);
-          return obj.code || obj.codePostal?.substring(0, 2) || '—';
-        } catch {
-          return dep;
-        }
+      // Pour DOMICILE : afficher nom (code)
+      if (resa.departement_nom && resa.departement_code) {
+        return `${resa.departement_nom} (${resa.departement_code})`;
       }
       
-      // Si c'est un objet
-      if (dep && typeof dep === 'object') {
-        return dep.code || dep.codePostal?.substring(0, 2) || '—';
-      }
+      // Fallback : afficher juste le code si le nom n'est pas disponible
+      if (resa.departement) return resa.departement;
       
       return '—';
     },
