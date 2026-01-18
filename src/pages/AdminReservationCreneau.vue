@@ -10,6 +10,9 @@
     
     <div v-if="prestationData" class="prestation-recap">
       <h3>📋 Participants ({{ prestationData.nbPersonnes }}) :</h3>
+      <div class="mode-badge" :class="prestationData.mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">
+        {{ prestationData.mode === 'SALON' ? '🏠 Au Salon' : '🚗 À Domicile' }}
+      </div>
       <div v-for="(participant, index) in prestationData.participants" :key="index" class="participant-line">
         {{ index + 1 }}. {{ participant.nom }} - {{ participant.duree }}min
       </div>
@@ -94,6 +97,7 @@ const router = useRouter();
 
 const prestationData = ref(null);
 const duree = ref(0);
+const modeReservation = ref(null); // SALON ou DOMICILE
 const selectedDate = ref(null);
 const selectedSlot = ref(null);
 const availableSlots = ref([]);
@@ -110,6 +114,17 @@ const calendarAttributes = ref([
     excludeMode: "soft",
     class: "unavailable",
   },
+  {
+    key: "wrong-mode-days",
+    dates: (date) => {
+      if (!planningData.value || !modeReservation.value) return false;
+      const jourSemaine = date.getDay();
+      const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+      // Griser les jours qui ne correspondent pas au mode choisi
+      return planning && planning.mode !== modeReservation.value;
+    },
+    class: "unavailable",
+  }
 ]);
 
 const getDepartmentsForDay = (day) => {
@@ -129,8 +144,9 @@ const getDepartmentsForDay = (day) => {
 };
 
 onMounted(async () => {
-  // Récupérer la durée depuis query params
+  // Récupérer la durée et le mode depuis query params
   duree.value = parseInt(route.query.duree, 10) || 0;
+  modeReservation.value = route.query.mode || null;
   
   // Récupérer les données de prestation depuis localStorage
   const saved = localStorage.getItem("admin_prestation_selection");
@@ -138,8 +154,8 @@ onMounted(async () => {
     prestationData.value = JSON.parse(saved);
   }
   
-  // Si pas de durée, rediriger
-  if (!duree.value) {
+  // Si pas de durée ou de mode, rediriger
+  if (!duree.value || !modeReservation.value) {
     router.push("/admin/selection-prestation");
     return;
   }
@@ -158,18 +174,31 @@ const onDateSelected = async ({ date }) => {
   if (!date) return;
 
   selectedDate.value = new Date(date);
+  
+  // Vérifier que le jour correspond au mode choisi
+  const jourSemaine = selectedDate.value.getDay();
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  
+  if (!planning || planning.mode !== modeReservation.value) {
+    alert(`Ce jour n'est pas disponible pour le mode ${modeReservation.value === 'SALON' ? 'Salon' : 'Domicile'}`);
+    selectedDate.value = null;
+    return;
+  }
+
   departments.value = [];
   await nextTick();
   
-  // Récupérer les départements disponibles pour ce jour
-  const depts = getDepartmentsForDay(selectedDate.value);
-  departments.value = [...depts];
-  
-  // Sélectionner le premier département si disponible
-  if (departments.value.length > 0) {
-    selectedDepartment.value = departments.value[0];
-  } else {
-    selectedDepartment.value = null;
+  // Récupérer les départements disponibles pour ce jour (si DOMICILE)
+  if (modeReservation.value === 'DOMICILE') {
+    const depts = getDepartmentsForDay(selectedDate.value);
+    departments.value = [...depts];
+    
+    // Sélectionner le premier département si disponible
+    if (departments.value.length > 0) {
+      selectedDepartment.value = departments.value[0];
+    } else {
+      selectedDepartment.value = null;
+    }
   }
 
   await getAvailableSlots();
@@ -302,6 +331,25 @@ h2 {
   margin: 0 0 10px 0;
   color: #5a3d2b;
   font-size: 1.1rem;
+}
+
+.mode-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.badge-salon {
+  background: linear-gradient(135deg, #457b9d 0%, #1d3557 100%);
+  color: white;
+}
+
+.badge-domicile {
+  background: linear-gradient(135deg, #6a994e 0%, #4a7c3e 100%);
+  color: white;
 }
 
 .participant-line {

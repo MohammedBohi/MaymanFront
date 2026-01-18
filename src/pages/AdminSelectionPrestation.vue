@@ -3,53 +3,82 @@
     <router-link to="/admin" class="back-btn">← Retour au tableau de bord</router-link>
 
     <div class="prestation-section">
-      <h2>📋 Ajouter les participants et leurs prestations</h2>
+      <h2>📋 Créer une réservation</h2>
       
-      <!-- Liste des participants déjà ajoutés -->
-      <div v-if="participants.length > 0" class="participants-list">
-        <h3>Participants ajoutés :</h3>
-        <div v-for="(participant, index) in participants" :key="index" class="participant-item">
-          <div class="participant-info">
-            <span class="participant-number">{{ index + 1 }}.</span>
-            <span class="participant-prestation">{{ participant.nom }} - {{ participant.duree }}min - {{ participant.prix }}€</span>
-          </div>
-          <button class="btn-remove" @click="retirerParticipant(index)">🗑️</button>
-        </div>
-        <div class="duree-total">
-          <p>⏱️ Durée totale : <strong>{{ dureeTotal }} minutes</strong></p>
-          <p>💰 Prix total : <strong>{{ prixTotal }}€</strong></p>
+      <!-- ÉTAPE 1 : Choix du mode -->
+      <div v-if="!modeSelectionne" class="mode-selection">
+        <h3>Où se déroulera la prestation ?</h3>
+        <div class="mode-buttons">
+          <button class="mode-btn salon-btn" @click="choisirMode('SALON')">
+            🏠 Au Salon
+          </button>
+          <button class="mode-btn domicile-btn" @click="choisirMode('DOMICILE')">
+            🚗 À Domicile
+          </button>
         </div>
       </div>
 
-      <!-- Formulaire pour ajouter un participant -->
-      <div class="form-add-participant">
-        <h3>{{ participants.length === 0 ? 'Premier participant' : 'Ajouter un participant' }}</h3>
-        <div class="form-group">
-          <label for="prestation">Prestation :</label>
-          <select id="prestation" v-model="prestationSelectionnee">
-            <option :value="null" disabled>Sélectionnez une prestation</option>
-            <option v-for="p in prestations" :key="p.id" :value="p">
-              {{ p.nom }} - {{ p.duree }}min - {{ p.prix }}€
-            </option>
-          </select>
+      <!-- ÉTAPE 2 : Ajout des participants et prestations -->
+      <div v-else>
+        <div class="mode-info">
+          <p>📍 Mode : <strong>{{ mode === 'SALON' ? 'Au Salon' : 'À Domicile' }}</strong></p>
+          <button class="btn-change-mode" @click="changerMode">🔄 Changer</button>
+        </div>
+
+        <!-- Liste des participants déjà ajoutés -->
+        <div v-if="participants.length > 0" class="participants-list">
+          <h3>Participants ajoutés :</h3>
+          <div v-for="(participant, index) in participants" :key="index" class="participant-item">
+            <div class="participant-info">
+              <span class="participant-number">{{ index + 1 }}.</span>
+              <span class="participant-prestation">{{ participant.nom }} - {{ participant.duree }}min - {{ participant.prix }}€</span>
+            </div>
+            <button class="btn-remove" @click="retirerParticipant(index)">🗑️</button>
+          </div>
+          <div class="duree-total">
+            <p>⏱️ Durée totale : <strong>{{ dureeTotal }} minutes</strong></p>
+            <p>💰 Prix total : <strong>{{ prixTotal }}€</strong></p>
+          </div>
+        </div>
+
+        <!-- Formulaire pour ajouter un participant -->
+        <div class="form-add-participant">
+          <h3>{{ participants.length === 0 ? 'Premier participant' : 'Ajouter un participant' }}</h3>
+          <div class="form-group">
+            <label for="prestation">Prestation :</label>
+            <select id="prestation" v-model="prestationSelectionnee">
+              <option :value="null" disabled>Sélectionnez une prestation</option>
+              <option v-for="p in prestationsDisponibles" :key="p.id" :value="p">
+                {{ p.nom }} - {{ p.duree }}min - {{ p.prix }}€
+              </option>
+            </select>
+          </div>
+
+          <!-- Soin (uniquement si SALON) -->
+          <div v-if="mode === 'SALON' && prestationSelectionnee" class="form-group">
+            <label>
+              <input type="checkbox" v-model="ajouterSoin" />
+              Ajouter un soin visage (+15min, +10€)
+            </label>
+          </div>
+
+          <button 
+            class="btn-add" 
+            :disabled="!prestationSelectionnee"
+            @click="ajouterParticipant"
+          >
+            ➕ Ajouter ce participant
+          </button>
         </div>
 
         <button 
-          class="btn-add" 
-          :disabled="!prestationSelectionnee"
-          @click="ajouterParticipant"
+          class="reserve-button" 
+          :disabled="participants.length === 0"
+          @click="continuer"
         >
-          ➕ Ajouter ce participant
+          ➡ Continuer vers le calendrier
         </button>
       </div>
-
-      <button 
-        class="reserve-button" 
-        :disabled="participants.length === 0"
-        @click="continuer"
-      >
-        ➡ Continuer vers le calendrier
-      </button>
     </div>
   </div>
 </template>
@@ -62,8 +91,19 @@ import { getPrestations } from "@/services/PrestationService";
 const router = useRouter();
 
 const prestations = ref([]);
+const mode = ref(null);
+const modeSelectionne = ref(false);
 const prestationSelectionnee = ref(null);
+const ajouterSoin = ref(false);
 const participants = ref([]);
+
+const DUREE_SOIN = 15;
+const PRIX_SOIN = 10;
+
+const prestationsDisponibles = computed(() => {
+  // Filtrer pour exclure les soins de la liste
+  return prestations.value.filter(p => !p.nom.toLowerCase().includes('soin'));
+});
 
 const dureeTotal = computed(() => {
   return participants.value.reduce((sum, p) => sum + p.duree, 0);
@@ -73,15 +113,45 @@ const prixTotal = computed(() => {
   return participants.value.reduce((sum, p) => sum + p.prix, 0);
 });
 
+const choisirMode = (modeChoisi) => {
+  mode.value = modeChoisi;
+  modeSelectionne.value = true;
+};
+
+const changerMode = () => {
+  if (participants.value.length > 0) {
+    if (!confirm('Changer de mode supprimera tous les participants. Continuer ?')) {
+      return;
+    }
+    participants.value = [];
+  }
+  modeSelectionne.value = false;
+  mode.value = null;
+};
+
 const ajouterParticipant = () => {
   if (prestationSelectionnee.value) {
+    let duree = prestationSelectionnee.value.duree;
+    let prix = prestationSelectionnee.value.prix;
+    let nom = prestationSelectionnee.value.nom;
+
+    // Ajouter le soin si sélectionné (uniquement SALON)
+    if (mode.value === 'SALON' && ajouterSoin.value) {
+      duree += DUREE_SOIN;
+      prix += PRIX_SOIN;
+      nom += ' + Soin visage';
+    }
+
     participants.value.push({
       id: prestationSelectionnee.value.id,
-      nom: prestationSelectionnee.value.nom,
-      duree: prestationSelectionnee.value.duree,
-      prix: prestationSelectionnee.value.prix
+      nom: nom,
+      duree: duree,
+      prix: prix,
+      avecSoin: ajouterSoin.value
     });
+    
     prestationSelectionnee.value = null;
+    ajouterSoin.value = false;
   }
 };
 
@@ -93,6 +163,7 @@ const continuer = () => {
   if (participants.value.length > 0 && dureeTotal.value > 0) {
     // Sauvegarder dans localStorage
     const data = {
+      mode: mode.value,
       participants: participants.value,
       nbPersonnes: participants.value.length,
       duree_totale: dureeTotal.value,
@@ -100,8 +171,8 @@ const continuer = () => {
     };
     localStorage.setItem("admin_prestation_selection", JSON.stringify(data));
     
-    // Rediriger vers le calendrier avec la durée en query
-    router.push(`/admin/reservation-creneau?duree=${dureeTotal.value}`);
+    // Rediriger vers le calendrier avec la durée et le mode en query
+    router.push(`/admin/reservation-creneau?duree=${dureeTotal.value}&mode=${mode.value}`);
   }
 };
 
@@ -142,6 +213,81 @@ h3 {
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Sélection du mode */
+.mode-selection {
+  text-align: center;
+  padding: 20px;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.mode-btn {
+  padding: 40px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.salon-btn {
+  background: linear-gradient(135deg, #457b9d 0%, #1d3557 100%);
+  color: white;
+}
+
+.salon-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(69, 123, 157, 0.3);
+}
+
+.domicile-btn {
+  background: linear-gradient(135deg, #6a994e 0%, #4a7c3e 100%);
+  color: white;
+}
+
+.domicile-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(106, 153, 78, 0.3);
+}
+
+/* Info mode sélectionné */
+.mode-info {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mode-info p {
+  margin: 0;
+  color: #1565c0;
+  font-size: 1.1rem;
+}
+
+.btn-change-mode {
+  padding: 8px 12px;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-change-mode:hover {
+  background-color: #f57c00;
 }
 
 /* Liste des participants */
@@ -234,6 +380,10 @@ h3 {
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 6px;
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: 8px;
 }
 
 .btn-add {
