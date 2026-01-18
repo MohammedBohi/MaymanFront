@@ -113,8 +113,37 @@ export default {
         return `${resa.departement_nom} (${resa.departement_code})`;
       }
       
-      // Fallback : afficher juste le code si le nom n'est pas disponible
-      if (resa.departement) return resa.departement;
+      // Fallback pour anciennes réservations avec JSON stocké
+      if (resa.departement) {
+        try {
+          // Si c'est un string JSON
+          if (typeof resa.departement === 'string' && resa.departement.startsWith('{')) {
+            const parsed = JSON.parse(resa.departement);
+            if (parsed.nom && parsed.codePostal) {
+              return `${parsed.nom} (${parsed.codePostal.substring(0, 2)})`;
+            }
+            if (parsed.code && parsed.nom) {
+              return `${parsed.nom} (${parsed.code})`;
+            }
+          }
+          // Si c'est déjà un objet
+          if (typeof resa.departement === 'object') {
+            if (resa.departement.nom && resa.departement.codePostal) {
+              return `${resa.departement.nom} (${resa.departement.codePostal.substring(0, 2)})`;
+            }
+            if (resa.departement.nom && resa.departement.code) {
+              return `${resa.departement.nom} (${resa.departement.code})`;
+            }
+          }
+          // Si c'est juste un code
+          if (/^\d{2}$/.test(resa.departement)) {
+            return resa.departement;
+          }
+        } catch (e) {
+          console.error('Erreur parsing département:', e);
+        }
+        return resa.departement;
+      }
       
       return '—';
     },
