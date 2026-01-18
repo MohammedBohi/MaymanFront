@@ -162,8 +162,8 @@ const newPlage = ref({ heureDebut: "", heureFin: "" });
 const newDept = ref({ code: "" });
 
 const deptMapping = {
-  "46": "Lot",
-  "82": "Tarn-et-Garonne"
+  "46260": "Limogne en Quercy",
+  "82160": "Caylus"
 };
 
 onMounted(async () => {
