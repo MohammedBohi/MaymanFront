@@ -7,7 +7,7 @@
     </h1>
 
     <!-- Étape 1: Choix du mode -->
-    <div v-if="!modeSelectionne && !isSoinVisage" class="mode-selection" v-motion
+    <div v-if="!modeSelectionne" class="mode-selection" v-motion
          :initial="{ opacity: 0, y: 20 }"
          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       <h2>📍 Où souhaitez-vous votre prestation ?</h2>
@@ -26,18 +26,18 @@
     </div>
 
     <!-- Étape 2: Configuration des participants -->
-    <div v-if="modeSelectionne || isSoinVisage" class="participants-section" v-motion
+    <div v-if="modeSelectionne" class="participants-section" v-motion
          :initial="{ opacity: 0, y: 20 }"
          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       
-      <div class="mode-info" v-if="!isSoinVisage">
+      <div class="mode-info">
         <p><strong>Mode sélectionné :</strong> 
           <span :class="mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">{{ mode }}</span>
         </p>
         <button class="btn-change-mode" @click="changerMode">Changer de mode</button>
       </div>
 
-      <h2>{{ isSoinVisage ? '👥 Combien de personnes pour le soin de visage ?' : '👥 Participants à cette réservation' }}</h2>
+      <h2>👥 Participants à cette réservation</h2>
       
       <!-- Liste des participants déjà ajoutés -->
       <div v-if="participants.length > 0" class="participants-list">
@@ -52,7 +52,7 @@
       </div>
 
       <!-- Ajout d'un participant -->
-      <div class="add-participant" v-if="!isSoinVisage">
+      <div class="add-participant">
         <h3>➕ Ajouter un participant</h3>
         
         <label>Sélectionnez une prestation :</label>
@@ -76,15 +76,6 @@
           @click="ajouterParticipant"
         >
           ➕ Ajouter ce participant
-        </button>
-      </div>
-
-      <!-- Bouton spécial pour soin de visage -->
-      <div v-if="isSoinVisage" class="add-participant soin-special">
-        <h3>➕ Ajouter une personne</h3>
-        <p>Chaque personne recevra un soin de visage (10€ par personne)</p>
-        <button class="btn-add" @click="ajouterPersonneSoinVisage">
-          ➕ Ajouter une personne
         </button>
       </div>
 
@@ -125,10 +116,6 @@ const prestationInitiale = ref(null);
 const DUREE_SOIN = 15;
 const PRIX_SOIN = 10;
 const DUREE_DEPLACEMENT = 15; // Temps pour déplacement + paiement à domicile
-
-const isSoinVisage = computed(() => {
-  return prestationInitiale.value?.nom?.toLowerCase().includes('soin de visage');
-});
 
 const isGroupe = computed(() => {
   return prestationInitiale.value?.nom?.toLowerCase().includes('groupe');
@@ -211,18 +198,6 @@ const retirerParticipant = (index) => {
   participants.value.splice(index, 1);
 };
 
-const ajouterPersonneSoinVisage = () => {
-  if (prestationInitiale.value) {
-    participants.value.push({
-      id: prestationInitiale.value.id,
-      nom: prestationInitiale.value.nom,
-      duree: 15,
-      prix: 10,
-      avecSoin: false
-    });
-  }
-};
-
 const continuer = () => {
   if (participants.value.length > 0 && dureeTotal.value > 0) {
     // Sauvegarder dans localStorage
@@ -250,13 +225,8 @@ onMounted(async () => {
     if (saved) {
       prestationInitiale.value = JSON.parse(saved);
       
-      // Si c'est un soin de visage, forcer mode SALON et passer direct à l'ajout
-      if (isSoinVisage.value) {
-        mode.value = 'SALON';
-        modeSelectionne.value = true;
-      }
       // Si c'est une prestation groupe, passer directement à l'ajout de participants
-      else if (isGroupe.value) {
+      if (isGroupe.value) {
         mode.value = 'SALON'; // Par défaut pour les groupes
         modeSelectionne.value = true;
       } else {

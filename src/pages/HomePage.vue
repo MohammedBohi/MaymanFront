@@ -81,25 +81,16 @@ export default {
       // ⚙️ MODE MAINTENANCE - Passez à true pour bloquer les réservations clients
       modeMaintenanceActif: true,
       
-      prestations: [],
-      prestationSoinVisage: {
-        id: 99,
-        nom: "Soin de visage",
-        prix: 10,
-        duree_minutes: 15,
-        soin_disponible: false,
-        mode_unique: "SALON" // Seulement au salon
-      }
+      prestations: []
     };
   },
   methods: {
     async mounted() {
       try {
         const response = await getPrestations();
-        const filtrees = response.filter(
-          (p) => !p.nom.toLowerCase().includes("soin seul") && !p.nom.toLowerCase().includes("soin de visage")
+        this.prestations = response.filter(
+          (p) => !p.nom.toLowerCase().includes("soin seul")
         );
-        this.prestations = [...filtrees, this.prestationSoinVisage];
       } catch (error) {
         console.error("Erreur lors du chargement des prestations :", error);
       }
@@ -134,8 +125,7 @@ export default {
         "Coupe enfant": "CoupeEnfant.jpeg",
         "Barbe tondeuse": "BarbeTondeuse.jpeg",
         "Coupe homme + Barbe tondeuse": "CoupeHommeBarbeTondeuse.jpeg",
-        "Coupe homme + Barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg",
-        "Soin de visage": "Soins_visage.jpeg"
+        "Coupe homme + Barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg"
       };
 
       const fileName = mapping[nom] || "PhotoAccueil.jpeg";
