@@ -37,7 +37,7 @@
       <input v-model="p.prenomClient" required />
     </div>
 
-    <button @click="passerAConfirmation" :disabled="!formulaireComplet">Confirmer et payer</button>
+    <button @click="passerAConfirmation" :disabled="!formulaireComplet">Confirmer la réservation</button>
     <button class="back-button" @click="$router.back()">⬅ Retour</button>
   </div>
 </template>
