@@ -49,7 +49,7 @@
             <select id="prestation" v-model="prestationSelectionnee">
               <option :value="null" disabled>Sélectionnez une prestation</option>
               <option v-for="p in prestationsDisponibles" :key="p.id" :value="p">
-                {{ p.nom }} - {{ p.duree }}min - {{ Number(p.prix).toFixed(2) }}€
+                {{ p.nom }} - {{ p.duree_minutes || p.duree }}min - {{ Number(p.prix).toFixed(2) }}€
               </option>
             </select>
           </div>
@@ -131,8 +131,8 @@ const changerMode = () => {
 
 const ajouterParticipant = () => {
   if (prestationSelectionnee.value) {
-    // Convertir explicitement en nombres
-    let duree = Number(prestationSelectionnee.value.duree) || 0;
+    // Convertir explicitement en nombres - la colonne DB s'appelle duree_minutes
+    let duree = Number(prestationSelectionnee.value.duree_minutes || prestationSelectionnee.value.duree) || 0;
     let prix = Number(prestationSelectionnee.value.prix) || 0;
     let nom = prestationSelectionnee.value.nom;
 
@@ -180,6 +180,7 @@ const continuer = () => {
 onMounted(async () => {
   try {
     prestations.value = await getPrestations();
+    console.log('Prestations chargées:', prestations.value);
   } catch (error) {
     console.error('Erreur chargement prestations:', error);
     prestations.value = [];
