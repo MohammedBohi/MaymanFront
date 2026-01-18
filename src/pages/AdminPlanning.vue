@@ -95,9 +95,11 @@
         <!-- Ajouter un département -->
         <div class="add-dept">
           <select v-model="newDept.code">
-            <option value="">Choisir un département</option>
-            <option value="46">Lot (46)</option>
-            <option value="82">Tarn-et-Garonne (82)</option>
+            <option value="">Choisir une ville</option>
+            <option value="46260">Limogne en Quercy (46260)</option>
+            <option value="46260">Varaire (46260)</option>
+            <option value="82160">Caylus (82160)</option>
+            <option value="82160">Parisot (82160)</option>
           </select>
           <button @click="addDepartement" class="action-btn" :disabled="!newDept.code">➕ Ajouter</button>
         </div>
