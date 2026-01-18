@@ -182,7 +182,7 @@ const formulaireComplet = computed(() => {
 
 const passerAConfirmation = () => {
   let total = 0;
-  let duree = 15;
+  let duree = 15; // Marge de base
 
   const toutes = [client.value, ...participants.value];
   for (const p of toutes) {
@@ -190,6 +190,11 @@ const passerAConfirmation = () => {
     if (!presta) continue;
     total += +presta.prix + (p.avec_soin ? 10 : 0);
     duree += +presta.duree_minutes + (p.avec_soin ? 10 : 0);
+  }
+
+  // ➕ Ajouter 15 min pour déplacement + paiement si mode DOMICILE
+  if (reservationData.value?.mode === 'DOMICILE') {
+    duree += 15;
   }
 
   const finalData = {

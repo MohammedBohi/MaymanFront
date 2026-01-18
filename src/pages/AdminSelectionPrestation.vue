@@ -99,6 +99,7 @@ const participants = ref([]);
 
 const DUREE_SOIN = 15;
 const PRIX_SOIN = 10;
+const DUREE_DEPLACEMENT = 15; // Temps pour déplacement + paiement à domicile
 
 const prestationsDisponibles = computed(() => {
   // Filtrer pour exclure les soins de la liste
@@ -106,7 +107,9 @@ const prestationsDisponibles = computed(() => {
 });
 
 const dureeTotal = computed(() => {
-  return participants.value.reduce((sum, p) => sum + p.duree, 0);
+  const dureeParticipants = participants.value.reduce((sum, p) => sum + p.duree, 0);
+  // Ajouter 15 min pour le déplacement si mode DOMICILE
+  return mode.value === 'DOMICILE' ? dureeParticipants + DUREE_DEPLACEMENT : dureeParticipants;
 });
 
 const prixTotal = computed(() => {

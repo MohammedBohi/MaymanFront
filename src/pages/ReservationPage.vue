@@ -176,8 +176,13 @@ const onDateSelected = async ({ date }) => {
 const getAvailableSlots = async () => {
   if (!selectedDate.value || !duree) return;
   const formatted = formatDate(selectedDate.value);
+  
+  // Ajouter 15 min pour déplacement + paiement si mode DOMICILE
+  const isDomicile = !isSalonDay(selectedDate.value);
+  const dureeAvecDeplacement = isDomicile ? duree + 15 : duree;
+  
   try {
-    const data = await getCreneauxDisponibles(formatted, duree);
+    const data = await getCreneauxDisponibles(formatted, dureeAvecDeplacement);
     availableSlots.value = data || [];
   } catch (e) {
     console.error("Erreur chargement créneaux :", e);
