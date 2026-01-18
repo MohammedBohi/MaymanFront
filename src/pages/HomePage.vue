@@ -83,7 +83,7 @@ export default {
       
       prestations: [],
       prestationSoinVisage: {
-        id: "soin-visage",
+        id: 99,
         nom: "Soin de visage",
         prix: 10,
         duree_minutes: 15,
