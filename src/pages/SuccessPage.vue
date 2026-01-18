@@ -91,25 +91,6 @@ onMounted(async () => {
     <h2 v-motion
         :initial="{ opacity: 0, scale: 0.95 }"
         :enter="{ opacity: 1, scale: 1, transition: { duration: 400 } }">🎉 Merci {{ reservation.nom }} pour votre réservation !</h2>
-<!-- 🔔 Information planning -->
-<div class="planning-info" v-motion
-     :initial="{ opacity: 0, y: 20 }"
-     :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
-  <p>
-    <strong>Information importante :</strong><br />
-    <strong>Mercredi, jeudi, vendredi et samedi</strong> : rendez-vous <strong>au salon</strong>.
-  </p>
-
-  <p class="adresse-salon">
-    <strong>Adresse du salon :</strong><br />
-    176 Route de Montauban, 12200 Villefranche-de-Rouergue
-  </p>
-
-  <p class="domicile-secteurs">
-    <strong>Dimanche, lundi et mardi</strong> : rendez-vous <strong>à domicile</strong> dans les secteurs de
-    <em>Limogne en Quercy, Varaire, Caylus et Parisot</em>.
-  </p>
-</div>
 
     <!-- 👤 Client -->
     <div class="section" v-motion
@@ -119,7 +100,6 @@ onMounted(async () => {
       <p><strong>Nom :</strong> {{ reservation.nom }}</p>
       <p><strong>Prénom :</strong> {{ reservation.prenom }}</p>
       <p><strong>Téléphone :</strong> {{ reservation.telephone }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.mode === 'SALON' ? 'Salon May\'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.adressereservation }}</p>
       <p><strong>Prestation :</strong> {{ clientPrestation.nom }}</p>
       <p><strong>Soin visage/barbe :</strong> {{ clientPrestation.soin ? 'Oui (+10 €)' : 'Non' }}</p>
       <p><strong>Prix :</strong> {{ clientPrestation.prix }} €</p>
@@ -150,7 +130,7 @@ onMounted(async () => {
       <p><strong>Date :</strong> {{ formattedDate }}</p>
       <p><strong>Créneau :</strong> {{ formatHeure(reservation.heure_debut) }} → {{ heureFin }}</p>
       <p><strong>Durée estimée :</strong> {{ dureeFormatee }}</p>
-      <p v-if="reservation.mode === 'DOMICILE'"><strong>Département :</strong> {{ reservation.departementDisplay?.code || '—' }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.mode === 'SALON' ? 'Salon May\'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.adressereservation }}</p>
     </div>
 
     <!-- 💸 Paiement -->

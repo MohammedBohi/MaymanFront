@@ -6,9 +6,6 @@
           :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
         📅 Étape 1 : Choisissez votre date
       </h2>
-      <p class="instruction-text">
-        💡 <strong>Astuce :</strong> Les soins ne sont disponibles qu'au salon (mercredi à samedi)
-      </p>
       <v-calendar
         mode="single"
         is-expanded
@@ -21,9 +18,6 @@
            :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
         <div class="selected-date-info">
           <h3>📅 {{ formatSelectedDate(selectedDate) }}</h3>
-          <p class="mode-badge" :class="isSalonDay(selectedDate) ? 'salon-mode' : 'domicile-mode'">
-            {{ isSalonDay(selectedDate) ? '🏛️ Mode SALON' : '🏠 Mode DOMICILE' }}
-          </p>
         </div>
 
         <!-- ÉTAPE 2 : Département (uniquement si DOMICILE) -->
@@ -43,9 +37,8 @@
         <div v-else class="salon-info" v-motion
              :initial="{ opacity: 0, y: 10 }"
              :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
-          <p><strong>🏛️ Adresse du salon :</strong></p>
+          <p><strong>📍 Adresse :</strong></p>
           <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
-          <p class="info-note">✨ Soins disponibles au salon</p>
         </div>
 
         <!-- ÉTAPE 3 : Créneaux -->
