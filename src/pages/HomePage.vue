@@ -63,9 +63,8 @@
           <p>{{ prestation.prix }} €</p>
           <button 
             class="reserve-btn" 
-            :class="{ 'btn-disabled': modeMaintenanceActif }"
             @click="goToReservation(prestation)">
-            {{ modeMaintenanceActif ? 'Indisponible' : 'Réserver' }}
+            Réserver
           </button>
         </div>
       </div>
@@ -80,7 +79,7 @@ export default {
   data() {
     return {
       // ⚙️ MODE MAINTENANCE - Passez à true pour bloquer les réservations clients
-      modeMaintenanceActif: false,
+      modeMaintenanceActif: true,
       
       prestations: [],
       prestationGroupe: {
@@ -107,10 +106,10 @@ export default {
 
     goToReservation(prestation) {
       // Bloquer la réservation si mode maintenance activé
-      if (this.modeMaintenanceActif) {
-        alert("⚠️ Les réservations en ligne ne sont pas disponibles pour le moment.\n\nMerci de nous contacter directement.");
-        return;
-      }
+      // if (this.modeMaintenanceActif) {
+      //   alert("⚠️ Les réservations en ligne ne sont pas disponibles pour le moment.\n\nMerci de nous contacter directement.");
+      //   return;
+      // }
 
       // Stocker la prestation sélectionnée dans localStorage
       localStorage.setItem("selected_prestation", JSON.stringify({
