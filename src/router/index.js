@@ -10,6 +10,7 @@ import ConfirmationReservation from "@/pages/ConfirmationReservation.vue";
 import SuccessPage from "@/pages/SuccessPage.vue";
 
 import AdminDashboard from "@/pages/AdminDashboard.vue";
+import AdminSelectionPrestation from "@/pages/AdminSelectionPrestation.vue";
 import AdminNewReservation from "@/pages/AdminNewReservation.vue";
 import AdminIndisponibilites from "@/pages/AdminIndisponibilites.vue";
 import AdminPlagesHoraires from "@/pages/AdminPlagesHoraires.vue";
@@ -34,12 +35,12 @@ const routes = [
   // 🔐 ADMIN
   { path: "/admin", name: "AdminDashboard", component: AdminDashboard, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/planning", name: "AdminPlanning", component: AdminPlanning, meta: { requiresAuth: true, role: "Admin" } },
+  { path: "/admin/selection-prestation", name: "AdminSelectionPrestation", component: AdminSelectionPrestation, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/reservation-creneau", name: "AdminReservationCreneau", component: AdminReservationCreneau, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/nouvelle-reservation", name: "AdminNewReservation", component: AdminNewReservation, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/indisponibilites", name: "AdminIndisponibilites", component: AdminIndisponibilites, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/plages-horaires", name: "AdminPlagesHoraires", component: AdminPlagesHoraires, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/prestations", name: "AdminPrestations", component: AdminPrestations, meta: { requiresAuth: true, role: "Admin" } },
-  { path: "/admin/reservation-creneau", name: "AdminReservationCreneau", component: AdminReservationCreneau, meta: { requiresAuth: true, role: "Admin" } },
   {
     path: "/admin/reservations",
     name: "AdminReservations",

@@ -1,71 +1,25 @@
 <template>
   <div class="reservation-page">
-    <router-link to="/admin" class="back-btn">← Retour au tableau de bord</router-link>
+    <router-link to="/admin/selection-prestation" class="back-btn">← Retour</router-link>
 
-    <!-- ÉTAPE 1 : Sélection prestation et nombre de personnes -->
-    <div v-if="!prestationSelectionnee" class="prestation-section">
-      <h2 v-motion
-          :initial="{ opacity: 0, y: -30 }"
-          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
-        📋 Étape 1 : Choisissez la prestation
-      </h2>
-      
-      <div class="form-group">
-        <label for="prestation">Prestation :</label>
-        <select id="prestation" v-model="selectedPrestation" @change="calculerDuree">
-          <option :value="null" disabled>Sélectionnez une prestation</option>
-          <option v-for="p in prestations" :key="p.id" :value="p">
-            {{ p.nom }} - {{ p.duree }}min - {{ p.prix }}€
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group" v-if="selectedPrestation">
-        <label for="nb-personnes">Nombre de personnes :</label>
-        <input 
-          type="number" 
-          id="nb-personnes" 
-          v-model.number="nbPersonnes" 
-          min="1" 
-          max="10"
-          @input="calculerDuree"
-        />
-      </div>
-
-      <div v-if="dureeCalculee > 0" class="duree-info">
-        <p>⏱️ Durée totale : <strong>{{ dureeCalculee }} minutes</strong></p>
-      </div>
-
-      <button 
-        class="reserve-button" 
-        :disabled="!selectedPrestation || nbPersonnes < 1"
-        @click="validerPrestation"
-      >
-        ➡ Continuer vers le calendrier
-      </button>
+    <h2 v-motion
+        :initial="{ opacity: 0, y: -30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+      📅 Choisissez un jour et un créneau
+    </h2>
+    
+    <div v-if="prestationData" class="prestation-recap">
+      <p><strong>Prestation :</strong> {{ prestationData.prestation.nom }}</p>
+      <p><strong>Nombre de personnes :</strong> {{ prestationData.nbPersonnes }}</p>
+      <p><strong>Durée totale :</strong> {{ prestationData.duree_totale }} min</p>
     </div>
 
-    <!-- ÉTAPE 2 : Sélection date et créneau -->
-    <div v-else>
-      <h2 v-motion
-          :initial="{ opacity: 0, y: -30 }"
-          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
-        📅 Étape 2 : Choisissez un jour et un créneau
-      </h2>
-      
-      <div class="prestation-recap">
-        <p><strong>Prestation :</strong> {{ selectedPrestation.nom }}</p>
-        <p><strong>Nombre de personnes :</strong> {{ nbPersonnes }}</p>
-        <p><strong>Durée totale :</strong> {{ dureeCalculee }} min</p>
-        <button class="btn-modifier" @click="modifierPrestation">✏️ Modifier</button>
-      </div>
-
-      <v-calendar
-        mode="single"
-        is-expanded
-        :attributes="calendarAttributes"
-        @dayclick="onDateSelected"
-      />
+    <v-calendar
+      mode="single"
+      is-expanded
+      :attributes="calendarAttributes"
+      @dayclick="onDateSelected"
+    />
 
     <div v-if="selectedDate" class="details-section" v-motion
          :initial="{ opacity: 0, y: 20 }"
@@ -121,27 +75,20 @@
       </button>
       <button class="back-button" @click="router.back()">⬅ Retour</button>
     </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, nextTick, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getCreneauxDisponibles } from "@/services/CreneauService";
-import { getPrestations } from "@/services/PrestationService";
 import api from "@/services/api";
 
+const route = useRoute();
 const router = useRouter();
 
-// Étape 1 : Prestation
-const prestations = ref([]);
-const selectedPrestation = ref(null);
-const nbPersonnes = ref(1);
-const dureeCalculee = ref(0);
-const prestationSelectionnee = ref(false);
-
-// Étape 2 : Calendrier
+const prestationData = ref(null);
+const duree = ref(0);
 const selectedDate = ref(null);
 const selectedSlot = ref(null);
 const availableSlots = ref([]);
@@ -160,27 +107,6 @@ const calendarAttributes = ref([
   },
 ]);
 
-const calculerDuree = () => {
-  if (selectedPrestation.value && nbPersonnes.value > 0) {
-    dureeCalculee.value = selectedPrestation.value.duree * nbPersonnes.value;
-  } else {
-    dureeCalculee.value = 0;
-  }
-};
-
-const validerPrestation = () => {
-  if (selectedPrestation.value && nbPersonnes.value > 0) {
-    prestationSelectionnee.value = true;
-  }
-};
-
-const modifierPrestation = () => {
-  prestationSelectionnee.value = false;
-  selectedDate.value = null;
-  selectedSlot.value = null;
-  availableSlots.value = [];
-};
-
 const getDepartmentsForDay = (day) => {
   if (!planningData.value) return [];
   
@@ -198,12 +124,19 @@ const getDepartmentsForDay = (day) => {
 };
 
 onMounted(async () => {
-  // Charger les prestations
-  try {
-    prestations.value = await getPrestations();
-  } catch (error) {
-    console.error('Erreur chargement prestations:', error);
-    prestations.value = [];
+  // Récupérer la durée depuis query params
+  duree.value = parseInt(route.query.duree, 10) || 0;
+  
+  // Récupérer les données de prestation depuis localStorage
+  const saved = localStorage.getItem("admin_prestation_selection");
+  if (saved) {
+    prestationData.value = JSON.parse(saved);
+  }
+  
+  // Si pas de durée, rediriger
+  if (!duree.value) {
+    router.push("/admin/selection-prestation");
+    return;
   }
 
   // Charger les données du planning
@@ -238,11 +171,11 @@ const onDateSelected = async ({ date }) => {
 };
 
 const getAvailableSlots = async () => {
-  if (!selectedDate.value || !dureeCalculee.value) return;
+  if (!selectedDate.value || !duree.value) return;
 
   const formatted = formatDate(selectedDate.value);
   try {
-    const data = await getCreneauxDisponibles(formatted, dureeCalculee.value);
+    const data = await getCreneauxDisponibles(formatted, duree.value);
     availableSlots.value = data || [];
   } catch (e) {
     console.error("Erreur chargement créneaux :", e);
@@ -287,9 +220,7 @@ const validerReservation = () => {
     slot: selectedSlot.value,
     departement: selectedDepartment.value,
     mode,
-    prestation: selectedPrestation.value,
-    nbPersonnes: nbPersonnes.value,
-    duree_totale: dureeCalculee.value,
+    ...prestationData.value
   };
   localStorage.setItem("admin_reservation_date", JSON.stringify(payload));
   router.push("/admin/nouvelle-reservation");
