@@ -34,7 +34,9 @@
       <p><strong>Date :</strong> {{ formattedDate }}</p>
       <p><strong>Créneau :</strong> {{ reservation.heure_debut }} → {{ heureFin }}</p>
       <p><strong>Durée :</strong> {{ formatDuree(reservation.duree_totale_minutes) }}</p>
-      <p><strong>Département :</strong> {{ reservation.departement.nom }} ({{ reservation.departement.codePostal }})</p>
+      <p v-if="reservation.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+      <p v-else-if="reservation.departement_nom && reservation.departement_code"><strong>Département :</strong> {{ reservation.departement_nom }} ({{ reservation.departement_code }})</p>
+      <p v-else-if="reservation.departement"><strong>Département :</strong> {{ reservation.departement }}</p>
     </div>
 
     <!-- Paiement -->
@@ -88,24 +90,13 @@ onMounted(async () => {
 
   try {
     const { data } = await api.get(`/admin/reservations/${id}`);
-    reservation.value = {
-      ...data,
-      departement: (() => {
-        try {
-          const parsed = typeof data.departement === "string"
-            ? JSON.parse(data.departement)
-            : data.departement;
-          return parsed?.nom ? parsed : { nom: "Inconnu", codePostal: "" };
-        } catch {
-          return { nom: "Inconnu", codePostal: "" };
-        }
-      })(),
-    };
-const allPrestations = await api.get("/prestations");
-const prestation = allPrestations.data.find(p => p.id === data.personnes?.[0]?.prestation_id);
-if (prestation) {
-  prestationClient.value = `${prestation.nom} (${prestation.duree_minutes}min - ${prestation.prix}€)`;
-}
+    reservation.value = data;
+
+    const allPrestations = await api.get("/prestations");
+    const prestation = allPrestations.data.find(p => p.id === data.personnes?.[0]?.prestation_id);
+    if (prestation) {
+      prestationClient.value = `${prestation.nom} (${prestation.duree_minutes}min - ${prestation.prix}€)`;
+    }
 
     formattedDate.value = new Date(data.jour).toLocaleDateString("fr-FR", {
       weekday: "long",

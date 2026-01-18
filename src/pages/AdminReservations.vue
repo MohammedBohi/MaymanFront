@@ -57,7 +57,8 @@
         <p v-if="detail.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
         <template v-else>
           <p><strong>Adresse client :</strong> {{ detail.adressereservation }}</p>
-          <p><strong>Département :</strong> {{ afficherDepartement(detail) }}</p>
+          <p v-if="detail.departement_nom && detail.departement_code"><strong>Département :</strong> {{ detail.departement_nom }} ({{ detail.departement_code }})</p>
+          <p v-else-if="detail.departement"><strong>Département :</strong> {{ detail.departement }}</p>
         </template>
         <p><strong>Heure :</strong> {{ detail.heure_debut }} → {{ calculHeureFin(detail.heure_debut, detail.duree_totale_minutes) }}</p>
 
