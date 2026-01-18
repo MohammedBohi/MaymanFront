@@ -3,7 +3,7 @@
     <router-link to="/admin/reservation-creneau" class="back-btn">← Retour au calendrier</router-link>
     <h1 v-motion
         :initial="{ opacity: 0, y: -30 }"
-        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">➕ Étape 2 : Informations client</h1>
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">➕ Étape 3 : Informations des participants</h1>
 
     <!-- Affichage de la date et l'adresse sélectionnées -->
     <div class="form-block" v-if="dateInfo" v-motion
@@ -12,69 +12,46 @@
       <h2>📅 Date et lieu sélectionnés</h2>
       <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
       <p><strong>Créneau :</strong> {{ dateInfo.slot }}</p>
-      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '176 Route de Montauban, 12200 Villefranche-de-Rouergue' : (dateInfo.departement?.nom + ' (' + dateInfo.departement?.code + ')') }}</p>
+      <p><strong>Mode :</strong> <span :class="dateInfo.mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">{{ dateInfo.mode }}</span></p>
+      <p><strong>Nombre de personnes :</strong> {{ selectionInfo?.nbPersonnes || participants.length }}</p>
+      <p><strong>Durée totale :</strong> {{ selectionInfo?.duree_totale || 0 }} min</p>
+      <p><strong>Tarif total :</strong> {{ (selectionInfo?.prix_total || 0).toFixed(2) }} €</p>
     </div>
 
-    <!-- Infos client principal -->
+    <!-- Informations de contact -->
     <div class="form-block" v-motion
          :initial="{ opacity: 0, x: -30 }"
          :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 100 } }">
-      <h2>Client principal</h2>
-      <input v-model="client.nom" placeholder="Nom" required />
-      <input v-model="client.prenom" placeholder="Prénom" required />
-      <input v-model="client.email" placeholder="Email" required />
-      <input v-model="client.telephone" placeholder="Téléphone" required />
-      <input v-model="client.adresse" placeholder="Adresse" :readonly="dateInfo?.mode === 'SALON'" required :class="{ 'readonly-field': dateInfo?.mode === 'SALON' }" />
+      <h2>📞 Informations de contact</h2>
+      <label>Email :</label>
+      <input v-model="contact.email" type="email" placeholder="Email du client" required />
+      
+      <label>Téléphone :</label>
+      <input v-model="contact.telephone" type="tel" placeholder="Numéro de téléphone" required />
+      
+      <label>Adresse :</label>
+      <input v-model="contact.adresse" placeholder="Adresse" :readonly="dateInfo?.mode === 'SALON'" required :class="{ 'readonly-field': dateInfo?.mode === 'SALON' }" />
       <small v-if="dateInfo?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Adresse du salon pré-remplie</small>
-
-      <label>Prestation :</label>
-      <select v-model="client.prestation_id">
-        <option disabled value="">Choisir une prestation</option>
-        <option v-for="p in prestations" :key="p.id" :value="p.id">
-          {{ p.nom }} ({{ p.duree_minutes }} min - {{ p.prix }} €)
-        </option>
-      </select>
-
-      <label v-if="dateInfo?.mode === 'SALON' && soinDisponible(client.prestation_id)" class="checkbox-label">
-        <input type="checkbox" v-model="client.avec_soin" />
-        Supplément soin (+10 min, +10 €)
-      </label>
-    </div>
-
-    <!-- Ajout de participants -->
-    <div class="form-block" v-motion
-         :initial="{ opacity: 0, x: -30 }"
-         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 200 } }">
-      <label>Souhaitez-vous ajouter des personnes ?</label>
-      <select v-model="ajoutParticipants" @change="genererParticipants">
-        <option :value="false">Non</option>
-        <option :value="true">Oui</option>
-      </select>
-
-      <div v-if="ajoutParticipants">
-        <label>Nombre de personnes (1 à 14)</label>
-        <input type="number" v-model.number="nombre" min="1" max="14" @change="genererParticipants" />
-      </div>
+      <small v-else style="color: #666; font-style: italic;">📍 Adresse du domicile du client</small>
     </div>
 
     <!-- Participants -->
-    <div v-if="participants.length > 0" class="form-block">
-      <h2>Participants</h2>
+    <div class="form-block" v-motion
+         :initial="{ opacity: 0, x: -30 }"
+         :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 200 } }">
+      <h2>👥 Participants ({{ participants.length }})</h2>
       <div v-for="(p, index) in participants" :key="index" class="personne-box">
         <h4>👤 Personne {{ index + 1 }}</h4>
-        <input v-model="p.nom" placeholder="Nom" required />
-        <input v-model="p.prenom" placeholder="Prénom" required />
-        <label>Prestation :</label>
-        <select v-model="p.prestation_id">
-          <option disabled value="">Choisir une prestation</option>
-          <option v-for="pres in prestations" :key="pres.id" :value="pres.id">
-            {{ pres.nom }} ({{ pres.duree_minutes }} min - {{ pres.prix }} €)
-          </option>
-        </select>
-        <label v-if="dateInfo?.mode === 'SALON' && soinDisponible(p.prestation_id)" class="checkbox-label">
-          <input type="checkbox" v-model="p.avec_soin" />
-          Supplément soin (+10 min, +10 €)
-        </label>
+        <p class="prestation-info">
+          <strong>Prestation :</strong> {{ p.nom }} - {{ p.duree }}min - {{ p.prix.toFixed(2) }}€
+          <span v-if="p.avecSoin" class="badge-soin">+ Soin visage</span>
+        </p>
+        
+        <label>Nom :</label>
+        <input v-model="p.nomClient" placeholder="Nom" required />
+        
+        <label>Prénom :</label>
+        <input v-model="p.prenomClient" placeholder="Prénom" required />
       </div>
     </div>
 
@@ -83,98 +60,83 @@
 </template>
 
 <script>
-import api from "@/services/api";
-
 const ADRESSE_SALON = "Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue";
 
 export default {
   data() {
     return {
       dateInfo: null,
-      client: {
-        nom: "", prenom: "", email: "mayliss.mazet24@gmail.com", telephone: "07 68 44 16 10", adresse: "",
-        prestation_id: "", avec_soin: false
+      selectionInfo: null,
+      contact: {
+        email: "",
+        telephone: "",
+        adresse: ""
       },
-      prestations: [],
-      participants: [],
-      ajoutParticipants: false,
-      nombre: 1,
+      participants: []
     };
   },
   methods: {
-    async fetchPrestations() {
-      try {
-        const res = await api.get("/prestations");
-        this.prestations = res.data;
-      } catch (err) {
-        console.error("Erreur chargement prestations :", err);
-      }
-    },
     formatDate(str) {
       return new Date(str).toLocaleDateString("fr-FR", {
         weekday: "long", day: "numeric", month: "long", year: "numeric"
       });
     },
-    soinDisponible(id) {
-      const p = this.prestations.find(p => p.id === id);
-      return p?.soin_disponible;
-    },
-    genererParticipants() {
-      this.participants = [];
-      for (let i = 0; i < this.nombre; i++) {
-        this.participants.push({
-          nom: "", prenom: "", prestation_id: "", avec_soin: false
-        });
-      }
-    },
     validerEtRediriger() {
-      // Validation
-      if (!this.client.nom || !this.client.prenom || !this.client.email || !this.client.telephone || !this.client.adresse) {
-        alert("❌ Veuillez remplir tous les champs du client");
+      // Validation email et téléphone
+      if (!this.contact.email || !this.contact.telephone || !this.contact.adresse) {
+        alert("❌ Veuillez remplir toutes les informations de contact");
         return;
       }
 
-      let total = 0;
-      let duree = 15;
-
-      const toutes = [
-        { ...this.client, isClient: true },
-        ...this.participants.map(p => ({ ...p, isClient: false }))
-      ];
-
-      for (const p of toutes) {
-        const pres = this.prestations.find(pr => pr.id == p.prestation_id);
-        if (!pres) continue;
-        total += parseFloat(pres.prix) + (p.avec_soin ? 10 : 0);
-        duree += pres.duree_minutes + (p.avec_soin ? 10 : 0);
+      // Validation que tous les participants ont un nom et prénom
+      for (const p of this.participants) {
+        if (!p.nomClient || !p.prenomClient) {
+          alert("❌ Veuillez remplir le nom et prénom de tous les participants");
+          return;
+        }
       }
 
+      // Sauvegarder toutes les données pour la confirmation
       localStorage.setItem("admin_reservation", JSON.stringify({
-        client: this.client,
+        contact: this.contact,
         participants: this.participants,
-        duree_totale: duree,
-        tarif_total: total
+        duree_totale: this.selectionInfo.duree_totale,
+        prix_total: this.selectionInfo.prix_total
       }));
 
       this.$router.push("/admin/confirmation");
     }
   },
   mounted() {
-    this.fetchPrestations();
-    
     // Charger les données de la date depuis le calendrier
     const savedDate = localStorage.getItem("admin_reservation_date");
     if (!savedDate) {
-      alert("Veuillez d'abord choisir une date et un créneau");
+      alert("⚠️ Veuillez d'abord choisir une date et un créneau");
       this.$router.push("/admin/reservation-creneau");
       return;
     }
-    
     this.dateInfo = JSON.parse(savedDate);
-    
-    // Pré-remplir l'adresse selon le mode détecté
+
+    // Charger les participants sélectionnés
+    const savedSelection = localStorage.getItem("admin_prestation_selection");
+    if (!savedSelection) {
+      alert("⚠️ Veuillez d'abord sélectionner les prestations");
+      this.$router.push("/admin/selection-prestation");
+      return;
+    }
+    this.selectionInfo = JSON.parse(savedSelection);
+
+    // Initialiser les participants avec les prestations déjà choisies
+    // Ajouter les champs nomClient et prenomClient pour la saisie
+    this.participants = this.selectionInfo.participants.map(p => ({
+      ...p,
+      nomClient: "",
+      prenomClient: ""
+    }));
+
+    // Pré-remplir l'adresse selon le mode
     if (this.dateInfo.mode === 'SALON') {
-      this.client.adresse = ADRESSE_SALON;
+      this.contact.adresse = ADRESSE_SALON;
     }
   }
 };
@@ -239,19 +201,59 @@ select {
   border-radius: 8px;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  margin-top: 10px;
-}
-
 .readonly-field {
   background-color: #f0f0f0 !important;
   cursor: not-allowed;
   font-weight: 600;
   color: #333;
+}
+
+.prestation-info {
+  background-color: #e8f4f8;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #333;
+}
+
+.badge-soin {
+  display: inline-block;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-salon {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge-domicile {
+  display: inline-block;
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #5a3d2b;
 }
 
 button {
