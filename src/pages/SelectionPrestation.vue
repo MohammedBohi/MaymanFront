@@ -6,8 +6,8 @@
       📋 Configurez votre réservation
     </h1>
 
-    <!-- Étape 1: Choix du mode si la prestation n'est pas "groupe" -->
-    <div v-if="!modeSelectionne && !isGroupe" class="mode-selection" v-motion
+    <!-- Étape 1: Choix du mode -->
+    <div v-if="!modeSelectionne" class="mode-selection" v-motion
          :initial="{ opacity: 0, y: 20 }"
          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       <h2>📍 Où souhaitez-vous votre prestation ?</h2>
@@ -15,24 +15,22 @@
         <button class="mode-btn salon" @click="choisirMode('SALON')">
           <span class="icon">🏠</span>
           <h3>Au salon</h3>
-          <p>176 Route de Montauban, Villefranche-de-Rouergue</p>
-          <small>Soins visage disponibles</small>
+          <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
         </button>
         <button class="mode-btn domicile" @click="choisirMode('DOMICILE')">
           <span class="icon">🚗</span>
-          <h3>À domicile</h3>
-          <p>Nous venons chez vous</p>
-          <small>Lundi et Mardi uniquement</small>
+          <h3>On se déplace vers vous</h3>
+          <p>(dans les départements affichés)</p>
         </button>
       </div>
     </div>
 
     <!-- Étape 2: Configuration des participants -->
-    <div v-if="modeSelectionne || isGroupe" class="participants-section" v-motion
+    <div v-if="modeSelectionne" class="participants-section" v-motion
          :initial="{ opacity: 0, y: 20 }"
          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
       
-      <div class="mode-info" v-if="!isGroupe">
+      <div class="mode-info">
         <p><strong>Mode sélectionné :</strong> 
           <span :class="mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">{{ mode }}</span>
         </p>
@@ -61,14 +59,14 @@
         <select v-model="prestationSelectionnee" class="prestation-select">
           <option :value="null" disabled>Choisir une prestation...</option>
           <option v-for="p in prestationsDisponibles" :key="p.id" :value="p">
-            {{ p.nom }} - {{ p.duree_minutes || p.duree }}min - {{ Number(p.prix).toFixed(2) }}€
+            {{ p.nom }} - {{ Number(p.prix).toFixed(2) }}€
           </option>
         </select>
 
         <div v-if="mode === 'SALON' && prestationSelectionnee && prestationSelectionnee.soin_disponible" class="checkbox-container">
           <label class="checkbox-label">
             <input type="checkbox" v-model="ajouterSoin" />
-            Ajouter un soin visage (+15min, +10€)
+            Ajouter un soin visage (+10€)
           </label>
         </div>
 
@@ -141,6 +139,21 @@ const prixTotal = computed(() => {
 const choisirMode = (modeChoisi) => {
   mode.value = modeChoisi;
   modeSelectionne.value = true;
+  
+  // Ajouter automatiquement la prestation initiale
+  if (prestationInitiale.value) {
+    const prestation = prestations.value.find(p => p.id == prestationInitiale.value.id);
+    if (prestation) {
+      let prix = Number(prestation.prix) || 0;
+      participants.value.push({
+        id: prestation.id,
+        nom: prestation.nom,
+        duree: Number(prestation.duree_minutes || 0),
+        prix: prix,
+        avecSoin: false
+      });
+    }
+  }
 };
 
 const changerMode = () => {

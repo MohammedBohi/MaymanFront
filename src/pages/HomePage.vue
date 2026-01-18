@@ -81,24 +81,16 @@ export default {
       // ⚙️ MODE MAINTENANCE - Passez à true pour bloquer les réservations clients
       modeMaintenanceActif: true,
       
-      prestations: [],
-      prestationGroupe: {
-        id: "groupe",
-        nom: "Prestation de groupe",
-        prix: "Sur devis",
-        duree_minutes: null,
-        soin_disponible: false
-      }
+      prestations: []
     };
   },
   methods: {
     async mounted() {
       try {
         const response = await getPrestations();
-        const filtrees = response.filter(
+        this.prestations = response.filter(
           (p) => !p.nom.toLowerCase().includes("soin seul")
         );
-        this.prestations = [...filtrees, this.prestationGroupe];
       } catch (error) {
         console.error("Erreur lors du chargement des prestations :", error);
       }
@@ -133,8 +125,7 @@ export default {
         "Coupe enfant": "CoupeEnfant.jpeg",
         "Barbe tondeuse": "BarbeTondeuse.jpeg",
         "Coupe homme + Barbe tondeuse": "CoupeHommeBarbeTondeuse.jpeg",
-        "Coupe homme + Barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg",
-        "Prestation de groupe": "PrestationGroupe.jpeg",
+        "Coupe homme + Barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg"
       };
 
       const fileName = mapping[nom] || "PhotoAccueil.jpeg";
