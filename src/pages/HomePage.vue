@@ -1,24 +1,5 @@
 <template>
   <div class="homepage">
-    <!-- 🚧 Bannière information réservations -->
-    <div v-if="modeMaintenanceActif" class="maintenance-banner">
-      <div class="maintenance-content">
-        <span class="maintenance-icon">📞</span>
-        <div class="maintenance-text">
-          <h3>Réservations temporairement indisponibles en ligne</h3>
-          <p>Les réservations effectuées sur le site ne seront pas prises en considération pour le moment.</p>
-          <p>Veuillez nous contacter via les coordonnées disponibles <strong>tout en bas de la page</strong> pour confirmer une réservation.</p>
-          <p>Votre réservation sera traitée par notre équipe dans les plus brefs délais.</p>
-        </div>
-        <span class="maintenance-icon">📞</span>
-      </div>
-    </div>
-
-
-   
-
-    
-
     <!-- ✅ Présentation + Photo salon -->
     <div class="presentation-salon">
       <div class="presentation-texte" v-motion
