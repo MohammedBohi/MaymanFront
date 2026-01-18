@@ -2,15 +2,70 @@
   <div class="reservation-page">
     <router-link to="/admin" class="back-btn">← Retour au tableau de bord</router-link>
 
-    <h2 v-motion
-        :initial="{ opacity: 0, y: -30 }"
-        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">📅 Étape 1 : Choisissez un jour et un créneau</h2>
-    <v-calendar
-      mode="single"
-      is-expanded
-      :attributes="calendarAttributes"
-      @dayclick="onDateSelected"
-    />
+    <!-- ÉTAPE 1 : Sélection prestation et nombre de personnes -->
+    <div v-if="!prestationSelectionnee" class="prestation-section">
+      <h2 v-motion
+          :initial="{ opacity: 0, y: -30 }"
+          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+        📋 Étape 1 : Choisissez la prestation
+      </h2>
+      
+      <div class="form-group">
+        <label for="prestation">Prestation :</label>
+        <select id="prestation" v-model="selectedPrestation" @change="calculerDuree">
+          <option :value="null" disabled>Sélectionnez une prestation</option>
+          <option v-for="p in prestations" :key="p.id" :value="p">
+            {{ p.nom }} - {{ p.duree }}min - {{ p.prix }}€
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" v-if="selectedPrestation">
+        <label for="nb-personnes">Nombre de personnes :</label>
+        <input 
+          type="number" 
+          id="nb-personnes" 
+          v-model.number="nbPersonnes" 
+          min="1" 
+          max="10"
+          @input="calculerDuree"
+        />
+      </div>
+
+      <div v-if="dureeCalculee > 0" class="duree-info">
+        <p>⏱️ Durée totale : <strong>{{ dureeCalculee }} minutes</strong></p>
+      </div>
+
+      <button 
+        class="reserve-button" 
+        :disabled="!selectedPrestation || nbPersonnes < 1"
+        @click="validerPrestation"
+      >
+        ➡ Continuer vers le calendrier
+      </button>
+    </div>
+
+    <!-- ÉTAPE 2 : Sélection date et créneau -->
+    <div v-else>
+      <h2 v-motion
+          :initial="{ opacity: 0, y: -30 }"
+          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+        📅 Étape 2 : Choisissez un jour et un créneau
+      </h2>
+      
+      <div class="prestation-recap">
+        <p><strong>Prestation :</strong> {{ selectedPrestation.nom }}</p>
+        <p><strong>Nombre de personnes :</strong> {{ nbPersonnes }}</p>
+        <p><strong>Durée totale :</strong> {{ dureeCalculee }} min</p>
+        <button class="btn-modifier" @click="modifierPrestation">✏️ Modifier</button>
+      </div>
+
+      <v-calendar
+        mode="single"
+        is-expanded
+        :attributes="calendarAttributes"
+        @dayclick="onDateSelected"
+      />
 
     <div v-if="selectedDate" class="details-section" v-motion
          :initial="{ opacity: 0, y: 20 }"
@@ -66,6 +121,7 @@
       </button>
       <button class="back-button" @click="router.back()">⬅ Retour</button>
     </div>
+    </div>
   </div>
 </template>
 
@@ -73,16 +129,24 @@
 import { ref, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { getCreneauxDisponibles } from "@/services/CreneauService";
+import { getPrestations } from "@/services/PrestationService";
 import api from "@/services/api";
 
 const router = useRouter();
 
+// Étape 1 : Prestation
+const prestations = ref([]);
+const selectedPrestation = ref(null);
+const nbPersonnes = ref(1);
+const dureeCalculee = ref(0);
+const prestationSelectionnee = ref(false);
+
+// Étape 2 : Calendrier
 const selectedDate = ref(null);
 const selectedSlot = ref(null);
 const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
-const duree = ref(60); // Durée par défaut pour l'admin
 const planningData = ref(null);
 
 const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
@@ -95,6 +159,27 @@ const calendarAttributes = ref([
     class: "unavailable",
   },
 ]);
+
+const calculerDuree = () => {
+  if (selectedPrestation.value && nbPersonnes.value > 0) {
+    dureeCalculee.value = selectedPrestation.value.duree * nbPersonnes.value;
+  } else {
+    dureeCalculee.value = 0;
+  }
+};
+
+const validerPrestation = () => {
+  if (selectedPrestation.value && nbPersonnes.value > 0) {
+    prestationSelectionnee.value = true;
+  }
+};
+
+const modifierPrestation = () => {
+  prestationSelectionnee.value = false;
+  selectedDate.value = null;
+  selectedSlot.value = null;
+  availableSlots.value = [];
+};
 
 const getDepartmentsForDay = (day) => {
   if (!planningData.value) return [];
@@ -113,6 +198,14 @@ const getDepartmentsForDay = (day) => {
 };
 
 onMounted(async () => {
+  // Charger les prestations
+  try {
+    prestations.value = await getPrestations();
+  } catch (error) {
+    console.error('Erreur chargement prestations:', error);
+    prestations.value = [];
+  }
+
   // Charger les données du planning
   try {
     const res = await api.get('/planning-hebdo');
@@ -145,11 +238,11 @@ const onDateSelected = async ({ date }) => {
 };
 
 const getAvailableSlots = async () => {
-  if (!selectedDate.value || !duree.value) return;
+  if (!selectedDate.value || !dureeCalculee.value) return;
 
   const formatted = formatDate(selectedDate.value);
   try {
-    const data = await getCreneauxDisponibles(formatted, duree.value);
+    const data = await getCreneauxDisponibles(formatted, dureeCalculee.value);
     availableSlots.value = data || [];
   } catch (e) {
     console.error("Erreur chargement créneaux :", e);
@@ -194,15 +287,13 @@ const validerReservation = () => {
     slot: selectedSlot.value,
     departement: selectedDepartment.value,
     mode,
+    prestation: selectedPrestation.value,
+    nbPersonnes: nbPersonnes.value,
+    duree_totale: dureeCalculee.value,
   };
   localStorage.setItem("admin_reservation_date", JSON.stringify(payload));
   router.push("/admin/nouvelle-reservation");
 };
-
-onMounted(() => {
-  const saved = JSON.parse(localStorage.getItem("admin_reservation") || "{}");
-  duree.value = saved.duree_totale || 0;
-});
 </script>
 <style scoped>
 .reservation-page {
@@ -218,6 +309,80 @@ h2 {
   margin-bottom: 20px;
   color: #5a3d2b;
   text-align: center;
+}
+
+/* Section prestation */
+.prestation-section {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #5a3d2b;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.duree-info {
+  background: #e8f5e9;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.duree-info p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2e7d32;
+}
+
+/* Récap prestation */
+.prestation-recap {
+  background: #fff3e0;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.prestation-recap p {
+  margin: 5px 0;
+  color: #5a3d2b;
+}
+
+.btn-modifier {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 12px;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-modifier:hover {
+  background-color: #f57c00;
 }
 
 .details-section {
