@@ -9,9 +9,14 @@
     </h2>
     
     <div v-if="prestationData" class="prestation-recap">
-      <p><strong>Prestation :</strong> {{ prestationData.prestation.nom }}</p>
-      <p><strong>Nombre de personnes :</strong> {{ prestationData.nbPersonnes }}</p>
-      <p><strong>Durée totale :</strong> {{ prestationData.duree_totale }} min</p>
+      <h3>📋 Participants ({{ prestationData.nbPersonnes }}) :</h3>
+      <div v-for="(participant, index) in prestationData.participants" :key="index" class="participant-line">
+        {{ index + 1 }}. {{ participant.nom }} - {{ participant.duree }}min
+      </div>
+      <div class="totaux">
+        <p><strong>Durée totale :</strong> {{ prestationData.duree_totale }} min</p>
+        <p><strong>Prix total :</strong> {{ prestationData.prix_total }}€</p>
+      </div>
     </div>
 
     <v-calendar
@@ -291,12 +296,32 @@ h2 {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  position: relative;
 }
 
-.prestation-recap p {
+.prestation-recap h3 {
+  margin: 0 0 10px 0;
+  color: #5a3d2b;
+  font-size: 1.1rem;
+}
+
+.participant-line {
+  padding: 8px;
+  background: white;
+  margin: 5px 0;
+  border-radius: 4px;
+  color: #5a3d2b;
+}
+
+.totaux {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 2px solid #d4a373;
+}
+
+.totaux p {
   margin: 5px 0;
   color: #5a3d2b;
+  font-size: 1.05rem;
 }
 
 .btn-modifier {
