@@ -79,7 +79,7 @@ export default {
   data() {
     return {
       // ⚙️ MODE MAINTENANCE - Passez à true pour bloquer les réservations clients
-      modeMaintenanceActif: false,
+      modeMaintenanceActif: true,
       
       prestations: [],
       prestationGroupe: {
