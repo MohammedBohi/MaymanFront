@@ -103,8 +103,10 @@ const SALON = { nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Ro
 
 // Aligne avec le backend: départements par code (46, 82)
 const DOMICILE = [
-  { nom: "Lot", code: "46" },
-  { nom: "Tarn-et-Garonne", code: "82" }
+  { nom: "Limogne en Quercy", code: "46260" },
+  { nom: "Varaire", code: "46260" },
+  { nom: "Caylus", code: "82160" },
+  { nom: "Parisot", code: "82160" }
 ];
 
 

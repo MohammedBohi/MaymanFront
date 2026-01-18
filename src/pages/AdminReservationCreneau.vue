@@ -109,8 +109,10 @@ const getDepartmentsForDay = (day) => {
   // Pour DOMICILE, retourner les codes 46/82
   if (mode === 'DOMICILE') {
     return [
-      { nom: "Lot", code: "46" },
-      { nom: "Tarn-et-Garonne", code: "82" }
+      { nom: "Limogne en Quercy", code: "46260" },
+      { nom: "Varaire", code: "46260" },
+      { nom: "Caylus", code: "82160" },
+      { nom: "Parisot", code: "82160" }
     ];
   }
   return [];
