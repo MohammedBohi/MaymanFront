@@ -82,9 +82,10 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue";
+import { ref, nextTick, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getCreneauxDisponibles } from "@/services/CreneauService";
+import api from "@/services/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -95,30 +96,12 @@ const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
 const duree = parseInt(route.query.duree, 10);
+const planningData = ref(null); // Stocker les données du planning
 
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
 ];
 const SALON = { nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue", code: "SALON" };
-
-// Aligne avec le backend: départements par code (46, 82)
-const DOMICILE = [
-  { nom: "Limogne en Quercy", code: "46260" },
-  { nom: "Varaire", code: "46260" },
-  { nom: "Caylus", code: "82160" },
-  { nom: "Parisot", code: "82160" }
-];
-
-
-const departementsParJour = [
-  [],         // Dimanche
-  DOMICILE,   // Lundi
-  DOMICILE,   // Mardi
-  [SALON],    // Mercredi
-  [SALON],    // Jeudi
-  [SALON],    // Vendredi
-  [SALON],    // Samedi
-];
 
 const calendarAttributes = ref([
   {
@@ -134,8 +117,34 @@ const formatDate = (date) =>
   String(date.getMonth() + 1).padStart(2, "0") + "-" +
   String(date.getDate()).padStart(2, "0");
 
-const getDepartmentsForDay = (day) =>
-  departementsParJour[day.getDay()] || [];
+const getDepartmentsForDay = (day) => {
+  if (!planningData.value) return [];
+  
+  const jourSemaine = day.getDay(); // 0=dimanche, 1=lundi, etc.
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  
+  if (!planning || !planning.actif) return [];
+  
+  if (planning.mode === 'SALON') {
+    return [SALON];
+  } else if (planning.mode === 'DOMICILE') {
+    // Retourner les départements depuis la BDD
+    return planning.departements || [];
+  }
+  
+  return [];
+};
+
+// Charger les données du planning au montage
+onMounted(async () => {
+  try {
+    const res = await api.get('/planning-hebdo');
+    planningData.value = res.data;
+  } catch (error) {
+    console.error('Erreur chargement planning:', error);
+    planningData.value = [];
+  }
+});
 
 const onDateSelected = async ({ date }) => {
   if (!date) return;
@@ -155,10 +164,12 @@ const onDateSelected = async ({ date }) => {
   await nextTick();
   const list = getDepartmentsForDay(selectedDate.value);
   departments.value = [...list];
+  
   // Pour les jours SALON, pas de sélection de département requise
   if (isSalonDay(selectedDate.value)) {
     selectedDepartment.value = null;
   } else {
+    // Pour DOMICILE, sélectionner le premier département
     selectedDepartment.value = departments.value[0] || null;
   }
 

@@ -75,6 +75,7 @@
 import { ref, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { getCreneauxDisponibles } from "@/services/CreneauService";
+import api from "@/services/api";
 
 const router = useRouter();
 
@@ -84,6 +85,7 @@ const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
 const duree = ref(0);
+const planningData = ref(null);
 
 const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 const SALON = {
@@ -91,36 +93,35 @@ const SALON = {
   codePostal: "12200"
 };
 
-const departementsParJour = [
-  [],         // Dimanche
-  "DOMICILE",   // Lundi
-  "DOMICILE",   // Mardi
-  "SALON",    // Mercredi
-  "SALON",    // Jeudi
-  "SALON",    // Vendredi
-  "SALON",    // Samedi
-];
-
-const modePourJour = (day) => departementsParJour[day.getDay()] || null;
-
 const adminReservationData = ref(null);
 
 const getDepartmentsForDay = (day) => {
-  const mode = modePourJour(day);
-  if (mode === 'SALON') return [];
-  // Pour DOMICILE, retourner les codes 46/82
-  if (mode === 'DOMICILE') {
-    return [
-      { nom: "Limogne en Quercy", code: "46260" },
-      { nom: "Varaire", code: "46260" },
-      { nom: "Caylus", code: "82160" },
-      { nom: "Parisot", code: "82160" }
-    ];
+  if (!planningData.value) return [];
+  
+  const jourSemaine = day.getDay();
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  
+  if (!planning || !planning.actif) return [];
+  
+  if (planning.mode === 'SALON') return [];
+  if (planning.mode === 'DOMICILE') {
+    return planning.departements || [];
   }
+  
   return [];
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // Charger les données du planning
+  try {
+    const res = await api.get('/planning-hebdo');
+    planningData.value = res.data;
+  } catch (error) {
+    console.error('Erreur chargement planning:', error);
+    planningData.value = [];
+  }
+  
+  // Charger les données de réservation depuis localStorage
   const data = localStorage.getItem("admin_reservation");
   if (data) {
     adminReservationData.value = JSON.parse(data);
