@@ -1,15 +1,16 @@
 <template>
   <div class="homepage">
-    <!-- 🚧 Bannière de maintenance -->
+    <!-- 🚧 Bannière information réservations -->
     <div v-if="modeMaintenanceActif" class="maintenance-banner">
       <div class="maintenance-content">
-        <span class="maintenance-icon">🚧</span>
+        <span class="maintenance-icon">📞</span>
         <div class="maintenance-text">
-          <h3>Site en cours de maintenance</h3>
-          <p>Les réservations en ligne ne sont pas disponibles pour le moment.</p>
-          <p>Merci de nous contacter directement par téléphone ou de revenir plus tard.</p>
+          <h3>Réservations temporairement indisponibles en ligne</h3>
+          <p>Les réservations effectuées sur le site ne seront pas prises en considération pour le moment.</p>
+          <p>Veuillez nous contacter via les coordonnées disponibles <strong>tout en bas de la page</strong> pour confirmer une réservation.</p>
+          <p>Votre réservation sera traitée par notre équipe dans les plus brefs délais.</p>
         </div>
-        <span class="maintenance-icon">🚧</span>
+        <span class="maintenance-icon">📞</span>
       </div>
     </div>
 
@@ -79,7 +80,7 @@ export default {
   data() {
     return {
       // ⚙️ MODE MAINTENANCE - Passez à true pour bloquer les réservations clients
-      modeMaintenanceActif: true,
+      modeMaintenanceActif: false,
       
       prestations: [],
       prestationGroupe: {
