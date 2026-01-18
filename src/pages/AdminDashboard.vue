@@ -19,7 +19,7 @@
         📅 Réservations du jour
       </router-link>
 
-      <router-link to="/admin/nouvelle-reservation" class="card card-ajout" v-motion
+      <router-link to="/admin/reservation-creneau" class="card card-ajout" v-motion
         :initial="{ opacity: 0, scale: 0.8 }"
         :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 100 } }">
         ➕ Créer une réservation

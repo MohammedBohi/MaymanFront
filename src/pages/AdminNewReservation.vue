@@ -1,33 +1,18 @@
 <template>
   <div class="admin-new-resa">
-    <router-link to="/admin" class="back-btn">← Retour</router-link>
+    <router-link to="/admin/reservation-creneau" class="back-btn">← Retour au calendrier</router-link>
     <h1 v-motion
         :initial="{ opacity: 0, y: -30 }"
-        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">➕ Nouvelle réservation (Admin)</h1>
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">➕ Étape 2 : Informations client</h1>
 
-    <!-- Mode et Département -->
-    <div class="form-block" v-motion
+    <!-- Affichage de la date et l'adresse sélectionnées -->
+    <div class="form-block" v-if="dateInfo" v-motion
          :initial="{ opacity: 0, x: -30 }"
          :enter="{ opacity: 1, x: 0, transition: { duration: 400 } }">
-      <h2>Lieu de la prestation</h2>
-      <label>Mode :</label>
-      <select v-model="selectedMode" @change="resetDepartement">
-        <option value="SALON">Salon</option>
-        <option value="DOMICILE">Domicile</option>
-      </select>
-
-      <div v-if="selectedMode === 'DOMICILE'">
-        <label>Département :</label>
-        <select v-model="selectedDepartement">
-          <option disabled value="">Choisir un département</option>
-          <option value="46">Lot (46)</option>
-          <option value="82">Tarn-et-Garonne (82)</option>
-        </select>
-      </div>
-
-      <div v-else>
-        <p style="color: #666; margin-top: 10px;">✅ 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
-      </div>
+      <h2>📅 Date et lieu sélectionnés</h2>
+      <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
+      <p><strong>Créneau :</strong> {{ dateInfo.slot }}</p>
+      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '176 Route de Montauban, 12200 Villefranche-de-Rouergue' : (dateInfo.departement?.nom + ' (' + dateInfo.departement?.code + ')') }}</p>
     </div>
 
     <!-- Infos client principal -->
@@ -39,8 +24,8 @@
       <input v-model="client.prenom" placeholder="Prénom" required />
       <input v-model="client.email" placeholder="Email" required />
       <input v-model="client.telephone" placeholder="Téléphone" required />
-      <input v-model="client.adresse" placeholder="Adresse" :readonly="selectedMode === 'SALON'" required :class="{ 'readonly-field': selectedMode === 'SALON' }" />
-      <small v-if="selectedMode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Adresse du salon pré-remplie</small>
+      <input v-model="client.adresse" placeholder="Adresse" :readonly="dateInfo?.mode === 'SALON'" required :class="{ 'readonly-field': dateInfo?.mode === 'SALON' }" />
+      <small v-if="dateInfo?.mode === 'SALON'" style="color: #d4a373; font-weight: 600;">📍 Adresse du salon pré-remplie</small>
 
       <label>Prestation :</label>
       <select v-model="client.prestation_id">
@@ -50,7 +35,7 @@
         </option>
       </select>
 
-      <label v-if="selectedMode === 'SALON' && soinDisponible(client.prestation_id)" class="checkbox-label">
+      <label v-if="dateInfo?.mode === 'SALON' && soinDisponible(client.prestation_id)" class="checkbox-label">
         <input type="checkbox" v-model="client.avec_soin" />
         Supplément soin (+10 min, +10 €)
       </label>
@@ -86,14 +71,14 @@
             {{ pres.nom }} ({{ pres.duree_minutes }} min - {{ pres.prix }} €)
           </option>
         </select>
-        <label v-if="selectedMode === 'SALON' && soinDisponible(p.prestation_id)" class="checkbox-label">
+        <label v-if="dateInfo?.mode === 'SALON' && soinDisponible(p.prestation_id)" class="checkbox-label">
           <input type="checkbox" v-model="p.avec_soin" />
           Supplément soin (+10 min, +10 €)
         </label>
       </div>
     </div>
 
-    <button @click="validerEtRediriger">➡ Choisir le créneau</button>
+    <button @click="validerEtRediriger">➡ Voir le récapitulatif</button>
   </div>
 </template>
 
@@ -105,6 +90,7 @@ const ADRESSE_SALON = "Salon May'Man - 176 Route de Montauban, 12200 Villefranch
 export default {
   data() {
     return {
+      dateInfo: null,
       client: {
         nom: "", prenom: "", email: "mayliss.mazet24@gmail.com", telephone: "07 68 44 16 10", adresse: "",
         prestation_id: "", avec_soin: false
@@ -113,8 +99,6 @@ export default {
       participants: [],
       ajoutParticipants: false,
       nombre: 1,
-      selectedMode: "SALON",
-      selectedDepartement: "",
     };
   },
   methods: {
@@ -125,6 +109,11 @@ export default {
       } catch (err) {
         console.error("Erreur chargement prestations :", err);
       }
+    },
+    formatDate(str) {
+      return new Date(str).toLocaleDateString("fr-FR", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric"
+      });
     },
     soinDisponible(id) {
       const p = this.prestations.find(p => p.id === id);
@@ -138,24 +127,10 @@ export default {
         });
       }
     },
-    resetDepartement() {
-      this.selectedDepartement = "";
-      // Pré-remplir l'adresse selon le mode
-      if (this.selectedMode === 'SALON') {
-        this.client.adresse = ADRESSE_SALON;
-      } else {
-        this.client.adresse = "";
-      }
-    },
     validerEtRediriger() {
       // Validation
       if (!this.client.nom || !this.client.prenom || !this.client.email || !this.client.telephone || !this.client.adresse) {
         alert("❌ Veuillez remplir tous les champs du client");
-        return;
-      }
-
-      if (this.selectedMode === "DOMICILE" && !this.selectedDepartement) {
-        alert("❌ Veuillez sélectionner un département pour le mode domicile");
         return;
       }
 
@@ -177,19 +152,28 @@ export default {
       localStorage.setItem("admin_reservation", JSON.stringify({
         client: this.client,
         participants: this.participants,
-        mode: this.selectedMode,
-        departement: this.selectedMode === "DOMICILE" ? this.selectedDepartement : null,
         duree_totale: duree,
         tarif_total: total
       }));
 
-      this.$router.push("/admin/reservation-creneau");
+      this.$router.push("/admin/confirmation");
     }
   },
   mounted() {
     this.fetchPrestations();
-    // Initialiser l'adresse du salon si mode SALON par défaut
-    if (this.selectedMode === 'SALON') {
+    
+    // Charger les données de la date depuis le calendrier
+    const savedDate = localStorage.getItem("admin_reservation_date");
+    if (!savedDate) {
+      alert("Veuillez d'abord choisir une date et un créneau");
+      this.$router.push("/admin/reservation-creneau");
+      return;
+    }
+    
+    this.dateInfo = JSON.parse(savedDate);
+    
+    // Pré-remplir l'adresse selon le mode détecté
+    if (this.dateInfo.mode === 'SALON') {
       this.client.adresse = ADRESSE_SALON;
     }
   }
@@ -198,10 +182,11 @@ export default {
 
 <style scoped>
 .admin-new-resa {
-  padding: 40px 20px;
   max-width: 900px;
-  margin: auto;
-  background-color: #f9f4ee;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #f8f3e7;
+  border-radius: 12px;
   font-family: 'Segoe UI', sans-serif;
 }
 

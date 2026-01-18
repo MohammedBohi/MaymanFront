@@ -1,10 +1,10 @@
 <template>
   <div class="reservation-page">
-    <router-link to="/admin/nouvelle-reservation" class="back-btn">← Retour au formulaire</router-link>
+    <router-link to="/admin" class="back-btn">← Retour au tableau de bord</router-link>
 
     <h2 v-motion
         :initial="{ opacity: 0, y: -30 }"
-        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">📅 Choisissez un jour et un créneau</h2>
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">📅 Étape 1 : Choisissez un jour et un créneau</h2>
     <v-calendar
       mode="single"
       is-expanded
@@ -35,8 +35,8 @@
       <p v-else>Aucun créneau disponible pour cette date.</p>
 
       <!-- Affichage mode et département -->
-      <div class="departement-select-row" v-if="adminReservationData">
-        <div v-if="adminReservationData.mode === 'DOMICILE' && departments.length > 0" class="select-wrapper">
+      <div class="departement-select-row" v-if="selectedDate">
+        <div v-if="!isSalonDay(selectedDate) && departments.length > 0" class="select-wrapper">
           <h3>Ville :</h3>
           <select v-model="selectedDepartment">
             <option disabled :value="null">Choisir une ville</option>
@@ -46,8 +46,8 @@
           </select>
         </div>
 
-        <div class="departement-info-inline">
-          <p v-if="adminReservationData.mode === 'SALON'">
+        <div class="departement-info-inline" v-if="selectedDate">
+          <p v-if="isSalonDay(selectedDate)">
             <strong>📍 Adresse :</strong><br />
             176 Route de Montauban, 12200 Villefranche-de-Rouergue
           </p>
@@ -59,10 +59,10 @@
 
       <button
         class="reserve-button"
-        :disabled="!selectedSlot || (adminReservationData?.mode === 'DOMICILE' && !selectedDepartment)"
+        :disabled="!selectedSlot || (!isSalonDay(selectedDate) && !selectedDepartment)"
         @click="validerReservation"
       >
-        ➡ Valider et voir récapitulatif
+        ➡ Continuer vers le formulaire
       </button>
       <button class="back-button" @click="router.back()">⬅ Retour</button>
     </div>
@@ -82,16 +82,19 @@ const selectedSlot = ref(null);
 const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
-const duree = ref(0);
+const duree = ref(60); // Durée par défaut pour l'admin
 const planningData = ref(null);
 
 const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-const SALON = {
-  nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue",
-  codePostal: "12200"
-};
 
-const adminReservationData = ref(null);
+const calendarAttributes = ref([
+  {
+    key: "past-dates",
+    dates: (date) => date < new Date().setHours(0, 0, 0, 0),
+    excludeMode: "soft",
+    class: "unavailable",
+  },
+]);
 
 const getDepartmentsForDay = (day) => {
   if (!planningData.value) return [];
@@ -117,13 +120,6 @@ onMounted(async () => {
   } catch (error) {
     console.error('Erreur chargement planning:', error);
     planningData.value = [];
-  }
-  
-  // Charger les données de réservation depuis localStorage
-  const data = localStorage.getItem("admin_reservation");
-  if (data) {
-    adminReservationData.value = JSON.parse(data);
-    duree.value = adminReservationData.value.duree_totale;
   }
 });
 
@@ -175,15 +171,25 @@ const formatSelectedDate = (date) => {
   return `${jour} ${numJour} ${nomMois} ${annee}`;
 };
 
+const isSalonDay = (date) => {
+  if (!planningData.value) return false;
+  const jourSemaine = date.getDay();
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  return planning?.mode === 'SALON';
+};
+
+const computeMode = (date) => (isSalonDay(date) ? "SALON" : "DOMICILE");
+
 const validerReservation = () => {
+  const mode = computeMode(selectedDate.value);
   const payload = {
     date: formatDate(selectedDate.value),
     slot: selectedSlot.value,
-    mode: adminReservationData.value.mode,
-    departement: adminReservationData.value.mode === 'DOMICILE' ? selectedDepartment.value : null,
+    departement: selectedDepartment.value,
+    mode,
   };
   localStorage.setItem("admin_reservation_date", JSON.stringify(payload));
-  router.push("/admin/confirmation");
+  router.push("/admin/nouvelle-reservation");
 };
 
 onMounted(() => {

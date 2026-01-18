@@ -34,6 +34,7 @@ const routes = [
   // 🔐 ADMIN
   { path: "/admin", name: "AdminDashboard", component: AdminDashboard, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/planning", name: "AdminPlanning", component: AdminPlanning, meta: { requiresAuth: true, role: "Admin" } },
+  { path: "/admin/reservation-creneau", name: "AdminReservationCreneau", component: AdminReservationCreneau, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/nouvelle-reservation", name: "AdminNewReservation", component: AdminNewReservation, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/indisponibilites", name: "AdminIndisponibilites", component: AdminIndisponibilites, meta: { requiresAuth: true, role: "Admin" } },
   { path: "/admin/plages-horaires", name: "AdminPlagesHoraires", component: AdminPlagesHoraires, meta: { requiresAuth: true, role: "Admin" } },

@@ -54,7 +54,7 @@
 
     <!-- Actions -->
     <div class="actions">
-      <button @click="router.push('/admin/reservation-creneau')">⬅ Modifier créneau</button>
+      <button @click="router.push('/admin/nouvelle-reservation')">⬅ Modifier les informations</button>
       <button class="confirm-btn" @click="validerReservation">✅ Valider</button>
     </div>
   </div>
@@ -123,8 +123,8 @@ const formatDate = (str) =>
 
 const validerReservation = async () => {
   try {
-    const { client, participants, mode, departement } = reservation.value;
-    const { date, slot } = dateInfo.value;
+    const { client, participants } = reservation.value;
+    const { date, slot, mode, departement } = dateInfo.value;
 
     const body = {
       utilisateur_id: null,
@@ -136,7 +136,7 @@ const validerReservation = async () => {
       jour: date,
       heure_debut: slot,
       mode,
-      ...(mode === 'DOMICILE' && departement ? { departement } : {}),
+      ...(mode === 'DOMICILE' && departement ? { departement: departement.code } : {}),
       personnes: [
         {
           nom: client.nom,
