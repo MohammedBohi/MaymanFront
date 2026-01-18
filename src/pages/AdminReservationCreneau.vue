@@ -36,14 +36,13 @@
 
       <!-- Affichage mode et département -->
       <div class="departement-select-row" v-if="adminReservationData">
-        <div v-if="adminReservationData.mode === 'DOMICILE'" class="select-wrapper">
+        <div v-if="adminReservationData.mode === 'DOMICILE' && departments.length > 0" class="select-wrapper">
           <h3>Ville :</h3>
           <select v-model="selectedDepartment">
-            <option disabled value="">Choisir une ville</option>
-            <option value="46260">Limogne en Quercy (46260)</option>
-            <option value="46260">Varaire (46260)</option>
-            <option value="82160">Caylus (82160)</option>
-            <option value="82160">Parisot (82160)</option>
+            <option disabled :value="null">Choisir une ville</option>
+            <option v-for="dept in departments" :key="dept.code + dept.nom" :value="dept">
+              {{ dept.nom }} ({{ dept.code }})
+            </option>
           </select>
         </div>
 
@@ -52,8 +51,8 @@
             <strong>📍 Adresse :</strong><br />
             176 Route de Montauban, 12200 Villefranche-de-Rouergue
           </p>
-          <div v-else>
-            <p>Ville sélectionnée : <strong>{{ selectedDepartment || "—" }}</strong></p>
+          <div v-else-if="selectedDepartment">
+            <p>Ville sélectionnée : <strong>{{ selectedDepartment.nom }} ({{ selectedDepartment.code }})</strong></p>
           </div>
         </div>
       </div>
@@ -134,8 +133,17 @@ const onDateSelected = async ({ date }) => {
   selectedDate.value = new Date(date);
   departments.value = [];
   await nextTick();
-  departments.value = getDepartmentsForDay(selectedDate.value);
-  selectedDepartment.value = departments.value[0] || null;
+  
+  // Récupérer les départements disponibles pour ce jour
+  const depts = getDepartmentsForDay(selectedDate.value);
+  departments.value = [...depts];
+  
+  // Sélectionner le premier département si disponible
+  if (departments.value.length > 0) {
+    selectedDepartment.value = departments.value[0];
+  } else {
+    selectedDepartment.value = null;
+  }
 
   await getAvailableSlots();
 };

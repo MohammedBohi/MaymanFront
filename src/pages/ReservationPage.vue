@@ -155,16 +155,19 @@ const onDateSelected = async ({ date }) => {
 
   selectedDate.value = new Date(date);
   departments.value = [];
+  selectedDepartment.value = null;
+  
   await nextTick();
+  
   const list = getDepartmentsForDay(selectedDate.value);
   departments.value = [...list];
   
   // Pour les jours SALON, pas de sélection de département requise
   if (isSalonDay(selectedDate.value)) {
     selectedDepartment.value = null;
-  } else {
+  } else if (departments.value.length > 0) {
     // Pour DOMICILE, sélectionner le premier département
-    selectedDepartment.value = departments.value[0] || null;
+    selectedDepartment.value = departments.value[0];
   }
 
   await getAvailableSlots();
@@ -187,8 +190,10 @@ const selectSlot = (slot) => {
 };
 
 const isSalonDay = (date) => {
-  const d = date.getDay();
-  return d === 3 || d === 4 || d === 5 || d === 6; // Mer->Sam
+  if (!planningData.value) return false;
+  const jourSemaine = date.getDay();
+  const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
+  return planning?.mode === 'SALON';
 };
 
 const formatSelectedDate = (date) => {
