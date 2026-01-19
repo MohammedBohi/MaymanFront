@@ -8,7 +8,7 @@
         <p>
           <strong>MayMan</strong> vous propose des prestations <strong>à domicile</strong>,
           exclusivement le <strong>lundi</strong> et le <strong>mardi</strong>, dans les villages suivants :
-          <strong>Caylus</strong>, <strong>Parisot</strong>, <strong>Varen</strong>, <strong>Limogne-en-Quercy</strong>.
+          <strong>Caylus</strong>, <strong>Parisot</strong>, <strong>Varaire</strong>, <strong>Limogne-en-Quercy</strong>.
         </p>
         <p>
           Il s’agit d’un service entièrement à domicile : elle se déplace avec tout son matériel.
