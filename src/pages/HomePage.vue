@@ -144,13 +144,16 @@ export default {
 
 /* � Bannière fermeture salon */
 .banner-fermeture {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #5a3d2b 0%, #3e2a1c 100%);
   color: #fff;
   padding: 30px 25px;
   margin-bottom: 35px;
   border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  border-left: 6px solid #e74c3c;
+  box-shadow: 0 8px 30px rgba(90, 61, 43, 0.3);
+  border-left: 6px solid #d4a373;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
   text-align: left;
   display: flex;
   align-items: flex-start;
@@ -167,7 +170,7 @@ export default {
 .banner-content h2 {
   margin: 0 0 12px 0;
   font-size: 1.5rem;
-  color: #e74c3c;
+  color: #d4a373;
   font-weight: 800;
   letter-spacing: 0.3px;
 }
@@ -176,12 +179,12 @@ export default {
   margin: 0 0 10px 0;
   font-size: 1.05rem;
   line-height: 1.6;
-  color: #ddd;
+  color: #f0e6d6;
 }
 
 .banner-highlight {
-  background: rgba(231, 76, 60, 0.15);
-  border: 1px solid rgba(231, 76, 60, 0.4);
+  background: rgba(212, 163, 115, 0.15);
+  border: 1px solid rgba(212, 163, 115, 0.5);
   border-radius: 8px;
   padding: 12px 16px;
   color: #fff !important;
