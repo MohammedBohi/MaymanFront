@@ -1,5 +1,21 @@
 <template>
   <div class="homepage">
+    <!-- 🚨 Bannière annonce fermeture salon -->
+    <div class="banner-fermeture">
+      <div class="banner-icon">⚠️</div>
+      <div class="banner-content">
+        <h2>Le salon May'Man ferme définitivement ses portes.</h2>
+        <p>
+          C'est avec une grande déception que je vous annonce la fin de cette aventure.
+          Un immense <strong>merci</strong> à toutes celles et ceux qui y ont participé.
+        </p>
+        <p class="banner-highlight">
+          🚗 Le domicile reprend désormais <strong>à plein temps à partir du 8 avril</strong>.
+          Le site sera mis à jour ce week-end.
+        </p>
+      </div>
+    </div>
+
     <!-- ✅ Présentation + Photo salon -->
     <div class="presentation-salon">
       <div class="presentation-texte" v-motion
@@ -126,7 +142,80 @@ export default {
   text-align: center;
 }
 
-/* 🚧 Bannière de maintenance */
+/* � Bannière fermeture salon */
+.banner-fermeture {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  padding: 30px 25px;
+  margin-bottom: 35px;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  border-left: 6px solid #e74c3c;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  animation: bannerSlideIn 0.6s ease-out;
+}
+
+.banner-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.banner-content h2 {
+  margin: 0 0 12px 0;
+  font-size: 1.5rem;
+  color: #e74c3c;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.banner-content p {
+  margin: 0 0 10px 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.banner-highlight {
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff !important;
+  font-size: 1.1rem !important;
+  font-weight: 600;
+}
+
+@keyframes bannerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .banner-fermeture {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 22px 18px;
+  }
+  .banner-content h2 {
+    font-size: 1.25rem;
+  }
+  .banner-content p {
+    font-size: 0.95rem;
+  }
+}
+
+/* �🚧 Bannière de maintenance */
 .maintenance-banner {
   background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
   color: white;
