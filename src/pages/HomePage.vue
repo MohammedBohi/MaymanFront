@@ -7,7 +7,7 @@
         <h2>Le salon May'Man ferme définitivement ses portes.</h2>
         <p>
           C'est avec une grande déception que je vous annonce la fin de cette aventure.
-          Un immense <strong>merci</strong> à toutes celles et ceux qui y ont participé.
+          Un immense <strong>merci</strong> à ceux qui y ont participé.
         </p>
         <p class="banner-highlight">
           🚗 Le domicile reprend désormais <strong>à plein temps à partir du 8 avril</strong>.
