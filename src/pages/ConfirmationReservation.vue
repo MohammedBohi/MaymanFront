@@ -43,7 +43,7 @@
          :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
       <h3>📍 Adresse de la prestation</h3>
       <template v-if="reservation.mode === 'SALON'">
-        <p>Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue (12200)</p>
+        <p>Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
       </template>
       <template v-else>
         <p><strong>Adresse :</strong> {{ reservation.contact?.adresse }}</p>

@@ -38,7 +38,7 @@
              :initial="{ opacity: 0, y: 10 }"
              :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
           <p><strong>📍 Adresse :</strong></p>
-          <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+          <p>12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
         </div>
 
         <!-- ÉTAPE 3 : Créneaux -->
@@ -97,7 +97,7 @@ const planningData = ref(null); // Stocker les données du planning
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
 ];
-const SALON = { nom: "Salon May'Man - 176 Route de Montauban, Villefranche-de-Rouergue", code: "SALON" };
+const SALON = { nom: "Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue", code: "SALON" };
 
 const calendarAttributes = ref([
   {

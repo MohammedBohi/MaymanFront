@@ -15,7 +15,7 @@
         <button class="mode-btn salon" @click="choisirMode('SALON')">
           <span class="icon">🏠</span>
           <h3>Au salon</h3>
-          <p>176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+          <p>12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
         </button>
         <button class="mode-btn domicile" @click="choisirMode('DOMICILE')">
           <span class="icon">🚗</span>

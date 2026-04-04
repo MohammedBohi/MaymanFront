@@ -35,7 +35,7 @@
           <strong>Villefranche-de-Rouergue</strong> :
         </p>
         <p class="adresse">
-          <span class="pin">📍</span> <strong>176 route de Montauban</strong>
+          <span class="pin">📍</span> <strong>12 rue Champs des Chartreux</strong>
         </p>
         <p>
           <em>Toutes les prestations sont réalisées dans son salon, il ne vous reste plus qu’à vous installer !</em>

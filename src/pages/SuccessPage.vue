@@ -135,7 +135,7 @@ onMounted(async () => {
       <p><strong>Date :</strong> {{ formattedDate }}</p>
       <p><strong>Créneau :</strong> {{ formatHeure(reservation.heure_debut) }} → {{ heureFin }}</p>
       <p><strong>Durée estimée :</strong> {{ dureeFormatee }}</p>
-      <p><strong>Adresse :</strong> {{ reservation.mode === 'SALON' ? 'Salon May\'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.adressereservation }}</p>
+      <p><strong>Adresse :</strong> {{ reservation.mode === 'SALON' ? 'Salon May\'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue' : reservation.adressereservation }}</p>
     </div>
 
     <!-- 💸 Paiement -->

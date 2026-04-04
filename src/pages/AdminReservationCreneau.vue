@@ -66,7 +66,7 @@
         <div class="departement-info-inline" v-if="selectedDate">
           <p v-if="isSalonDay(selectedDate)">
             <strong>📍 Adresse :</strong><br />
-            176 Route de Montauban, 12200 Villefranche-de-Rouergue
+            12 rue Champs des Chartreux, Villefranche-de-Rouergue
           </p>
           <div v-else-if="selectedDepartment">
             <p>Ville sélectionnée : <strong>{{ selectedDepartment.nom }} ({{ selectedDepartment.code_postal }})</strong></p>

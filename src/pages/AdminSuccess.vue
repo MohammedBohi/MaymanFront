@@ -34,7 +34,7 @@
       <p><strong>Date :</strong> {{ formattedDate }}</p>
       <p><strong>Créneau :</strong> {{ reservation.heure_debut }} → {{ heureFin }}</p>
       <p><strong>Durée :</strong> {{ formatDuree(reservation.duree_totale_minutes) }}</p>
-      <p v-if="reservation.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+      <p v-if="reservation.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
       <p v-else-if="reservation.departement_nom && reservation.departement_code"><strong>Département :</strong> {{ reservation.departement_nom }} ({{ reservation.departement_code }})</p>
       <p v-else-if="reservation.departement"><strong>Département :</strong> {{ reservation.departement }}</p>
     </div>
@@ -80,7 +80,7 @@ const prestationClient = ref("Inconnue");
 
 const getPrixClient = () => {
   const base = parseFloat(reservation.value.prix || 0);
-  const soin = reservation.value.avec_soin ? 7 : 0;
+  const soin = reservation.value.avec_soin ? 10 : 0;
   return (base + soin).toFixed(2);
 };
 

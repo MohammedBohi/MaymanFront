@@ -108,8 +108,8 @@ const prestationsDisponibles = computed(() => {
 
 const dureeTotal = computed(() => {
   const dureeParticipants = participants.value.reduce((sum, p) => sum + p.duree, 0);
-  // Ajouter 15 min pour le déplacement si mode DOMICILE
-  return mode.value === 'DOMICILE' ? dureeParticipants + DUREE_DEPLACEMENT : dureeParticipants;
+  // Le backend gère l'ajout du temps de déplacement
+  return dureeParticipants;
 });
 
 const prixTotal = computed(() => {

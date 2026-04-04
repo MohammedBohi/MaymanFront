@@ -45,7 +45,7 @@
       <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
       <p><strong>Créneau :</strong> {{ dateInfo.slot }} → {{ heureFin }}</p>
       <p><strong>Durée totale :</strong> {{ formatDuree(reservation.duree_totale) }}</p>
-      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '176 Route de Montauban, 12200 Villefranche-de-Rouergue' : reservation.contact.adresse }}</p>
+      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '12 rue Champs des Chartreux, Villefranche-de-Rouergue' : reservation.contact.adresse }}</p>
     </div>
 
     <!-- Paiement -->
@@ -57,7 +57,7 @@
     <!-- Actions -->
     <div class="actions">
       <button @click="router.push('/admin/nouvelle-reservation')">⬅ Modifier les informations</button>
-      <button class="confirm-btn" @click="validerReservation">✅ Valider</button>
+      <button class="confirm-btn" :disabled="isSubmitting" @click="validerReservation">{{ isSubmitting ? 'Validation...' : '✅ Valider' }}</button>
     </div>
   </div>
 </template>
@@ -74,6 +74,7 @@ const dateInfo = ref(null);
 const prestations = ref([]);
 const heureFin = ref("");
 const ready = ref(false);
+const isSubmitting = ref(false);
 
 onMounted(async () => {
   reservation.value = JSON.parse(localStorage.getItem("admin_reservation") || "{}");
@@ -130,6 +131,8 @@ const formatDate = (str) =>
   });
 
 const validerReservation = async () => {
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
   try {
     const { contact, participants } = reservation.value;
     const { date, slot, mode, departement } = dateInfo.value;
@@ -178,6 +181,7 @@ const validerReservation = async () => {
   } catch (e) {
     console.error("Erreur :", e);
     alert("Erreur lors de la validation.");
+    isSubmitting.value = false;
   }
 };
 </script>

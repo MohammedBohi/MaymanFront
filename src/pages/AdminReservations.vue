@@ -54,7 +54,7 @@
         <p><strong>Client :</strong> {{ detail.nom }} {{ detail.prenom }}</p>
         <p><strong>Téléphone :</strong> {{ detail.telephone }}</p>
         <p><strong>Mode :</strong> {{ afficherMode(detail.mode) }}</p>
-        <p v-if="detail.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 176 Route de Montauban, 12200 Villefranche-de-Rouergue</p>
+        <p v-if="detail.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
         <template v-else>
           <p><strong>Adresse client :</strong> {{ detail.adressereservation }}</p>
           <p v-if="detail.departement_nom && detail.departement_code"><strong>Département :</strong> {{ detail.departement_nom }} ({{ detail.departement_code }})</p>
