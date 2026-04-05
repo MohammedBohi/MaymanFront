@@ -90,17 +90,17 @@ export default {
 
     getImage(nom) {
       const mapping = {
-        "Coupe étudiante": "coupeEtudiante.jpeg",
-        "Coupe homme": "coupeHomme.jpeg",
-        "Coupe tondeuse": "coupeTondeuse.jpeg",
-        "Rasage barbe à l ancienne": "RasageBarbeAncienne.jpeg",
-        "Coupe enfant": "CoupeEnfant.jpeg",
-        "Barbe tondeuse": "BarbeTondeuse.jpeg",
-        "Coupe homme + Barbe tondeuse": "CoupeHommeBarbeTondeuse.jpeg",
-        "Coupe homme + Barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg"
+        "coupe étudiante": "coupeEtudiante.jpeg",
+        "coupe homme": "coupeHomme.jpeg",
+        "coupe tondeuse": "coupeTondeuse.jpeg",
+        "rasage barbe à l ancienne": "RasageBarbeAncienne.jpeg",
+        "coupe enfant": "CoupeEnfant.jpeg",
+        "barbe tondeuse": "BarbeTondeuse.jpeg",
+        "coupe homme + barbe tondeuse": "CoupeHommeBarbeTondeuse.jpeg",
+        "coupe homme + barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg"
       };
 
-      const fileName = mapping[nom] || "PhotoAccueil.jpeg";
+      const fileName = mapping[nom.toLowerCase()] || "PhotoAccueil.jpeg";
       return require(`@/assets/images/${fileName}`);
     }
   },
