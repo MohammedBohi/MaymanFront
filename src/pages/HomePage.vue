@@ -19,11 +19,6 @@
           <strong>Prenez rendez-vous dès maintenant !</strong>
         </p>
       </div>
-      <div class="presentation-image" v-motion
-           :initial="{ opacity: 0, scale: 0.96 }"
-           :enter="{ opacity: 1, scale: 1, transition: { duration: 600 } }">
-        <img src="@/assets/images/PhotoSalon.jpeg" alt="Salon MayMan" />
-      </div>
     </div>
 
     <!-- ✅ Liste des prestations -->
@@ -35,6 +30,7 @@
             <img :src="getImage(prestation.nom, prestation.prix)" :alt="prestation.nom" class="prestation-image" />
           </div>
           <h3>{{ prestation.nom }}</h3>
+          <p v-if="prestation.nom.toLowerCase().includes('enfant')" class="note-age">De 1 à 10 ans</p>
           <p>{{ prestation.prix }} €</p>
           <button 
             class="reserve-btn" 
@@ -341,6 +337,13 @@ p {
   font-size: 1rem;
   color: #333;
   margin: 5px 0;
+}
+
+.note-age {
+  font-size: 0.8rem;
+  color: #999;
+  font-style: italic;
+  margin: 2px 0;
 }
 
 .reserve-btn {
