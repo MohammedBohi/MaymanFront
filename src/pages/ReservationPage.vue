@@ -13,6 +13,13 @@
         @dayclick="onDateSelected"
       />
 
+      <div class="calendar-legend">
+        <span class="legend-item"><span class="legend-dot salon"></span> Salon</span>
+        <span class="legend-item"><span class="legend-dot domicile"></span> Domicile</span>
+        <span class="legend-item"><span class="legend-dot ferme"></span> Fermé</span>
+        <span class="legend-item"><span class="legend-dot sature"></span> Saturé</span>
+      </div>
+
       <div v-if="selectedDate" class="details-section" v-motion
            :initial="{ opacity: 0, y: 20 }"
            :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
@@ -76,9 +83,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from "vue";
+import { ref, computed, nextTick, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getCreneauxDisponibles } from "@/services/CreneauService";
+import { getCreneauxDisponibles, getDisponibiliteMois } from "@/services/CreneauService";
 import api from "@/services/api";
 
 const route = useRoute();
@@ -93,39 +100,91 @@ const selectionData = ref(null); // Données de la sélection prestation
 const duree = ref(0);
 const modeReservation = ref(null);
 const planningData = ref(null); // Stocker les données du planning
+const disponibiliteMois = ref([]); // Disponibilité batch du mois
 
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
 ];
 const SALON = { nom: "Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue", code: "SALON" };
 
-const calendarAttributes = ref([
-  {
+const calendarAttributes = computed(() => {
+  const attrs = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // 1. Dates passées → grisées
+  attrs.push({
     key: "past-dates",
-    dates: (date) => date < new Date().setHours(0, 0, 0, 0),
-    excludeMode: "soft",
+    dates: { start: null, end: new Date(today.getTime() - 86400000) },
     class: "unavailable",
-  },
-  {
-    key: "wrong-mode-days",
-    dates: (date) => {
-      if (!planningData.value || !modeReservation.value) return false;
-      
-      const jourSemaine = date.getDay();
-      const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
-      
-      // Désactiver si le jour n'est pas actif OU si le mode ne correspond pas
-      return !planning || !planning.actif || planning.mode !== modeReservation.value;
-    },
-    excludeMode: "soft",
-    class: "unavailable",
-  },
-]);
+  });
+
+  // 2. Dots basés sur disponibiliteMois (SALON / DOMICILE / fermé / saturé)
+  const salonDates = [];
+  const domicileDates = [];
+  const fermeDates = [];
+  const satureDates = [];
+
+  for (const entry of disponibiliteMois.value) {
+    const d = new Date(entry.date + 'T12:00:00');
+    if (d < today) continue; // Pas de dot sur les dates passées
+
+    if (!entry.mode) {
+      fermeDates.push(d);
+    } else if (!entry.disponible) {
+      satureDates.push(d);
+    } else if (entry.mode === 'SALON') {
+      salonDates.push(d);
+    } else if (entry.mode === 'DOMICILE') {
+      domicileDates.push(d);
+    }
+  }
+
+  if (salonDates.length) {
+    attrs.push({ key: 'salon-days', dates: salonDates, dot: { style: { backgroundColor: '#8e44ad' } } });
+  }
+  if (domicileDates.length) {
+    attrs.push({ key: 'domicile-days', dates: domicileDates, dot: { style: { backgroundColor: '#27ae60' } } });
+  }
+  if (fermeDates.length) {
+    attrs.push({ key: 'closed-days', dates: fermeDates, dot: { style: { backgroundColor: '#95a5a6' } } });
+  }
+  if (satureDates.length) {
+    attrs.push({ key: 'saturated-days', dates: satureDates, dot: { style: { backgroundColor: '#e74c3c' } } });
+  }
+
+  // 3. Jours du mauvais mode → non-cliquables
+  if (planningData.value && modeReservation.value) {
+    const wrongModeDates = [];
+    for (const entry of disponibiliteMois.value) {
+      const d = new Date(entry.date + 'T12:00:00');
+      if (d < today) continue;
+      if (!entry.mode || entry.mode !== modeReservation.value) {
+        wrongModeDates.push(d);
+      }
+    }
+    if (wrongModeDates.length) {
+      attrs.push({ key: 'wrong-mode', dates: wrongModeDates, class: 'unavailable' });
+    }
+  }
+
+  return attrs;
+});
 
 const formatDate = (date) =>
   date.getFullYear() + "-" +
   String(date.getMonth() + 1).padStart(2, "0") + "-" +
   String(date.getDate()).padStart(2, "0");
+
+const chargerDisponibiliteMois = async () => {
+  if (!duree.value) return;
+  const now = new Date();
+  const debut = formatDate(now);
+  // Charger 2 mois à l'avance
+  const finDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+  const fin = formatDate(finDate);
+  disponibiliteMois.value = await getDisponibiliteMois(debut, fin, duree.value);
+};
 
 const getDepartmentsForDay = (day) => {
   if (!planningData.value) return [];
@@ -164,6 +223,9 @@ onMounted(async () => {
     duree.value = selectionData.value.duree_totale;
     modeReservation.value = selectionData.value.mode;
 
+    // Charger la disponibilité du mois pour les indicateurs du calendrier
+    await chargerDisponibiliteMois();
+
   } catch (error) {
     console.error('Erreur chargement planning:', error);
     planningData.value = [];
@@ -193,6 +255,7 @@ const onDateSelected = async ({ date }) => {
   }
 
   selectedDate.value = new Date(date);
+  selectedSlot.value = null;
   departments.value = [];
   selectedDepartment.value = null;
   
@@ -455,4 +518,32 @@ const validerReservation = () => {
   font-style: italic;
   color: #a65c00;
 }
+
+.calendar-legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 15px 0;
+  padding: 10px;
+  background: #fdf9f1;
+  border-radius: 8px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #555;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.legend-dot.salon { background-color: #8e44ad; }
+.legend-dot.domicile { background-color: #27ae60; }
+.legend-dot.ferme { background-color: #95a5a6; }
+.legend-dot.sature { background-color: #e74c3c; }
 </style>

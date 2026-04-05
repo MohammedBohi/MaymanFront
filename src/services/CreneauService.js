@@ -15,3 +15,16 @@ export const getCreneauxDisponibles = async (date, dureeMinutes) => {
     return [];
   }
 };
+
+// 📌 Récupérer la disponibilité d'un mois entier (batch)
+export const getDisponibiliteMois = async (debut, fin, dureeMinutes) => {
+  try {
+    const response = await api.get('/creneaux/disponibilite-mois', {
+      params: { debut, fin, duree: dureeMinutes }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors du chargement de la disponibilité du mois', error);
+    return [];
+  }
+};
