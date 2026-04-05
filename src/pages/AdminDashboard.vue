@@ -37,12 +37,6 @@
         ❌ Indisponibilités
       </router-link>
 
-      <router-link to="/admin/plages-horaires" class="card card-horaires" v-motion
-        :initial="{ opacity: 0, scale: 0.8 }"
-        :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 250 } }">
-        🕒 Plages horaires
-      </router-link>
-
       <router-link to="/admin/prestations" class="card card-prestations" v-motion
         :initial="{ opacity: 0, scale: 0.8 }"
         :enter="{ opacity: 1, scale: 1, transition: { duration: 400, delay: 250 } }">
@@ -116,9 +110,6 @@ export default {
 }
 .card-indispo {
   background-color: #bc4749;
-}
-.card-horaires {
-  background-color: #f8961e;
 }
 .card-prestations {
   background-color: #457b9d;

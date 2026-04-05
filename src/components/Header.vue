@@ -24,9 +24,7 @@
         <button class="logout-button" @click="handleLogout">Se déconnecter</button>
       </template>
       <template v-else>
-        <router-link to="/login-register">
-          <img src="@/assets/icons/ConnexionLogo.png" alt="Connexion" class="logo-connexion" />
-        </router-link>
+        <router-link to="/login-register" class="login-button">Se connecter</router-link>
       </template>
     </div>
   </header>
@@ -116,8 +114,7 @@ export default {
   gap: 10px;
 }
 
-.logo-accueil,
-.logo-connexion {
+.logo-accueil {
   width: 50px;
   height: 50px;
 }
@@ -136,6 +133,23 @@ export default {
   object-fit: cover;
   border: 4px solid #fff;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Style du bouton de connexion */
+.login-button {
+  background-color: #d4a373;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-button:hover {
+  background-color: #c58954;
 }
 
 /* Style du bouton de déconnexion */
@@ -192,10 +206,14 @@ export default {
     bottom: 5px;
   }
 
-  .logo-accueil,
-  .logo-connexion {
+  .logo-accueil {
     width: 40px;
     height: 40px;
+  }
+
+  .login-button {
+    font-size: 0.8rem;
+    padding: 6px 10px;
   }
 
   .logout-button {

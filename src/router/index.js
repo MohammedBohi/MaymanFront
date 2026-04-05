@@ -28,12 +28,12 @@ const routes = [
   { path: "/forgot-password", component: ForgotPassword },
   { path: "/reset-password", component: ResetPassword },
   { path: "/change-password", name: "ChangePassword", component: ChangePassword, meta: { requiresAuth: true } },
-  { path: "/selection-prestation", name: "SelectionPrestation", component: SelectionPrestation },
-  { path: "/reservation", name: "ReservationPage", component: ReservationPage },
-  { path: "/reservation/:id", name: "Reservation", component: ReservationPage },
-  { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation },
-  { path: "/confirmation", name: "ConfirmationReservation", component: ConfirmationReservation },
-  { path: "/success", name: "SuccessPage", component: SuccessPage },
+  { path: "/selection-prestation", name: "SelectionPrestation", component: SelectionPrestation, meta: { requiresAuth: true } },
+  { path: "/reservation", name: "ReservationPage", component: ReservationPage, meta: { requiresAuth: true } },
+  { path: "/reservation/:id", name: "Reservation", component: ReservationPage, meta: { requiresAuth: true } },
+  { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation, meta: { requiresAuth: true } },
+  { path: "/confirmation", name: "ConfirmationReservation", component: ConfirmationReservation, meta: { requiresAuth: true } },
+  { path: "/success", name: "SuccessPage", component: SuccessPage, meta: { requiresAuth: true } },
 
   // 🔐 ADMIN
   { path: "/admin", name: "AdminDashboard", component: AdminDashboard, meta: { requiresAuth: true, role: "Admin" } },
@@ -77,20 +77,18 @@ const router = createRouter({
   routes,
 });router.beforeEach(async (to, from, next) => {
   const publicPages = ["/", "/login-register", "/forgot-password", "/reset-password"];
-  const reservationPages = ["/selection-prestation", "/reservation", "/formulaire-reservation", "/confirmation", "/success"];
   const isPublic = publicPages.includes(to.path);
-  const isReservation = reservationPages.some(page => to.path.startsWith(page));
 
   const user = await checkAuth();
 
-  // 🔐 Route protégée sans user
-  if (to.meta.requiresAuth && !user) return next("/");
+  // 🔐 Route protégée sans user → redirection vers login
+  if (to.meta.requiresAuth && !user) return next("/login-register");
 
-  // 🔁 Redirection automatique après login (SAUF si c'est pour réserver)
-  if (user && isPublic && !isReservation) {
+  // 🔁 Redirection automatique après login
+  if (user && isPublic) {
     const redirectPath = user.typeutilisateur === "Admin" ? "/admin" : "/client";
     if (to.path !== redirectPath) return next(redirectPath);
-    return next(); // déjà sur bonne page
+    return next();
   }
 
   // ❌ Mauvais rôle pour route protégée
