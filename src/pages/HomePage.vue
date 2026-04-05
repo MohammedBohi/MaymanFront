@@ -100,7 +100,8 @@ export default {
         "coupe homme + barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg"
       };
 
-      const fileName = mapping[nom.toLowerCase()] || "PhotoAccueil.jpeg";
+      const nomNorm = nom.toLowerCase().trim().replace(/\s+/g, ' ');
+      const fileName = mapping[nomNorm] || "PhotoAccueil.jpeg";
       return require(`@/assets/images/${fileName}`);
     }
   },
