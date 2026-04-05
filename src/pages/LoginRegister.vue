@@ -68,8 +68,9 @@ export default {
 
     window.dispatchEvent(new Event("user-updated"));
 
-    // NE REDIRIGE PAS ICI → la garde s’en occupe
-    this.$router.replace("/"); // juste un fallback temporaire, la garde va prendre le relais
+    // Rediriger vers la page voulue (ou accueil par défaut)
+    const redirect = this.$route.query.redirect || "/";
+    this.$router.replace(redirect);
   } catch (error) {
     this.loginError = "❌ Email ou mot de passe incorrect !";
   }

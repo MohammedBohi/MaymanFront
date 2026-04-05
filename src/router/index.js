@@ -81,8 +81,8 @@ const router = createRouter({
 
   const user = await checkAuth();
 
-  // 🔐 Route protégée sans user → redirection vers login
-  if (to.meta.requiresAuth && !user) return next("/login-register");
+  // 🔐 Route protégée sans user → redirection vers login (avec redirect)
+  if (to.meta.requiresAuth && !user) return next({ path: "/login-register", query: { redirect: to.fullPath } });
 
   // 🔁 Redirection automatique après login
   if (user && isPublic) {
