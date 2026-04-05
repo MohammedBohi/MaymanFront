@@ -22,7 +22,7 @@
         <p><strong>Prénom :</strong> {{ p.prenomClient }}</p>
         <p><strong>Prestation :</strong> {{ p.nom }}</p>
         <p v-if="p.avecSoin" class="avec-soin">✨ Avec soin visage (+10€)</p>
-        <p><strong>Prix :</strong> {{ p.prix.toFixed(2) }}€{{ p.avecSoin ? ' + 10€ (soin)' : '' }}</p>
+        <p><strong>Prix :</strong> {{ p.prix.toFixed(2) }}€</p>
         <hr v-if="index < reservation.participants.length - 1" />
       </div>
     </div>
@@ -100,7 +100,7 @@ function goToSuccess(id) {
   }, 600);
 }
 
-const dateFormatted = new Date(reservation.date).toLocaleDateString("fr-FR", {
+const dateFormatted = new Date(reservation.date + 'T12:00:00').toLocaleDateString("fr-FR", {
   weekday: "long", day: "numeric", month: "long", year: "numeric"
 });
 
