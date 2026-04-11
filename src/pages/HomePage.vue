@@ -19,6 +19,10 @@
           <strong>Prenez rendez-vous dès maintenant !</strong>
         </p>
       </div>
+
+      <div class="presentation-image">
+        <img src="@/assets/images/ImageSalon.jpeg" alt="Le salon May'Man" />
+      </div>
     </div>
 
     <!-- ✅ Liste des prestations -->
@@ -153,12 +157,26 @@ export default {
   margin-top: 15px;
 }
 
-.presentation-image { flex: 1; max-width: 420px; }
+.presentation-image {
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .presentation-image img {
   width: 100%;
-  height: auto;
-  border-radius: 10px;
+  height: 320px;
+  border-radius: 12px;
   object-fit: cover;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.presentation-image img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
 }
 
 /* Bloc Nouveautés */
