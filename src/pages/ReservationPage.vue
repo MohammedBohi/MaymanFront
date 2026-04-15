@@ -1,25 +1,64 @@
 <template>
   <div class="reservation-page">
-    <div class="calendar-section">
-      <h2 v-motion
-          :initial="{ opacity: 0, y: -30 }"
-          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
-        📅 Étape 1 : Choisissez votre date
-      </h2>
-      <v-calendar
-        mode="single"
-        is-expanded
-        :attributes="calendarAttributes"
-        @dayclick="onDateSelected"
-      />
+    <div class="top-layout">
+      <!-- Calendrier + légende -->
+      <div class="calendar-section">
+        <h2 v-motion
+            :initial="{ opacity: 0, y: -30 }"
+            :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+          📅 Étape 1 : Choisissez votre date
+        </h2>
+        <v-calendar
+          mode="single"
+          is-expanded
+          :attributes="calendarAttributes"
+          @dayclick="onDateSelected"
+        />
 
-      <div class="calendar-legend">
-        <span class="legend-item"><span class="legend-dot salon"></span> Salon</span>
-        <span class="legend-item"><span class="legend-dot domicile"></span> Domicile</span>
-        <span class="legend-item"><span class="legend-dot ferme"></span> Fermé</span>
-        <span class="legend-item"><span class="legend-dot sature"></span> Saturé</span>
+        <div class="calendar-legend">
+          <span class="legend-item"><span class="legend-dot salon"></span> Salon</span>
+          <span class="legend-item"><span class="legend-dot domicile"></span> Domicile</span>
+          <span class="legend-item"><span class="legend-dot ferme"></span> Fermé</span>
+          <span class="legend-item"><span class="legend-dot sature"></span> Saturé</span>
+        </div>
       </div>
 
+      <!-- Rappel du mode choisi -->
+      <div v-if="modeReservation" class="mode-reminder" :class="modeReservation === 'SALON' ? 'mode-salon' : 'mode-domicile'"
+           v-motion
+           :initial="{ opacity: 0, x: 30 }"
+           :enter="{ opacity: 1, x: 0, transition: { duration: 450 } }">
+
+        <!-- SALON -->
+        <template v-if="modeReservation === 'SALON'">
+          <div class="mode-reminder-header">
+            <span class="mode-icon">✂️</span>
+            <span class="mode-label">Mode choisi : <strong>Salon</strong></span>
+          </div>
+          <div class="mode-address">
+            <p class="address-line">📍 12 rue Champs des Chartreux</p>
+            <p class="address-line">Villefranche-de-Rouergue</p>
+          </div>
+          <div class="salon-note">
+            <p class="note-icon">💡 À noter</p>
+            <p class="note-text">
+              Le salon May'Man ne dispose pas de bac à shampooing, c'est pourquoi je vous conseille de venir avec les cheveux propres. Merci beaucoup pour votre compréhension et au plaisir de vous accueillir ✨
+            </p>
+          </div>
+        </template>
+
+        <!-- DOMICILE -->
+        <template v-else>
+          <div class="mode-reminder-header">
+            <span class="mode-icon">🏠</span>
+            <span class="mode-label">Mode choisi : <strong>Domicile</strong></span>
+          </div>
+          <p class="domicile-desc">Je me déplace directement chez vous à l'adresse que vous indiquerez lors de la réservation.</p>
+        </template>
+      </div>
+    </div>
+
+    <div class="details-card">
       <div v-if="selectedDate" class="details-section" v-motion
            :initial="{ opacity: 0, y: 20 }"
            :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
@@ -332,9 +371,124 @@ const validerReservation = () => {
 .reservation-page {
   padding: 20px;
   background-color: #f8f3e7;
-  max-width: 800px;
+  max-width: 960px;
   margin: auto;
 }
+
+/* Layout haut : calendrier + rappel mode côte à côte */
+.top-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.top-layout .calendar-section {
+  flex: 1 1 340px;
+}
+
+/* Carte de rappel du mode */
+.mode-reminder {
+  flex: 0 1 280px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  align-self: flex-start;
+  position: sticky;
+  top: 20px;
+}
+
+.mode-salon {
+  background: linear-gradient(145deg, #f5eeff, #ede0ff);
+  border: 1.5px solid #b89cdb;
+}
+
+.mode-domicile {
+  background: linear-gradient(145deg, #edfff5, #d6f5e6);
+  border: 1.5px solid #7fcea0;
+}
+
+.mode-reminder-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mode-icon {
+  font-size: 1.6rem;
+}
+
+.mode-label {
+  font-size: 1rem;
+  color: #333;
+}
+
+.mode-label strong {
+  font-size: 1.05rem;
+}
+
+.mode-salon .mode-label strong {
+  color: #6b3fa0;
+}
+
+.mode-domicile .mode-label strong {
+  color: #1e7a47;
+}
+
+.mode-address {
+  background: rgba(255,255,255,0.6);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.address-line {
+  margin: 3px 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.salon-note {
+  background: rgba(255,255,255,0.75);
+  border-left: 4px solid #8e44ad;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+}
+
+.note-icon {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b3fa0;
+  margin: 0 0 8px 0;
+}
+
+.note-text {
+  font-size: 0.88rem;
+  color: #444;
+  line-height: 1.55;
+  margin: 0;
+  font-style: italic;
+}
+
+.domicile-desc {
+  font-size: 0.9rem;
+  color: #2d6b45;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Carte du bas (date + créneaux) */
+.details-card {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
 .calendar-section {
   background: white;
   border-radius: 10px;
@@ -546,4 +700,16 @@ const validerReservation = () => {
 .legend-dot.domicile { background-color: #27ae60; }
 .legend-dot.ferme { background-color: #95a5a6; }
 .legend-dot.sature { background-color: #e74c3c; }
+
+/* Responsive : sur mobile, le rappel mode passe en dessous du calendrier */
+@media (max-width: 680px) {
+  .top-layout {
+    flex-direction: column;
+  }
+  .mode-reminder {
+    flex: 1 1 auto;
+    width: 100%;
+    position: static;
+  }
+}
 </style>
