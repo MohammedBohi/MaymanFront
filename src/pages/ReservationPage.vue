@@ -110,10 +110,10 @@
 
         <button
           class="reserve-button"
-          :disabled="!selectedSlot || (!isSalonDay(selectedDate) && !selectedDepartment)"
+          :disabled="!selectedSlot || (!isSalonDay(selectedDate) && !selectedDepartment) || isSubmittingReservation"
           @click="validerReservation"
         >
-          Continuer
+          {{ isSubmittingReservation ? 'Traitement...' : 'Continuer' }}
         </button>
         <button class="back-button" @click="router.back()">⬅ Retour</button>
       </div>
@@ -140,6 +140,7 @@ const duree = ref(0);
 const modeReservation = ref(null);
 const planningData = ref(null); // Stocker les données du planning
 const disponibiliteMois = ref([]); // Disponibilité batch du mois
+const isLoadingSlots = ref(false); // anti double-clic sur les dates
 
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
@@ -272,7 +273,7 @@ onMounted(async () => {
 });
 
 const onDateSelected = async ({ date }) => {
-  if (!date) return;
+  if (!date || isLoadingSlots.value) return; // anti double-clic
 
   const now = new Date();
   const selected = new Date(date);
@@ -287,31 +288,37 @@ const onDateSelected = async ({ date }) => {
   // Vérifier que le jour correspond au mode choisi
   const jourSemaine = selected.getDay();
   const planning = planningData.value.find(p => p.jour_semaine === jourSemaine);
-  
+
   if (!planning || !planning.actif || planning.mode !== modeReservation.value) {
     alert(`❌ Ce jour n'est pas disponible pour le mode ${modeReservation.value}`);
     return;
   }
 
-  selectedDate.value = new Date(date);
-  selectedSlot.value = null;
-  departments.value = [];
-  selectedDepartment.value = null;
-  
-  await nextTick();
-  
-  const list = getDepartmentsForDay(selectedDate.value);
-  departments.value = [...list];
-  
-  // Pour les jours SALON, pas de sélection de département requise
-  if (isSalonDay(selectedDate.value)) {
-    selectedDepartment.value = null;
-  } else if (departments.value.length > 0) {
-    // Pour DOMICILE, sélectionner le premier département
-    selectedDepartment.value = departments.value[0];
-  }
+  isLoadingSlots.value = true;
 
-  await getAvailableSlots();
+  try {
+    selectedDate.value = new Date(date);
+    selectedSlot.value = null;
+    departments.value = [];
+    selectedDepartment.value = null;
+
+    await nextTick();
+
+    const list = getDepartmentsForDay(selectedDate.value);
+    departments.value = [...list];
+
+    // Pour les jours SALON, pas de sélection de département requise
+    if (isSalonDay(selectedDate.value)) {
+      selectedDepartment.value = null;
+    } else if (departments.value.length > 0) {
+      // Pour DOMICILE, sélectionner le premier département
+      selectedDepartment.value = departments.value[0];
+    }
+
+    await getAvailableSlots();
+  } finally {
+    isLoadingSlots.value = false;
+  }
 };
 
 const getAvailableSlots = async () => {
@@ -330,6 +337,8 @@ const getAvailableSlots = async () => {
 const selectSlot = (slot) => {
   selectedSlot.value = slot;
 };
+
+const isSubmittingReservation = ref(false);
 
 const isSalonDay = (date) => {
   if (!planningData.value || !date) return false;
@@ -354,17 +363,24 @@ const formatSelectedDate = (date) => {
 const computeMode = (date) => (isSalonDay(date) ? "SALON" : "DOMICILE");
 
 const validerReservation = () => {
-  const mode = computeMode(selectedDate.value);
-  const payload = {
-    date: formatDate(selectedDate.value),
-    slot: selectedSlot.value,
-    departement: selectedDepartment.value, // null pour SALON, { code, nom } pour DOMICILE
-    mode,
-  };
-  localStorage.setItem("reservation_date", JSON.stringify(payload));
-  
-  // Rediriger vers le formulaire pour saisir les détails
-  router.push("/formulaire-reservation");
+  if (isSubmittingReservation.value) return; // anti double-clic
+  isSubmittingReservation.value = true;
+
+  try {
+    const mode = computeMode(selectedDate.value);
+    const payload = {
+      date: formatDate(selectedDate.value),
+      slot: selectedSlot.value,
+      departement: selectedDepartment.value, // null pour SALON, { code, nom } pour DOMICILE
+      mode,
+    };
+    localStorage.setItem("reservation_date", JSON.stringify(payload));
+
+    // Rediriger vers le formulaire pour saisir les détails
+    router.push("/formulaire-reservation");
+  } finally {
+    isSubmittingReservation.value = false;
+  }
 };
 </script>
 <style scoped>
@@ -631,10 +647,12 @@ const validerReservation = () => {
   background-color: #d4a373;
   color: white;
   border: none;
+  transition: all 0.2s;
 }
 .reserve-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 .back-button {
   background-color: #f0f0f0;
