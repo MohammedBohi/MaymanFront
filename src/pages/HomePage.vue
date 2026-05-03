@@ -5,7 +5,6 @@
       <div class="presentation-texte" v-motion
            :initial="{ opacity: 0, y: 20 }"
            :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-        <h2 class="accroche-titre">Nouveau lieu, même ambiance chaleureuse !</h2>
         <p>
           Le salon <strong>May’Man</strong> vous accueille le <strong>jeudi</strong>, <strong>vendredi</strong> et <strong>samedi</strong>.
         </p>
