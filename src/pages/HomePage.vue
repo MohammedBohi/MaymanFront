@@ -15,6 +15,9 @@
         <p class="adresse">
           <span class="pin">📍</span> <strong>12 rue Champs des Chartreux, Villefranche-de-Rouergue</strong>
         </p>
+        <p class="acces-note">
+          🚪 Accès par le second portail vert
+        </p>
         <p class="cta-text">
           <strong>Prenez rendez-vous dès maintenant !</strong>
         </p>
@@ -143,6 +146,7 @@ export default {
 .presentation-texte p { margin: 10px 0; }
 .presentation-texte .adresse { font-size: 1.1rem; }
 .presentation-texte .pin { margin-right: 6px; }
+.acces-note { font-size: 0.95rem; color: #7b5b2f; font-style: italic; }
 
 .accroche-titre {
   color: #d4a373;
