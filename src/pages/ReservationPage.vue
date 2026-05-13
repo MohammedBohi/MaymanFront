@@ -87,8 +87,8 @@
           <p>12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
         </div>
 
-        <!-- ÉTAPE 3 : Créneaux -->
-        <div class="step-section" v-motion
+        <!-- ÉTAPE 3 : Créneaux (uniquement si SALON ou si la ville a été choisie en DOMICILE) -->
+        <div v-if="isSalonDay(selectedDate) || selectedDepartment" class="step-section" v-motion
              :initial="{ opacity: 0, y: 10 }"
              :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 200 } }">
           <h3>⏰ {{ isSalonDay(selectedDate) ? 'Étape 2' : 'Étape 3' }} : Choisissez votre créneau</h3>
@@ -107,6 +107,11 @@
           </div>
           <p v-else class="no-slots">Aucun créneau disponible pour cette date.</p>
         </div>
+
+        <!-- Indication tant qu'aucune ville n'est choisie (mode DOMICILE) -->
+        <p v-else class="dept-required-hint">
+          ⬆️ Choisissez d'abord votre ville pour voir les créneaux disponibles.
+        </p>
 
         <button
           class="reserve-button"
@@ -307,15 +312,16 @@ const onDateSelected = async ({ date }) => {
     const list = getDepartmentsForDay(selectedDate.value);
     departments.value = [...list];
 
-    // Pour les jours SALON, pas de sélection de département requise
+    // SALON : pas de département, on charge les créneaux directement.
+    // DOMICILE : on attend que le client choisisse une ville avant d'afficher les créneaux
+    // (la règle de clustering départemental dépend du dept choisi).
     if (isSalonDay(selectedDate.value)) {
       selectedDepartment.value = null;
-    } else if (departments.value.length > 0) {
-      // Pour DOMICILE, sélectionner le premier département
-      selectedDepartment.value = departments.value[0];
+      await getAvailableSlots();
+    } else {
+      selectedDepartment.value = null;
+      availableSlots.value = [];
     }
-
-    await getAvailableSlots();
   } finally {
     isLoadingSlots.value = false;
   }
@@ -323,6 +329,11 @@ const onDateSelected = async ({ date }) => {
 
 const getAvailableSlots = async () => {
   if (!selectedDate.value || !duree.value) return;
+  // En mode DOMICILE on exige le département pour appliquer la règle de clustering
+  if (!isSalonDay(selectedDate.value) && !selectedDepartment.value) {
+    availableSlots.value = [];
+    return;
+  }
   const formatted = formatDate(selectedDate.value);
 
   try {
