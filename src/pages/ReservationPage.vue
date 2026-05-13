@@ -71,7 +71,7 @@
              :initial="{ opacity: 0, y: 10 }"
              :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
           <h3>📍 Étape 2 : Choisissez votre ville</h3>
-          <select v-model="selectedDepartment" class="department-select" required>
+          <select v-model="selectedDepartment" @change="onDepartementChange" class="department-select" required>
             <option :value="null" disabled>Sélectionnez une ville</option>
             <option v-for="dept in departments" :key="dept.code_postal + dept.nom" :value="dept">
               {{ dept.nom }} ({{ dept.code_postal }})
@@ -223,7 +223,7 @@ const chargerDisponibiliteMois = async () => {
   // Charger 2 mois à l'avance
   const finDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
   const fin = formatDate(finDate);
-  disponibiliteMois.value = await getDisponibiliteMois(debut, fin, duree.value);
+  disponibiliteMois.value = await getDisponibiliteMois(debut, fin, duree.value, selectedDepartment.value);
 };
 
 const getDepartmentsForDay = (day) => {
@@ -324,14 +324,24 @@ const onDateSelected = async ({ date }) => {
 const getAvailableSlots = async () => {
   if (!selectedDate.value || !duree.value) return;
   const formatted = formatDate(selectedDate.value);
-  
+
   try {
-    const data = await getCreneauxDisponibles(formatted, duree.value);
+    const data = await getCreneauxDisponibles(formatted, duree.value, selectedDepartment.value);
     availableSlots.value = data || [];
   } catch (e) {
     console.error("Erreur chargement créneaux :", e);
     availableSlots.value = [];
   }
+};
+
+// Appelé quand l'utilisateur change manuellement le département dans le select
+const onDepartementChange = async () => {
+  if (!selectedDepartment.value) return;
+  selectedSlot.value = null;
+  await Promise.all([
+    getAvailableSlots(),
+    chargerDisponibiliteMois(),
+  ]);
 };
 
 const selectSlot = (slot) => {
