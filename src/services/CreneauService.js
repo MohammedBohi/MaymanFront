@@ -1,9 +1,11 @@
 import api from './api';
 
-// Extrait le code département (2 chiffres) à partir d'un objet { code, nom, codePostal } ou d'une string
+// Extrait le code département (2 chiffres) à partir d'un objet { code_postal, nom } (BDD)
+// ou { codePostal } / { code } / d'une string brute.
 const extractCodeDept = (departement) => {
   if (!departement) return undefined;
   if (typeof departement === 'string') return departement;
+  if (departement.code_postal) return String(departement.code_postal).substring(0, 2);
   if (departement.codePostal) return String(departement.codePostal).substring(0, 2);
   if (departement.code) return String(departement.code);
   return undefined;
