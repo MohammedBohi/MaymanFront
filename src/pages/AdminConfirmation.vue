@@ -137,15 +137,14 @@ const validerReservation = async () => {
     const { contact, participants } = reservation.value;
     const { date, slot, mode, departement } = dateInfo.value;
 
-    // Préparer le département à envoyer
+    // Préparer le département à envoyer.
+    // On envoie l'objet entier { code_postal, nom } pour que le backend stocke
+    // aussi le nom de la ville (utilisé par la règle de clustering).
     let departementToSend = undefined;
     if (mode === 'DOMICILE' && departement) {
-      // Si c'est un objet avec code_postal
-      if (typeof departement === 'object' && departement.code_postal) {
-        departementToSend = departement.code_postal;
-      }
-      // Si c'est déjà une chaîne (ancien format)
-      else if (typeof departement === 'string') {
+      if (typeof departement === 'object') {
+        departementToSend = departement;
+      } else if (typeof departement === 'string') {
         departementToSend = departement;
       }
     }
