@@ -159,17 +159,13 @@ const validerReservation = async () => {
       avec_soin: Boolean(p.avecSoin)
     }));
 
-    // Préparer le département à envoyer: code_postal pour DOMICILE, sinon rien
+    // Préparer le département à envoyer.
+    // On envoie l'objet entier { code_postal, nom } pour que le backend stocke
+    // aussi le nom de la ville (utilisé par la règle de clustering).
     let departementToSend = undefined;
     if (reservation.mode === 'DOMICILE') {
       if (reservation.departement && typeof reservation.departement === 'object') {
-        if (reservation.departement.code_postal) {
-          departementToSend = String(reservation.departement.code_postal);
-        } else if (reservation.departement.codePostal) {
-          departementToSend = String(reservation.departement.codePostal);
-        } else {
-          departementToSend = JSON.stringify(reservation.departement);
-        }
+        departementToSend = reservation.departement;
       } else if (typeof reservation.departement === 'string') {
         departementToSend = reservation.departement;
       }
