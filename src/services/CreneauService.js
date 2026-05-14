@@ -11,12 +11,25 @@ const extractCodeDept = (departement) => {
   return undefined;
 };
 
+// Extrait le nom de la ville pour le clustering fin (ex: "Calvignac")
+const extractVille = (departement) => {
+  if (!departement || typeof departement === 'string') return undefined;
+  return departement.nom || undefined;
+};
+
+// Ajoute ?departement= et ?ville= à un objet params selon le département reçu
+const ajouterParamsDept = (params, departement) => {
+  const codeDept = extractCodeDept(departement);
+  const ville = extractVille(departement);
+  if (codeDept) params.departement = codeDept;
+  if (ville) params.ville = ville;
+};
+
 // 📌 Récupérer les créneaux disponibles pour une date et une durée données
 export const getCreneauxDisponibles = async (date, dureeMinutes, departement) => {
   try {
     const params = { date, duree: dureeMinutes };
-    const codeDept = extractCodeDept(departement);
-    if (codeDept) params.departement = codeDept;
+    ajouterParamsDept(params, departement);
     const response = await api.get('/creneaux', { params });
     return response.data;
   } catch (error) {
@@ -29,8 +42,7 @@ export const getCreneauxDisponibles = async (date, dureeMinutes, departement) =>
 export const getDisponibiliteMois = async (debut, fin, dureeMinutes, departement) => {
   try {
     const params = { debut, fin, duree: dureeMinutes };
-    const codeDept = extractCodeDept(departement);
-    if (codeDept) params.departement = codeDept;
+    ajouterParamsDept(params, departement);
     const response = await api.get('/creneaux/disponibilite-mois', { params });
     return response.data;
   } catch (error) {
