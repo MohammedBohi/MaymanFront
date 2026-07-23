@@ -5,20 +5,21 @@
       <div class="presentation-texte" v-motion
            :initial="{ opacity: 0, y: 20 }"
            :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+        <p class="accroche-titre">Bienvenue au Salon May’Man</p>
         <p>
-          Le salon <strong>May’Man</strong> vous accueille le <strong>jeudi</strong>, <strong>vendredi</strong> et <strong>samedi</strong>.
-        </p>
-        <p>
-          Les prestations à domicile sont disponibles le <strong>lundi</strong>, <strong>mardi</strong> et <strong>mercredi</strong>.
+          Le salon vous accueille du <strong>mercredi</strong> au <strong>samedi</strong>.
         </p>
         <p class="adresse">
-          <span class="pin">📍</span> <strong>12 rue Champs des Chartreux, Villefranche-de-Rouergue</strong>
+          <span class="pin">📍</span> <strong>41 Place du Marché Mémer, 12200 Vailhourles</strong>
+        </p>
+        <p>
+          Les prestations à domicile sont disponibles le <strong>lundi</strong> et le <strong>mardi</strong>.
         </p>
         <p class="acces-note">
-          🚪 Accès par le second portail vert
+          ⚠️ Un supplément de <strong>2 €</strong> est désormais appliqué aux prestations à domicile afin de couvrir les frais de déplacement. Merci de votre compréhension.
         </p>
         <p class="cta-text">
-          <strong>Prenez rendez-vous dès maintenant !</strong>
+          <strong>Hâte de vous accueillir au salon ou de prendre soin de vous à domicile !</strong>
         </p>
       </div>
 

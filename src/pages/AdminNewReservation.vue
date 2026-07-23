@@ -60,7 +60,7 @@
 </template>
 
 <script>
-const ADRESSE_SALON = "Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue";
+const ADRESSE_SALON = "Salon May'Man - 41 Place du Marché Mémer, 12200 Vailhourles";
 
 export default {
   data() {

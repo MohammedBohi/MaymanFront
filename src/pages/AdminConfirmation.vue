@@ -45,7 +45,7 @@
       <p><strong>Date :</strong> {{ formatDate(dateInfo.date) }}</p>
       <p><strong>Créneau :</strong> {{ dateInfo.slot }} → {{ heureFin }}</p>
       <p><strong>Durée totale :</strong> {{ formatDuree(reservation.duree_totale) }}</p>
-      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '12 rue Champs des Chartreux, Villefranche-de-Rouergue' : reservation.contact.adresse }}</p>
+      <p><strong>Adresse :</strong> {{ dateInfo.mode === 'SALON' ? '41 Place du Marché Mémer, 12200 Vailhourles' : reservation.contact.adresse }}</p>
     </div>
 
     <!-- Paiement -->

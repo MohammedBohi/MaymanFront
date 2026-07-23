@@ -15,7 +15,7 @@
         <button class="mode-btn salon" @click="choisirMode('SALON')">
           <span class="icon">🏠</span>
           <h3>Au salon</h3>
-          <p>12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
+          <p>41 Place du Marché Mémer, 12200 Vailhourles</p>
         </button>
         <button class="mode-btn domicile" @click="choisirMode('DOMICILE')">
           <span class="icon">🚗</span>

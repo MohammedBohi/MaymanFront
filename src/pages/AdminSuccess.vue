@@ -34,7 +34,7 @@
       <p><strong>Date :</strong> {{ formattedDate }}</p>
       <p><strong>Créneau :</strong> {{ reservation.heure_debut }} → {{ heureFin }}</p>
       <p><strong>Durée :</strong> {{ formatDuree(reservation.duree_totale_minutes) }}</p>
-      <p v-if="reservation.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
+      <p v-if="reservation.mode === 'SALON'"><strong>Lieu :</strong> Salon May'Man - 41 Place du Marché Mémer, 12200 Vailhourles</p>
       <p v-else-if="reservation.departement_nom && reservation.departement_code"><strong>Département :</strong> {{ reservation.departement_nom }} ({{ reservation.departement_code }})</p>
       <p v-else-if="reservation.departement"><strong>Département :</strong> {{ reservation.departement }}</p>
     </div>

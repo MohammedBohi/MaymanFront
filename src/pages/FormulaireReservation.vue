@@ -47,7 +47,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { checkAuth } from "@/services/AuthService";
 
-const ADRESSE_SALON = "Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue";
+const ADRESSE_SALON = "Salon May'Man - 41 Place du Marché Mémer, 12200 Vailhourles";
 
 const router = useRouter();
 

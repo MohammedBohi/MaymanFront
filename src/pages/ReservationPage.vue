@@ -36,8 +36,8 @@
             <span class="mode-label">Mode choisi : <strong>Salon</strong></span>
           </div>
           <div class="mode-address">
-            <p class="address-line">📍 12 rue Champs des Chartreux</p>
-            <p class="address-line">Villefranche-de-Rouergue</p>
+            <p class="address-line">📍 41 Place du Marché Mémer</p>
+            <p class="address-line">12200 Vailhourles</p>
           </div>
           <div class="salon-note">
             <p class="note-icon">💡 À noter</p>
@@ -84,7 +84,7 @@
              :initial="{ opacity: 0, y: 10 }"
              :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 100 } }">
           <p><strong>📍 Adresse :</strong></p>
-          <p>12 rue Champs des Chartreux, Villefranche-de-Rouergue</p>
+          <p>41 Place du Marché Mémer, 12200 Vailhourles</p>
         </div>
 
         <!-- ÉTAPE 3 : Créneaux (uniquement si SALON ou si la ville a été choisie en DOMICILE) -->
@@ -150,7 +150,7 @@ const isLoadingSlots = ref(false); // anti double-clic sur les dates
 const joursSemaine = [
   "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
 ];
-const SALON = { nom: "Salon May'Man - 12 rue Champs des Chartreux, Villefranche-de-Rouergue", code: "SALON" };
+const SALON = { nom: "Salon May'Man - 41 Place du Marché Mémer, 12200 Vailhourles", code: "SALON" };
 
 const calendarAttributes = computed(() => {
   const attrs = [];

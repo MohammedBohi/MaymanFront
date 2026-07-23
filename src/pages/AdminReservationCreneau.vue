@@ -66,7 +66,7 @@
         <div class="departement-info-inline" v-if="selectedDate">
           <p v-if="isSalonDay(selectedDate)">
             <strong>📍 Adresse :</strong><br />
-            12 rue Champs des Chartreux, Villefranche-de-Rouergue
+            41 Place du Marché Mémer, 12200 Vailhourles
           </p>
           <div v-else-if="selectedDepartment">
             <p>Ville sélectionnée : <strong>{{ selectedDepartment.nom }} ({{ selectedDepartment.code_postal }})</strong></p>
