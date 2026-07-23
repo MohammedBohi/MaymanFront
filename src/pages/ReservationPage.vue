@@ -480,30 +480,6 @@ const validerReservation = () => {
   color: #444;
 }
 
-.salon-note {
-  background: rgba(255,255,255,0.75);
-  border-left: 4px solid #8e44ad;
-  border-radius: 0 8px 8px 0;
-  padding: 12px 14px;
-}
-
-.note-icon {
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b3fa0;
-  margin: 0 0 8px 0;
-}
-
-.note-text {
-  font-size: 0.88rem;
-  color: #444;
-  line-height: 1.55;
-  margin: 0;
-  font-style: italic;
-}
-
 .domicile-desc {
   font-size: 0.9rem;
   color: #2d6b45;
