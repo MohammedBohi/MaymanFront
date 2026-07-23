@@ -12,6 +12,7 @@ const heureFin = ref("");
 const dureeFormatee = ref("");
 const clientPrestation = ref({ nom: "Inconnue", soin: false, prix: "?" });
 const autres = ref([]);
+const SUPPLEMENT_DOMICILE = 2; // Frais de déplacement par personne (à domicile)
 
 const getPrix = (p) => {
   const base = parseFloat(p.prix);
@@ -143,6 +144,7 @@ onMounted(async () => {
          :initial="{ opacity: 0, x: -30 }"
          :enter="{ opacity: 1, x: 0, transition: { duration: 400, delay: 500 } }">
       <h3>💶 Paiement</h3>
+      <p v-if="reservation.mode === 'DOMICILE'">🚗 Frais de déplacement : {{ (SUPPLEMENT_DOMICILE * Number(reservation.nombre_personnes)).toFixed(2) }} € ({{ SUPPLEMENT_DOMICILE }} €/pers.)</p>
       <p><strong>Total à payer :</strong> {{ reservation.tarif }} €</p>
     </div>
 

@@ -8,6 +8,7 @@
       <p><strong>Mode :</strong> <span :class="selectionData.mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">{{ selectionData.mode }}</span></p>
       <p><strong>Nombre de personnes :</strong> {{ selectionData.nbPersonnes }}</p>
       <p><strong>Durée totale :</strong> {{ selectionData.duree_totale }} min</p>
+      <p v-if="selectionData.mode === 'DOMICILE'"><strong>🚗 Frais de déplacement :</strong> {{ (SUPPLEMENT_DOMICILE * selectionData.nbPersonnes).toFixed(2) }}€ ({{ SUPPLEMENT_DOMICILE }}€/pers.)</p>
       <p><strong>Prix total :</strong> {{ selectionData.prix_total.toFixed(2) }}€</p>
     </div>
 
@@ -48,6 +49,7 @@ import { useRouter } from "vue-router";
 import { checkAuth } from "@/services/AuthService";
 
 const ADRESSE_SALON = "Salon May'Man - 41 Place du Marché Mémer, 12200 Vailhourles";
+const SUPPLEMENT_DOMICILE = 2; // Frais de déplacement par personne (à domicile)
 
 const router = useRouter();
 

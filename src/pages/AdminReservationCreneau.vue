@@ -18,6 +18,7 @@
       </div>
       <div class="totaux">
         <p><strong>Durée totale :</strong> {{ prestationData.duree_totale }} min</p>
+        <p v-if="prestationData.mode === 'DOMICILE'"><strong>🚗 Frais de déplacement :</strong> {{ (SUPPLEMENT_DOMICILE * prestationData.nbPersonnes).toFixed(2) }}€ ({{ SUPPLEMENT_DOMICILE }}€/pers.)</p>
         <p><strong>Prix total :</strong> {{ prestationData.prix_total }}€</p>
       </div>
     </div>
@@ -104,6 +105,7 @@ const availableSlots = ref([]);
 const departments = ref([]);
 const selectedDepartment = ref(null);
 const planningData = ref(null);
+const SUPPLEMENT_DOMICILE = 2; // Frais de déplacement par personne (à domicile)
 
 const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 

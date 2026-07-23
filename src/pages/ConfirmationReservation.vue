@@ -56,6 +56,7 @@
          :initial="{ opacity: 0, y: 10 }"
          :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 200 } }">
       <h3>💰 Paiement</h3>
+      <p v-if="reservation.mode === 'DOMICILE'">🚗 Frais de déplacement : {{ (SUPPLEMENT_DOMICILE * reservation.participants.length).toFixed(2) }} € ({{ SUPPLEMENT_DOMICILE }} €/pers.)</p>
       <p><strong>Total à payer :</strong> {{ reservation.tarif_total }} €</p>
     </div>
 
@@ -78,6 +79,7 @@ import api from "@/services/api";
 
 const router = useRouter();
 const reservation = JSON.parse(localStorage.getItem("reservation_finale")) || { contact: {}, participants: [] };
+const SUPPLEMENT_DOMICILE = 2; // Frais de déplacement par personne (à domicile)
 
 const isSubmitting = ref(false); // anti double-clic
 function goToSuccess(id) {

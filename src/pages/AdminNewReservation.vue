@@ -15,6 +15,7 @@
       <p><strong>Mode :</strong> <span :class="dateInfo.mode === 'SALON' ? 'badge-salon' : 'badge-domicile'">{{ dateInfo.mode }}</span></p>
       <p><strong>Nombre de personnes :</strong> {{ selectionInfo?.nbPersonnes || participants.length }}</p>
       <p><strong>Durée totale :</strong> {{ selectionInfo?.duree_totale || 0 }} min</p>
+      <p v-if="dateInfo.mode === 'DOMICILE'"><strong>🚗 Frais de déplacement :</strong> {{ (SUPPLEMENT_DOMICILE * (selectionInfo?.nbPersonnes || 0)).toFixed(2) }} € ({{ SUPPLEMENT_DOMICILE }} €/pers.)</p>
       <p><strong>Tarif total :</strong> {{ (selectionInfo?.prix_total || 0).toFixed(2) }} €</p>
     </div>
 
@@ -67,6 +68,7 @@ export default {
     return {
       dateInfo: null,
       selectionInfo: null,
+      SUPPLEMENT_DOMICILE: 2, // Frais de déplacement par personne (à domicile)
       contact: {
         email: "",
         telephone: "",

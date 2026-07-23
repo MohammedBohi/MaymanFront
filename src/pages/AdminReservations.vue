@@ -70,7 +70,7 @@
           </li>
         </ul>
 
-        <p><strong>💰 Tarif total :</strong> {{ calculTotal(detail.personnes) }} €</p>
+        <p><strong>💰 Tarif total :</strong> {{ detail.tarif != null ? Number(detail.tarif).toFixed(2) : calculTotal(detail.personnes) }} €</p>
 
         <button @click="showModal = false" class="close-btn">Fermer</button>
       </div>

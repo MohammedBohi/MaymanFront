@@ -83,6 +83,7 @@
       <div v-if="participants.length > 0" class="summary">
         <h3>📊 Récapitulatif</h3>
         <p><strong>Nombre de personnes :</strong> {{ participants.length }}</p>
+        <p v-if="mode === 'DOMICILE'"><strong>🚗 Frais de déplacement :</strong> {{ (SUPPLEMENT_DOMICILE * participants.length).toFixed(2) }}€ ({{ SUPPLEMENT_DOMICILE }}€/pers.)</p>
         <p><strong>Prix total :</strong> {{ prixTotal.toFixed(2) }}€</p>
       </div>
 
@@ -115,6 +116,7 @@ const prestationInitiale = ref(null);
 
 const DUREE_SOIN = 15;
 const PRIX_SOIN = 10;
+const SUPPLEMENT_DOMICILE = 2; // Frais de déplacement par personne (prestations à domicile)
 const DUREE_DEPLACEMENT = 15; // Temps pour déplacement + paiement à domicile
 
 const isGroupe = computed(() => {
@@ -133,7 +135,10 @@ const dureeTotal = computed(() => {
 });
 
 const prixTotal = computed(() => {
-  return participants.value.reduce((sum, p) => sum + p.prix, 0);
+  const sousTotal = participants.value.reduce((sum, p) => sum + p.prix, 0);
+  // Supplément déplacement à domicile : 2 € par personne
+  const fraisDeplacement = mode.value === 'DOMICILE' ? SUPPLEMENT_DOMICILE * participants.value.length : 0;
+  return sousTotal + fraisDeplacement;
 });
 
 const choisirMode = (modeChoisi) => {

@@ -42,6 +42,7 @@
     <!-- Paiement -->
     <div class="section">
       <h3>💰 Paiement</h3>
+      <p v-if="reservation.mode === 'DOMICILE'">🚗 Frais de déplacement : {{ (SUPPLEMENT_DOMICILE * Number(reservation.nombre_personnes)).toFixed(2) }} € ({{ SUPPLEMENT_DOMICILE }} €/pers.)</p>
       <p><strong>Total à payer :</strong> {{ reservation.tarif }} €</p>
     </div>
 
@@ -63,6 +64,7 @@ const router = useRouter();
 
 const reservation = ref(null);
 const autres = ref([]);
+const SUPPLEMENT_DOMICILE = 2; // Frais de déplacement par personne (à domicile)
 const formattedDate = ref("");
 const heureFin = ref("");
 
