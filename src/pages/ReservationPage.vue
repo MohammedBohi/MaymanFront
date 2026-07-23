@@ -39,12 +39,6 @@
             <p class="address-line">📍 41 Place du Marché Mémer</p>
             <p class="address-line">12200 Vailhourles</p>
           </div>
-          <div class="salon-note">
-            <p class="note-icon">💡 À noter</p>
-            <p class="note-text">
-              Le salon May'Man ne dispose pas de bac à shampooing, c'est pourquoi je vous conseille de venir avec les cheveux propres. Merci beaucoup pour votre compréhension et au plaisir de vous accueillir ✨
-            </p>
-          </div>
         </template>
 
         <!-- DOMICILE -->
