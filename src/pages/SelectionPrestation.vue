@@ -38,7 +38,9 @@
       </div>
 
       <h2>👥 Participants à cette réservation</h2>
-      
+
+      <p v-if="messageIndispo" class="message-indispo">⚠️ {{ messageIndispo }}</p>
+
       <!-- Liste des participants déjà ajoutés -->
       <div v-if="participants.length > 0" class="participants-list">
         <div v-for="(p, index) in participants" :key="index" class="participant-card">
@@ -113,6 +115,7 @@ const prestationSelectionnee = ref(null);
 const ajouterSoin = ref(false);
 const participants = ref([]);
 const prestationInitiale = ref(null);
+const messageIndispo = ref("");
 
 const DUREE_SOIN = 15;
 const PRIX_SOIN = 10;
@@ -123,9 +126,15 @@ const isGroupe = computed(() => {
   return prestationInitiale.value?.nom?.toLowerCase().includes('groupe');
 });
 
+// Une prestation est-elle proposée dans le mode donné ? (visible par défaut si l'info manque)
+const estDisponibleDansMode = (p, m) =>
+  m === 'DOMICILE' ? p.disponible_domicile !== false : p.disponible_salon !== false;
+
 const prestationsDisponibles = computed(() => {
-  // Filtrer pour exclure les soins de la liste
-  return prestations.value.filter(p => !p.nom.toLowerCase().includes('soin'));
+  // Exclure les soins, puis filtrer selon le mode choisi (salon / domicile)
+  return prestations.value.filter(
+    p => !p.nom.toLowerCase().includes('soin') && estDisponibleDansMode(p, mode.value)
+  );
 });
 
 const dureeTotal = computed(() => {
@@ -144,11 +153,12 @@ const prixTotal = computed(() => {
 const choisirMode = (modeChoisi) => {
   mode.value = modeChoisi;
   modeSelectionne.value = true;
-  
-  // Ajouter automatiquement la prestation initiale
+  messageIndispo.value = "";
+
+  // Ajouter automatiquement la prestation initiale (si elle est proposée dans ce mode)
   if (prestationInitiale.value) {
     const prestation = prestations.value.find(p => p.id == prestationInitiale.value.id);
-    if (prestation) {
+    if (prestation && estDisponibleDansMode(prestation, modeChoisi)) {
       let prix = Number(prestation.prix) || 0;
       participants.value.push({
         id: prestation.id,
@@ -157,6 +167,11 @@ const choisirMode = (modeChoisi) => {
         prix: prix,
         avecSoin: false
       });
+    } else if (prestation) {
+      // La prestation choisie depuis l'accueil n'est pas proposée dans ce mode
+      const lieu = modeChoisi === 'DOMICILE' ? 'à domicile' : 'au salon';
+      messageIndispo.value = `« ${prestation.nom} » n'est pas disponible ${lieu}. Choisissez une autre prestation ci-dessous.`;
+      prestationSelectionnee.value = null;
     }
   }
 };
@@ -514,6 +529,16 @@ label {
   font-size: 1.05rem;
   margin: 8px 0;
   color: #333;
+}
+
+.message-indispo {
+  background: #fff3cd;
+  border: 1px solid #ffe69c;
+  color: #8a6d3b;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 500;
 }
 
 .reserve-button {

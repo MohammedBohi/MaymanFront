@@ -13,6 +13,10 @@
       <input v-model="form.nom" placeholder="Nom" required />
       <input type="number" v-model.number="form.duree_minutes" placeholder="Durée (min)" min="5" required />
       <input type="number" v-model.number="form.prix" placeholder="Prix (€)" step="0.01" required />
+      <div class="dispo-modes">
+        <label class="checkbox-inline"><input type="checkbox" v-model="form.disponible_salon" /> 🏠 Disponible au salon</label>
+        <label class="checkbox-inline"><input type="checkbox" v-model="form.disponible_domicile" /> 🚗 Disponible à domicile</label>
+      </div>
       <button type="submit">Mettre à jour</button>
       <button type="button" @click="resetForm">Annuler</button>
     </form>
@@ -27,6 +31,8 @@
           <th>Nom</th>
           <th>Durée</th>
           <th>Prix (€)</th>
+          <th>Salon</th>
+          <th>Domicile</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -37,6 +43,8 @@
           <td>{{ pres.nom }}</td>
           <td>{{ pres.duree_minutes }} min</td>
           <td>{{ pres.prix }} €</td>
+          <td>{{ pres.disponible_salon !== false ? '✅' : '❌' }}</td>
+          <td>{{ pres.disponible_domicile !== false ? '✅' : '❌' }}</td>
           <td>
             <button @click="editPrestation(pres)">✏️ Modifier</button>
             <button @click="deletePrestation(pres.id)">🗑 Supprimer</button>
@@ -58,6 +66,8 @@ export default {
         nom: "",
         duree_minutes: 30,
         prix: 20,
+        disponible_salon: true,
+        disponible_domicile: true,
       },
       isEditing: false,
       editId: null,
@@ -77,6 +87,8 @@ export default {
         nom: pres.nom,
         duree_minutes: pres.duree_minutes,
         prix: pres.prix,
+        disponible_salon: pres.disponible_salon !== false,
+        disponible_domicile: pres.disponible_domicile !== false,
       };
       this.editId = pres.id;
       this.isEditing = true;
@@ -106,6 +118,8 @@ export default {
         nom: "",
         duree_minutes: 30,
         prix: 20,
+        disponible_salon: true,
+        disponible_domicile: true,
       };
       this.editId = null;
       this.isEditing = false;
@@ -171,6 +185,28 @@ input[type="number"] {
   border: 1px solid #ccc;
   border-radius: 6px;
   margin-bottom: 10px;
+}
+
+.dispo-modes {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 6px 0 14px;
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #5a3d2b;
+  cursor: pointer;
+}
+
+.checkbox-inline input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 button {
