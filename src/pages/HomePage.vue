@@ -100,7 +100,9 @@ export default {
         "coupe enfant": "CoupeEnfant.jpeg",
         "barbe tondeuse": "BarbeTondeuse.jpeg",
         "coupe homme + barbe tondeuse": "CoupeHommeBarbeTondeuse.jpeg",
-        "coupe homme + barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg"
+        "coupe homme + barbe rasage à l ancienne": "CoupeHommeBarbeRasageAncienne.jpeg",
+        "soin visage": "Soins_visage.jpeg",
+        "soins visage": "Soins_visage.jpeg"
       };
 
       const nomNorm = nom.toLowerCase().trim().replace(/\s+/g, ' ');

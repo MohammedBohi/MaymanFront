@@ -133,7 +133,7 @@ const estDisponibleDansMode = (p, m) =>
 const prestationsDisponibles = computed(() => {
   // Exclure les soins, puis filtrer selon le mode choisi (salon / domicile)
   return prestations.value.filter(
-    p => !p.nom.toLowerCase().includes('soin') && estDisponibleDansMode(p, mode.value)
+    p => !p.nom.toLowerCase().includes('soin seul') && estDisponibleDansMode(p, mode.value)
   );
 });
 

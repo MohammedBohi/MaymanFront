@@ -106,7 +106,7 @@ const DUREE_DEPLACEMENT = 15; // Temps pour déplacement + paiement à domicile
 const prestationsDisponibles = computed(() => {
   // Exclure les soins, puis filtrer selon le mode choisi (salon / domicile)
   return prestations.value.filter(p => {
-    if (p.nom.toLowerCase().includes('soin')) return false;
+    if (p.nom.toLowerCase().includes('soin seul')) return false;
     return mode.value === 'DOMICILE'
       ? p.disponible_domicile !== false
       : p.disponible_salon !== false;
