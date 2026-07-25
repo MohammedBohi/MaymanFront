@@ -115,7 +115,8 @@ export default {
         alert("✅ Prestation créée !");
       } catch (err) {
         console.error("Erreur création :", err);
-        alert("❌ Erreur lors de la création de la prestation.");
+        const msg = err?.response?.data?.details || err?.response?.data?.error || err.message;
+        alert("❌ Erreur lors de la création : " + msg);
       }
     },
     cancelCreate() {
@@ -147,6 +148,8 @@ export default {
         alert("✅ Prestation mise à jour !");
       } catch (err) {
         console.error("Erreur modification :", err);
+        const msg = err?.response?.data?.details || err?.response?.data?.error || err.message;
+        alert("❌ Erreur lors de la modification : " + msg);
       }
     },
     async deletePrestation(id) {
