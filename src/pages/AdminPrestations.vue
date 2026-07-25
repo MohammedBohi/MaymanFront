@@ -21,23 +21,6 @@
       <button type="button" @click="resetForm">Annuler</button>
     </form>
 
-    <!-- Ajout d'une prestation -->
-    <div v-if="!isEditing" class="add-zone">
-      <button type="button" v-if="!showCreate" class="add-toggle" @click="showCreate = true">➕ Ajouter une prestation</button>
-      <form v-else @submit.prevent="createPrestation()">
-        <h3>➕ Nouvelle prestation</h3>
-        <input v-model="createForm.nom" placeholder="Nom (ex : Soin visage)" required />
-        <input type="number" v-model.number="createForm.duree_minutes" placeholder="Durée (min)" min="5" required />
-        <input type="number" v-model.number="createForm.prix" placeholder="Prix (€)" step="0.01" required />
-        <div class="dispo-modes">
-          <label class="checkbox-inline"><input type="checkbox" v-model="createForm.disponible_salon" /> 🏠 Disponible au salon</label>
-          <label class="checkbox-inline"><input type="checkbox" v-model="createForm.disponible_domicile" /> 🚗 Disponible à domicile</label>
-        </div>
-        <button type="submit">Créer</button>
-        <button type="button" @click="cancelCreate">Annuler</button>
-      </form>
-    </div>
-
     <!-- Tableau prestations -->
     <h3>📋 Prestations existantes</h3>
     <table v-motion
@@ -86,14 +69,6 @@ export default {
         disponible_salon: true,
         disponible_domicile: true,
       },
-      createForm: {
-        nom: "",
-        duree_minutes: 30,
-        prix: 20,
-        disponible_salon: true,
-        disponible_domicile: true,
-      },
-      showCreate: false,
       isEditing: false,
       editId: null,
     };
@@ -106,28 +81,6 @@ export default {
       } catch (err) {
         console.error("Erreur chargement prestations :", err);
       }
-    },
-    async createPrestation() {
-      try {
-        await api.post("/prestations", this.createForm);
-        await this.fetchPrestations();
-        this.cancelCreate();
-        alert("✅ Prestation créée !");
-      } catch (err) {
-        console.error("Erreur création :", err);
-        const msg = err?.response?.data?.details || err?.response?.data?.error || err.message;
-        alert("❌ Erreur lors de la création : " + msg);
-      }
-    },
-    cancelCreate() {
-      this.createForm = {
-        nom: "",
-        duree_minutes: 30,
-        prix: 20,
-        disponible_salon: true,
-        disponible_domicile: true,
-      };
-      this.showCreate = false;
     },
     editPrestation(pres) {
       this.form = {
@@ -256,20 +209,6 @@ input[type="number"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-}
-
-.add-zone {
-  margin-bottom: 30px;
-}
-
-.add-toggle {
-  background-color: #6a994e;
-  color: white;
-  font-weight: bold;
-}
-
-.add-toggle:hover {
-  background-color: #5a8a3e;
 }
 
 button {
