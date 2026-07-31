@@ -229,8 +229,15 @@ return;
       console.error("❌ Fallback /reservations/mes KO :", recErr?.response?.data || recErr);
     }
 
-    const msg = e?.response?.data?.error || e?.message || "Une erreur est survenue, veuillez réessayer.";
-    alert(msg);
+    // Créneau pris entre l'affichage de la liste et le clic final (SALON) :
+    // le serveur est seul juge du conflit, on guide le client vers un nouveau choix.
+    const backendMsg = String(e?.response?.data?.error || "");
+    if (reservation.mode === 'SALON' && e?.response?.status === 400 && backendMsg.includes("Conflit")) {
+      alert("Ce créneau vient d'être réservé entre-temps. Merci de choisir un autre horaire.");
+      router.push({ name: "ReservationPage" });
+      return;
+    }
+    alert(backendMsg || e?.message || "Une erreur est survenue, veuillez réessayer.");
   } finally {
     // filet de sécurité si aucune navigation n'a eu lieu
     isSubmitting.value = false;
