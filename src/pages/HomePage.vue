@@ -2,9 +2,15 @@
   <div class="homepage">
     <!-- ✅ Présentation + Photo salon -->
     <div class="presentation-salon">
+      <div class="presentation-image presentation-image--gauche" v-motion
+           :initial="{ opacity: 0, x: -25 }"
+           :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
+        <img src="@/assets/images/ImageSalon1.jpeg" alt="Le salon May'Man à Vailhourles" />
+      </div>
+
       <div class="presentation-texte" v-motion
            :initial="{ opacity: 0, y: 20 }"
-           :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+           :enter="{ opacity: 1, y: 0, transition: { duration: 500, delay: 100 } }">
         <p class="accroche-titre">Bienvenue au Salon May’Man</p>
         <p>
           Le salon vous accueille du <strong>mercredi</strong> au <strong>samedi</strong>.
@@ -19,12 +25,14 @@
           ⚠️ Un supplément de <strong>2 €</strong> est désormais appliqué aux prestations à domicile afin de couvrir les frais de déplacement. Merci de votre compréhension.
         </p>
         <p class="cta-text">
-          <strong>Hâte de vous accueillir au salon ou de prendre soin de vous à domicile !</strong>
+          <strong>Hâte de vous accueillir au salon ou de prendre soin de vous à domicile&nbsp;!</strong>
         </p>
       </div>
 
-      <div class="presentation-image">
-        <img src="@/assets/images/ImageSalon.jpeg" alt="Le salon May'Man" />
+      <div class="presentation-image presentation-image--droite" v-motion
+           :initial="{ opacity: 0, x: 25 }"
+           :enter="{ opacity: 1, x: 0, transition: { duration: 500, delay: 200 } }">
+        <img src="@/assets/images/ImageSalon.jpeg" alt="Installation May'Man pour les prestations à domicile" />
       </div>
     </div>
 
@@ -124,22 +132,25 @@ export default {
 }
 
 /* Présentation + Photo salon */
+/* Image à gauche | texte au centre | image à droite */
 .presentation-salon {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1.7fr 1fr;
+  grid-template-areas: "image-gauche texte image-droite";
   gap: 24px;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   background: #fff;
   border-radius: 12px;
   padding: 24px;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto 30px auto;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
   text-align: left;
 }
 
 .presentation-texte {
-  flex: 1.2;
+  grid-area: texte;
+  align-self: center;
   color: #5a3d2b;
   line-height: 1.6;
   font-size: 1.05rem;
@@ -163,19 +174,24 @@ export default {
   margin-top: 15px;
 }
 
+/* Les deux photos sont en format portrait : hauteur explicite (indispensable pour
+   que le height:100% de l'image se résolve) + recadrage via object-fit */
 .presentation-image {
-  flex: 1;
-  max-width: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 420px;
 }
 
+.presentation-image--gauche { grid-area: image-gauche; }
+.presentation-image--droite { grid-area: image-droite; }
+
 .presentation-image img {
+  display: block;
   width: 100%;
-  height: 320px;
+  height: 100%;
   border-radius: 12px;
   object-fit: cover;
+  /* Les photos sont hautes : on recentre légèrement vers le bas pour garder
+     le fauteuil et le miroir plutôt que le plafond / le ciel */
+  object-position: center 58%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -451,9 +467,7 @@ p {
     text-align: center;
   }
 
-  .presentation-salon { flex-direction: column; text-align: center; }
   .presentation-texte { text-align: left; }
-  .presentation-image { max-width: 100%; }
 }
 
 @media (max-width: 1024px) {
@@ -471,6 +485,56 @@ p {
 
   .reserve-btn {
     width: 100%;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Présentation du salon : photo gauche | texte | photo droite
+   Déclaré en fin de feuille pour passer après les media queries
+   ci-dessus (même spécificité : c'est l'ordre qui départage).
+   ───────────────────────────────────────────────────────────── */
+
+/* Écrans moyens : on resserre un peu les colonnes */
+@media (max-width: 1100px) {
+  .presentation-salon {
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 18px;
+    padding: 20px;
+  }
+
+  .presentation-image {
+    height: 360px;
+  }
+}
+
+/* Tablette : le texte passe au-dessus, les deux photos côte à côte en dessous */
+@media (max-width: 900px) {
+  .presentation-salon {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "texte texte"
+      "image-gauche image-droite";
+  }
+
+  .presentation-image {
+    height: 320px;
+  }
+}
+
+/* Mobile : tout empilé, texte puis les deux photos */
+@media (max-width: 600px) {
+  .presentation-salon {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "texte"
+      "image-gauche"
+      "image-droite";
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .presentation-image {
+    height: 290px;
   }
 }
 </style>
