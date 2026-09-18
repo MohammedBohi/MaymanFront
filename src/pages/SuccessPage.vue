@@ -148,6 +148,11 @@ onMounted(async () => {
       <p><strong>Total à payer :</strong> {{ reservation.tarif }} €</p>
     </div>
 
+    <p class="note-delai">
+      ⏳ Vous pouvez déplacer ou annuler ce rendez-vous jusqu'à 24 h avant, depuis
+      <router-link to="/mes-reservations">Mes réservations</router-link>.
+    </p>
+
     <router-link to="/" class="btn-retour">Retour à l'accueil</router-link>
   </div>
 
@@ -206,6 +211,18 @@ onMounted(async () => {
 
 .btn-retour:hover {
   background-color: #c58954;
+}
+.note-delai {
+  background: #fdf5e6;
+  border-left: 4px solid #f3d9b1;
+  color: #7b5b2f;
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+.note-delai a {
+  color: #c58954;
+  font-weight: 600;
 }
 .loading {
   text-align: center;

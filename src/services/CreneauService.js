@@ -26,10 +26,13 @@ const ajouterParamsDept = (params, departement) => {
 };
 
 // 📌 Récupérer les créneaux disponibles pour une date et une durée données
-export const getCreneauxDisponibles = async (date, dureeMinutes, departement) => {
+// `exclureReservationId` : lors d'un déplacement de rendez-vous, la réservation en cours
+// de modification ne doit pas bloquer ses propres créneaux.
+export const getCreneauxDisponibles = async (date, dureeMinutes, departement, exclureReservationId) => {
   try {
     const params = { date, duree: dureeMinutes };
     ajouterParamsDept(params, departement);
+    if (exclureReservationId) params.exclure = exclureReservationId;
     const response = await api.get('/creneaux', { params });
     return response.data;
   } catch (error) {
@@ -39,10 +42,11 @@ export const getCreneauxDisponibles = async (date, dureeMinutes, departement) =>
 };
 
 // 📌 Récupérer la disponibilité d'un mois entier (batch)
-export const getDisponibiliteMois = async (debut, fin, dureeMinutes, departement) => {
+export const getDisponibiliteMois = async (debut, fin, dureeMinutes, departement, exclureReservationId) => {
   try {
     const params = { debut, fin, duree: dureeMinutes };
     ajouterParamsDept(params, departement);
+    if (exclureReservationId) params.exclure = exclureReservationId;
     const response = await api.get('/creneaux/disponibilite-mois', { params });
     return response.data;
   } catch (error) {

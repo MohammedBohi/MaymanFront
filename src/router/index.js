@@ -9,6 +9,7 @@ import ResetPassword from "@/pages/ResetPassword.vue";
 import ChangePassword from "@/pages/ChangePassword.vue";
 import ConfirmationReservation from "@/pages/ConfirmationReservation.vue";
 import SuccessPage from "@/pages/SuccessPage.vue";
+import MesReservations from "@/pages/MesReservations.vue";
 
 import AdminDashboard from "@/pages/AdminDashboard.vue";
 import AdminSelectionPrestation from "@/pages/AdminSelectionPrestation.vue";
@@ -34,6 +35,9 @@ const routes = [
   { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation, meta: { requiresAuth: true } },
   { path: "/confirmation", name: "ConfirmationReservation", component: ConfirmationReservation, meta: { requiresAuth: true } },
   { path: "/success", name: "SuccessPage", component: SuccessPage, meta: { requiresAuth: true } },
+  // Pas de meta.role ici : le garde ci-dessous redirigerait un Admin vers /admin,
+  // alors que la page doit rester accessible à tout compte connecté.
+  { path: "/mes-reservations", name: "MesReservations", component: MesReservations, meta: { requiresAuth: true } },
 
   // 🔐 ADMIN
   { path: "/admin", name: "AdminDashboard", component: AdminDashboard, meta: { requiresAuth: true, role: "Admin" } },

@@ -21,6 +21,9 @@
     <div class="main-header-bottom-right">
       <template v-if="user">
         <span class="user-info">👤 Bienvenue  {{ user.nom }} !</span>
+        <router-link v-if="!estAdmin" to="/mes-reservations" class="login-button">
+          Mes réservations
+        </router-link>
         <button class="logout-button" @click="handleLogout">Se déconnecter</button>
       </template>
       <template v-else>
@@ -32,12 +35,13 @@
 
 <script>
 import { logout } from "@/services/AuthService";
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 export default {
   name: "MainHeader",
   setup() {
     const user = ref(null);
+    const estAdmin = computed(() => user.value?.typeutilisateur === "Admin");
 
     const checkUser = () => {
       try {
@@ -70,7 +74,7 @@ export default {
       window.dispatchEvent(new Event("user-updated")); // 🔄 Mise à jour immédiate
     };
 
-    return { user, handleLogout };
+    return { user, estAdmin, handleLogout };
   },
 };
 </script>
