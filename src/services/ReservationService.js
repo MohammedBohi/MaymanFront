@@ -41,6 +41,13 @@ export const getDetailsReservationClient = async (id) => {
   }
 };
 
+// 📌 Déplacer une réservation (client) — seules la date et l'heure changent.
+// Le backend refuse à moins de 24 h et renvoie alors un 403 avec le message à afficher.
+export const modifierReservation = async (id, { jour, heure_debut }) => {
+  const response = await api.put(`/reservations/${id}`, { jour, heure_debut });
+  return response.data;
+};
+
 // 📌 Supprimer une réservation
 export const supprimerReservation = async (id) => {
   try {
