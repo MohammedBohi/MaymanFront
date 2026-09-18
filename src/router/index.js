@@ -35,9 +35,10 @@ const routes = [
   { path: "/formulaire-reservation", name: "FormulaireReservation", component: FormulaireReservation, meta: { requiresAuth: true } },
   { path: "/confirmation", name: "ConfirmationReservation", component: ConfirmationReservation, meta: { requiresAuth: true } },
   { path: "/success", name: "SuccessPage", component: SuccessPage, meta: { requiresAuth: true } },
-  // Pas de meta.role ici : le garde ci-dessous redirigerait un Admin vers /admin,
-  // alors que la page doit rester accessible à tout compte connecté.
-  { path: "/mes-reservations", name: "MesReservations", component: MesReservations, meta: { requiresAuth: true } },
+  // role: "Client" volontaire — un Admin est redirigé vers /admin par le garde
+  // ci-dessous. Son espace client n'aurait aucun sens : les réservations qu'il saisit
+  // par téléphone portent sa propre adresse email sans lui appartenir.
+  { path: "/mes-reservations", name: "MesReservations", component: MesReservations, meta: { requiresAuth: true, role: "Client" } },
 
   // 🔐 ADMIN
   { path: "/admin", name: "AdminDashboard", component: AdminDashboard, meta: { requiresAuth: true, role: "Admin" } },
