@@ -1,10 +1,13 @@
 import api from './api';
-import AuthService from './AuthService';
+// AuthService n'expose que des exports nommés : un import par défaut vaudrait
+// undefined, et AuthService.getRole() lèverait un TypeError. Le bug est resté
+// invisible tant que ces deux fonctions n'étaient appelées nulle part.
+import { getRole } from './AuthService';
 
 // 📌 Créer une réservation (Client ou Admin)
 export const creerReservation = async (reservationData) => {
   try {
-    const role = AuthService.getRole();
+    const role = getRole();
 
     const endpoint =
       role === 'Admin'
@@ -51,7 +54,7 @@ export const modifierReservation = async (id, { jour, heure_debut }) => {
 // 📌 Supprimer une réservation
 export const supprimerReservation = async (id) => {
   try {
-    const role = AuthService.getRole();
+    const role = getRole();
 
     const endpoint =
       role === 'Admin'
